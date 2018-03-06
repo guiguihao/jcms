@@ -1,7 +1,7 @@
 <template>
 	<div class="header">
 		<div class="user-info" style="border-radius: 0;float: left;padding-right: 0px;padding-left: 40px;">
-				<img class="el-dropdown-link" src="../../../static/img/logo2_03.png" style="width: 128px;height: 18px; text-align: left;padding-left: 0px;">
+				<img class="el-dropdown-link" src="../../../../static/img/logo2_03.png" style="width: 128px;height: 18px; text-align: left;padding-left: 0px;">
 				</div>
 
 		<div class="logo" style=" width: 60%;text-align: left;">
@@ -13,7 +13,7 @@
 		<div class="user-info">
 			<el-dropdown trigger="click" @command="handleCommand">
 				<span class="el-dropdown-link" style="font-size: 18px;">
-                    <img class="user-logo" src="../../../static/img/img.jpg">
+                    <img class="user-logo" src="../../../../static/img/img.jpg">
                     {{name}}   <span style="color: darkgrey;	">{{role_name}}</span>
                 </span>
               	
