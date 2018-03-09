@@ -11,20 +11,20 @@ def max_length(length):
     return validate
 
 @connection.register
-class User(Document):
-   __collection__ = 'user'
-   __database__ = 'user'
+class APP_admin(Document):
+   __collection__ = 'app'
+   __database__ = 'app'
    structure = {
         'name': unicode,
         'password':unicode,
         'phone':unicode,
         'email': unicode,
-        'vip': unicode,
+        'vip'  :unicode,
         'qq':unicode,    
         'wachat':unicode,
         'nickname':unicode,
-        'address':unicode,
         'appkey':unicode,
+        'appsecret':unicode,
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 
         'reserved_3':unicode,    #预留字段1 
@@ -39,7 +39,6 @@ class User(Document):
         'qq': max_length(120),
         'wachat': max_length(120),
         'nickname': max_length(120),
-        'address': max_length(120),
         'reserved_1': max_length(120),
         'reserved_2': max_length(120),
         'reserved_3': max_length(120),

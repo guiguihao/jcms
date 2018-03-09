@@ -17,15 +17,14 @@ def randomString(n):
 
 def ruleToken(token):
         tokenParams = token.split('&&')
-        app = connection.App.find_one({"appkey":tokenParams[0]})
-        #print app.appkey
-        if not app:
+        user = connection.APP_admin.find_one({"appkey":tokenParams[0]})
+        if not user:
             return param.APP_TOKEN_ERROR
     	timeStamp = time.time()
         tktime = float(tokenParams[1])
         tkmd5 = tokenParams[2]
-        if timeStamp-tktime <= 900 and timeStamp-tktime >= -900:
-        	if tkmd5 == md5(app.appsecret+'&&'+tokenParams[1]):
+        if timeStamp-tktime <= 90000 and timeStamp-tktime >= -90000:
+        	if tkmd5 == md5(user.appsecret+'&&'+tokenParams[1]):
         		return param.SUCCEED
         	else:
                   return param.APP_TOKEN_RULE_ERROR

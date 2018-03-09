@@ -40,7 +40,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/guijiang/Desktop/yunapp/venv"
+VIRTUAL_ENV="/Users/moodi/Desktop/myprojce/jcms/cms_api/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

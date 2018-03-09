@@ -11,6 +11,9 @@
           <el-form-item label="网站名称" style="width: 280px">
             <el-input v-model="form.name"></el-input>
           </el-form-item>
+          <el-form-item label="域名" style="width: 280px">
+            <el-input v-model="form.name"></el-input>
+          </el-form-item>
           <el-form-item label="网站状态" style="width: 280px">
            <el-radio-group v-model="radio3">
                 <el-radio-button label="开启"></el-radio-button>
