@@ -60,45 +60,37 @@
 			requestData() {
 				let self = this;
 				if(process.env.NODE_ENV === 'development') { //TEST
-					self.url = '/api/sys/login';
+					self.url = '/api/admin/login';
 				} else {
-					self.url = '/sys/login';
+					self.url = '/admin/login';
 				}
 				//myTest();
 				var params = {
-					loginName: self.ruleForm.username,
-					loginPwd: hex_md5(self.ruleForm.password)
-
+					name: self.ruleForm.username,
+					password: hex_md5(self.ruleForm.password),
+                    token:'1111'
 				}
-				self.loadingFlag = true;
-				localStorage.setItem('token1', "xxdssdxcsdsdsdsxxxsdxxsdsewwe");
-				self.$router.push('/home');
-// 				self.$axios.post(self.url, params).then((res) => {
-// 					self.loadingFlag = false;
-// 					if(res && res.data && res.data.code && res.data.code == 1) {
-// //						self.tableData = res.data.data.data;
-// //						self.totalCount = res.data.data.count;
-// 						self.$message('登录成功');
+				self.$axios.post(self.url, params).then((res) => {
+					self.loadingFlag = false;
+					if(res && res.data && res.data.code && res.data.code == 1) {
+//						self.tableData = res.data.data.data;
+//						self.totalCount = res.data.data.count;
+						self.$message('登录成功');
 						
-// 						localStorage.setItem('token', "xxdssdxcsdsdsdsxxxsdxxsdsewwe");
-// 						self.$router.push('/home');
+						localStorage.setItem('token', "xxdssdxcsdsdsdsxxxsdxxsdsewwe");
+						self.$router.push('/home');
 						
-// 						//alert(JSON.stringify(res.data.data.loginName));
-// 						localStorage.setItem('loginName', res.data.data.loginName);
-// 						localStorage.setItem('name', res.data.data.name);
-// 						localStorage.setItem('roleType', res.data.data.roleType);
-						
-// 					} else {
-// 						self.$message('服务器发生异常：' + res.data.msg);
-// 					}
-// 				}).catch(function(error) {
-// 					self.$message('请求异常');
-// 					//comJs.handleCommonRequestCallback('rer');
+					} else {
+						self.$message('服务器发生异常：' + res.data.msg);
+					}
+				}).catch(function(error) {
+					self.$message('请求异常');
+					//comJs.handleCommonRequestCallback('rer');
 					
-// 					self.loadingFlag = false;
-// 					console.log('----error--' + JSON.stringify(error));
+					self.loadingFlag = false;
+					console.log('----error--' + JSON.stringify(error));
 				
-// 				});
+				});
 			}
 		},//生命周期, 1.创建
 		created() {

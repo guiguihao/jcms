@@ -19,7 +19,7 @@ module.exports = {
     errorOverlay: true,
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
-
+    
     
     /**
      * Source Maps
@@ -34,6 +34,23 @@ module.exports = {
     cacheBusting: true,
 
     cssSourceMap: true
+
+    proxyTable: {
+            '/api':{
+//              target:'http://jsonplaceholder.typicode.com',
+//                target: 'http://192.168.2.56:9000',
+//               target: 'http://test.crodigy-user.com:9000',
+                target: 'http://localhost:5000',
+                changeOrigin:true,
+                pathRewrite:{
+                    '/api':''
+                }
+            },
+            '/ms':{
+                target: 'https://www.easy-mock.com/mock/592501a391470c0ac1fab128',
+                changeOrigin: true
+            }
+        },
   },
 
   build: {
@@ -64,6 +81,15 @@ module.exports = {
     // View the bundle analyzer report after build finishes:
     // `npm run build --report`
     // Set to `true` or `false` to always turn it on or off
-    bundleAnalyzerReport: process.env.npm_config_report
+    bundleAnalyzerReport: process.env.npm_config_report,
+    proxyTable: {
+            '/api':{
+                target: 'http://test.crodigy-user.com:9000',
+                changeOrigin:true,
+                pathRewrite:{
+                    '/api':''
+                }
+            }
+        },
   }
 }
