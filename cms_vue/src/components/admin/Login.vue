@@ -28,7 +28,7 @@
 			return {
 				ruleForm: {
 					username: 'admin',
-					password: '12345678'
+					password: 'admin888'
 				},
 				rules: {
 					username: [{
@@ -65,28 +65,29 @@
 					self.url = '/admin/login';
 				}
 				//myTest();
+				let myToken = self.$token.getToken();
 				var params = {
 					name: self.ruleForm.username,
 					password: hex_md5(self.ruleForm.password),
-                    token:'1111'
+                    token:myToken
 				}
+				// console.log(self.$token.getToken());
 				self.$axios.post(self.url, params).then((res) => {
 					self.loadingFlag = false;
 					if(res && res.data && res.data.code && res.data.code == 1) {
 //						self.tableData = res.data.data.data;
 //						self.totalCount = res.data.data.count;
+					   // console.log(JSON.stringify(res.data));
+
 						self.$message('登录成功');
-						
-						localStorage.setItem('token', "xxdssdxcsdsdsdsxxxsdxxsdsewwe");
+						localStorage.setItem('userData',JSON.stringify(res.data.data));
 						self.$router.push('/home');
-						
 					} else {
-						self.$message('服务器发生异常：' + res.data.msg);
+						self.$message(res.data.msg);
 					}
 				}).catch(function(error) {
 					self.$message('请求异常');
 					//comJs.handleCommonRequestCallback('rer');
-					
 					self.loadingFlag = false;
 					console.log('----error--' + JSON.stringify(error));
 				

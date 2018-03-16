@@ -2,19 +2,13 @@
 	<div class="sidebar">
 		<el-menu :default-active="onRoutes" class="el-menu-vertical-demo" theme="dark" unique-opened router>
 			<template v-for="item in items">
-				<template v-if="item.subs"><!-- 包含子节点的情形 -->
+				<template v-if="item.subs" ><!-- 包含子节点的情形 -->
 					<el-submenu :index="item.index">  
 						<!--v-if="item.role"-->
 						<template slot="title"><i :class="item.icon"></i>{{ item.title }}</template>
 						<el-menu-item v-for="(subItem,i) in item.subs" :key="i" :index="subItem.index">{{ subItem.title }}
 						</el-menu-item>
 					</el-submenu>
-				</template>
-				<template v-else><!-- 不包含子节点的情形 -->
-					<el-menu-item :index="item.index">
-						 <!--v-if="item.role"-->
-						<i :class="item.icon"></i>{{ item.title }}
-					</el-menu-item>
 				</template>
 			</template>
 		</el-menu>
@@ -31,12 +25,12 @@
 						icon: 'el-icon-menu',
 						index: '1',
 						title: '文章模块',
-						// role:'AD,HM,HQ',//权限信息
+						permission:0,//1 显示 0不显示
 						subs: [{
-							index: 'ArticleList',
+							index: '/Article/ArticleList',
 							title: '文章列表',
 						},{
-							index: 'ArticleType',
+							index: '/Article/ArticleType',
 							title: '类别管理',
 						},]
 					},
@@ -44,7 +38,7 @@
 						icon: 'el-icon-menu',
 						index: '2',
 						title: '产品模块',
-						// role:'AD,HM,HQ',//权限信息
+						permission:0,//权限信息
 						subs: [{
 							index: 'ProductList',
 							title: '产品列表',
@@ -72,7 +66,7 @@
 						icon: 'el-icon-menu',
 						index: '3',
 						title: '用户模块',
-						// role:'AD,HM,HQ',//权限信息
+						permission:0,//1 显示 0不显示
 						subs: [{
 							index: 'UserList',
 							title: '用户列表',
@@ -85,7 +79,7 @@
 						icon: 'el-icon-menu',
 						index: '4',
 						title: '系统设置',
-						// role:'AD,HM,HQ',//权限信息
+						permission:0,//1 显示 0不显示
 						subs: [{
 							index: 'SiteInfo',
 							title: '网站信息管理',
@@ -175,6 +169,7 @@
 		},
 		computed: {
 			onRoutes() {
+				console.log(this.$route.path.replace('/', ''));
 				return this.$route.path.replace('/', '');
 			},
 			// roleType(){

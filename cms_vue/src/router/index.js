@@ -46,20 +46,20 @@ const router = new Router({
                     path: '/',
                        component: resolve => require(['../components/admin/ArticleList.vue'], resolve),
                 },{
-                    path: '/ArticleList',
+                    path: '/Article/ArticleList',
                     meta: {
                          title: '文章列表'
                     },
                        component: resolve => require(['../components/admin/ArticleList.vue'], resolve),
                 },{
-                    path: '/ArticleEdit',
+                    path: '/Article/ArticleEdit',
                     name:'ArticleEdit',
                     meta: {
                          title: '编辑文章'
                     },
                        component: resolve => require(['../components/admin/ArticleEdit.vue'], resolve),
                 },{
-                    path: '/ArticleType',
+                    path: '/Article/ArticleType',
                     name:'ArticleType',
                     meta: {
                          title: '类别管理'

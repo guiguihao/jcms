@@ -41,6 +41,99 @@ def app_register():
                 user.nickname = data['nickname']
             if key == 'info':
                 user.info = data['info']
+            if key == 'permission':
+                user.permission = data['permission']
+            if key == 'token':
+                token = data['token']
+                tokenParams = token.split('&&')
+                tokenMd5 = tokenParams[1]
+                timestamp = tokenParams[0]
+            if key == 'reserved_1':
+                user.reserved_1 = data['reserved_1']
+            if key == 'reserved_2':
+                user.reserved_1 = data['reserved_2']
+            if key == 'reserved_3':
+                user.reserved_1 = data['reserved_3']
+            if key == 'reserved_4':
+                user.reserved_1 = data['reserved_4']
+
+        mymd5 = tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY)
+        if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
+            return MyException(param.APP_TOKEN_ERROR).toJson()
+
+        if (user.name or user.phone or user.email) and user.password:
+            try:
+                try:
+                    fnuser = connection.APP_admin.find_one({'name':user.name,'del':0})
+                    if fnuser: 
+                        if fnuser.name: return MyException(param.USER_NAME_FAILURE).toJson()
+                    
+                    feuser = connection.APP_admin.find_one({'email':user.email,'del':0})
+                    if feuser: 
+                        if feuser.email: return MyException(param.USER_EMAIL_FAILURE).toJson()
+
+                    fpuser = connection.APP_admin.find_one({'phone':user.phone,'del':0})
+                    #print fpuser
+                    if fpuser:
+                        if fpuser.phone: return MyException(param.USER_PHONE_FAILURE).toJson()
+                except Exception, e:
+                    pass
+                user.password = unicode(tool.md5(user.password))
+                # user.appkey = user['_id']
+                user.appsecret = unicode(tool.randomString(16),'utf-8')
+                user.permission = (1,1,1,1,1,1,1,1)
+                user.save()
+                connection.APP_admin.find_and_modify(user,{'$set':{"appkey":str(user['_id'])}})
+                userVip = connection.UserVip.find({'appkey':user.appkey,'del':0}).sort('level',1)
+                if userVip.count()>0:
+                    for vip in userVip:
+                        if(userVip): connection.APP_admin.find_and_modify({'_id':user['_id'],'del':0},{'$set':{"vip":str(userVip['_id'])}})
+                return  MySucceedResult().toJson()
+            except Exception as e:
+                print e
+                return MyException(param.CHECK_FAILURE).toJson()
+        else:
+           return MyException(param.REGISTER_FAILURE).toJson()
+  
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
+
+
+'''
+添加管理员
+{
+    'name':'xiaosan', #或phone email
+    'password':'11122',
+    'permission':[]
+    'token':'timestamp&&md5(timestamp && config.DEVELOPER_APPKEY)'
+}
+'''
+@app.route('/app/admin/add',methods=['GET', 'POST'])
+def add_admin():
+    if request.method == 'POST':
+        data = request.get_json()
+        user = connection.APP_admin()
+        tokenMd5 = ''
+        timestamp = ''
+        for key in data:
+            if key == 'name':
+                user.name = data['name']
+            if key == 'password':
+                user.password = data['password']
+            if key == 'phone':
+                user.phone = data['phone']
+            if key == 'email':
+                user.email = data['email']
+            if key == 'qq':
+                user.qq = data['qq']
+            if key == 'wachat':
+                user.wachat = data['wachat']
+            if key == 'nickname':
+                user.nickname = data['nickname']
+            if key == 'info':
+                user.info = data['info']
+            if key == 'permission':
+                user.permission = data['permission']
             if key == 'token':
                 token = data['token']
                 tokenParams = token.split('&&')
@@ -138,7 +231,7 @@ def admin_login():
                 return MyException(resultTooken).toJson()
             else:
                 appkey = token.split('&&')[0]
-        print user
+        # print user
         if (user.name or user.phone or user.email or user.qq or user.wachat) and user.password:
             myuser = connection.APP_admin.find_one({'appkey':appkey,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
             if myuser and myuser['password'] == user['password']:

@@ -20,6 +20,7 @@ class APP_admin(Document):
         'phone':unicode,
         'email': unicode,
         'vip'  :unicode,
+        'permission':(int,int,int,int,int,int,int,int), #[0]系统设置 #[1]文章模块 #[2]产品模块 #[3]用户模块 #[4]备用 #[5]备用 
         'qq':unicode,    
         'wachat':unicode,
         'nickname':unicode,

@@ -14,7 +14,7 @@
 			<el-dropdown trigger="click" @command="handleCommand">
 				<span class="el-dropdown-link" style="font-size: 18px;">
                     <img class="user-logo" src="../../../../static/img/img.jpg">
-                    {{name}}   <span style="color: darkgrey;	">{{role_name}}</span>
+                    {{name}}
                 </span>
               	
 				<el-dropdown-menu slot="dropdown">
@@ -32,33 +32,18 @@
 			}
 		},
 		computed: {
-			username() {
-				let username = localStorage.getItem('ms_username');
-				return username ? username : this.name;
-			},
+			// username() {
+			// 	let username = localStorage.getItem('ms_username');
+			// 	return username ? username : this.name;
+			// },
 			name(){
 //						localStorage.setItem('loginName', res.data.data.loginName);
 //						localStorage.setItem('name', res.data.data.name);
 //						localStorage.setItem('type', res.data.data.type);
-				let name = localStorage.getItem('name');
+				let userData = localStorage.getItem('userData');
+				let user = JSON.parse(userData);
+				let name = user.name;
 				return name;
-			}
-			,role_name(){
-//						localStorage.setItem('loginName', res.data.data.loginName);
-//						localStorage.setItem('name', res.data.data.name);
-//						localStorage.setItem('type', res.data.data.type);
-				let roleType = localStorage.getItem('roleType');
-				let roleName ='';
-				if(roleType==='AD'){
-					roleName='超级管理员';
-				}else if(roleType==='HM'){
-					roleName='酒店经理';
-				}else if(roleType==='HQ'){
-					roleName='酒店前台';
-				}else{
-					roleName='角色异常';
-				}
-				return roleName;
 			}
 			
 		},

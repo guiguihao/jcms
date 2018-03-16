@@ -14,10 +14,12 @@ axios.defaults.timeout = 5000;
 // http request 拦截器
 axios.interceptors.request.use(
     config => {
-        if (store.state.token) {
-            config.headers.Authorization = `token ${store.state.token}`;
-        }
-        return config;
+        let token = localStorage.getItem('token');
+           if(token){
+            //alert(localStorage.getItem('token'));
+              config.headers.Authorization = token;
+           }
+           return config;
     },
     err => {
         return Promise.reject(err);
@@ -40,7 +42,7 @@ axios.interceptors.response.use(
 //                      query: {redirect: router.currentRoute.fullPath}
 //                  })
             }
-            alert('error');
+            // alert('error');
         }
         // console.log(JSON.stringify(error));//console : Error: Request failed with status code 402
         return Promise.reject(error.response.data)
