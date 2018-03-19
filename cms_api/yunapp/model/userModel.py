@@ -26,6 +26,7 @@ class APP_admin(Document):
         'nickname':unicode,
         'appkey':unicode,
         'appsecret':unicode,
+        'active':int,            #0未激活 1激活
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 
         'reserved_3':unicode,    #预留字段1 
@@ -47,6 +48,7 @@ class APP_admin(Document):
     }
    default_values = {
         'del': 0,
+        'active':0,
     }
    use_dot_notation = True
 

@@ -12,7 +12,10 @@
 					<el-input type="password" placeholder="密码" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')"></el-input>
 				</el-form-item>
 				<div class="login-btn">
-					<el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+					<el-button type="primary"  @click="submitForm('ruleForm')">登录</el-button>
+				</div>
+				<div class="login-btn">
+					<el-button type="text" style="width: 80px" @click="register()">注册</el-button>
 				</div>
 				<!--  <p style="font-size:12px;line-height:30px;color:#999;">Tips : 用户名和密码随便填。</p>-->
 			</el-form>
@@ -92,6 +95,11 @@
 					console.log('----error--' + JSON.stringify(error));
 				
 				});
+			},
+
+			register(){
+
+				this.$router.push('/admin/register');
 			}
 		},//生命周期, 1.创建
 		created() {

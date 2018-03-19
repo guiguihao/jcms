@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
-from yunapp import app,result,connection,request,tool,config
+from yunapp import app,result,connection,request,tool,config,sms
 from yunapp.model.shopModel import *
 from yunapp.model.userModel import *
 from yunapp.result import *
@@ -99,6 +99,22 @@ def app_register():
         return param.PLEASE_USE_POST
 
 
+@app.route('/app/activate/<userid>',methods=['GET'])
+def app_active(userid):
+    if request.method == 'GET':
+        fnuser = connection.APP_admin.find_one({'_id':ObjectId(userid),'del':0})
+        if fnuser:
+            if fnuser.active == 1:
+                return  MyException(param.APP_ACTIVE_ED_FAILURE).toJson()
+            else:
+                fnuser.active =1
+                fnuser.save()
+                return  MySucceedResult().toJson()
+        else:
+            return  MyException(param.APP_USER_NULL).toJson()
+        
+
+
 '''
 添加管理员
 {
@@ -194,7 +210,6 @@ def add_admin():
     'name':'xxx',
     'password':'xxxxx',  #md5(密码)
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-
     { "_id" : ObjectId("5aa0e1ba4683e6051152f780"), "name" : "admin", "password" : "7fef6171469e80d32c0559f88b377245", "appkey" : "5aa0e1ba4683e6051152f780", "appsecret" : "jjjjddjjdjd", "del" : 0 }
 }
 '''
@@ -233,7 +248,13 @@ def admin_login():
                 appkey = token.split('&&')[0]
         # print user
         if (user.name or user.phone or user.email or user.qq or user.wachat) and user.password:
-            myuser = connection.APP_admin.find_one({'appkey':appkey,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+            myuser = ''
+            if user.name:
+                 myuser = connection.APP_admin.find_one({'appkey':appkey,'name':user.name,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+            if user.phone:
+                 myuser = connection.APP_admin.find_one({'appkey':appkey,'name':user.phone,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+            if user.email:
+                 myuser = connection.APP_admin.find_one({'appkey':appkey,'name':user.email,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
             if myuser and myuser['password'] == user['password']:
                 # user['_id'] = str(user['_id'])
                 # userVip = connection.UserVip.find_one({'appkey':appkey,'del':0},({'del':-1})
@@ -478,4 +499,101 @@ def user_vip_set():
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 
+'''
+发送邮件api
+{
+    emial:''
+    emialPassword:''
+    title:''
+    content:''
+    toemail:''
+    'token':'md5(timestamp&&appsecret)'
+}
+'''
+@app.route('/app/sendmial',methods=['GET', 'POST'])
+def sendmial():
+    if request.method == 'POST':
+        data = request.get_json()
+        token = ''
+        appkey = ''
+        timestamp =''
+        tokenMd5 = ''
+        emial=''
+        emialPassword=''
+        content = ''
+        toemail =''
+        title=''
+        try:
+            for key in data:
+                if key == 'token':
+                    token = data['token']
+                    tokenParams = token.split('&&')
+                    tokenMd5 = tokenParams[1]
+                    timestamp = tokenParams[0]
+                if key == 'emial':
+                	emial = data['emial']
+                if key == 'emialPassword':
+                	emialPassword = data['emialPassword']
+                if key == 'content':
+                	content = data['content']
+                if key == 'toemail':
+                	toemail = data['toemail']
+                if key == 'title':
+                	title = data['title']
+        except Exception as e:
+            pass
+    if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
+            return MyException(param.APP_TOKEN_ERROR).toJson()
+    else:
+       result = sms.sendfuc(title,content,emial,emialPassword,toemail)
+       if result == 1:
+       	  return MySucceedResult().toJson()
+       else:
+          return MyException(param.APP_send_email_FAILURE).toJson()
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
 
+
+'''
+发送激活邮件
+{
+    toemail:''
+    'token':'md5(timestamp&&appsecret)'
+}
+'''
+@app.route('/app/sendmial/activate',methods=['GET', 'POST'])
+def sendmial_activate():
+    if request.method == 'POST':
+        data = request.get_json()
+        token = ''
+        appkey = ''
+        timestamp =''
+        tokenMd5 = ''
+        toemail=''
+        content =  '来自云api的激活邮件,点击下方链接激活'
+        try:
+            for key in data:
+                if key == 'token':
+                    token = data['token']
+                    tokenParams = token.split('&&')
+                    tokenMd5 = tokenParams[1]
+                    timestamp = tokenParams[0]
+                if key == 'toemail':
+                	toemail = data['toemail']
+        except Exception as e:
+            pass
+    if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
+            return MyException(param.APP_TOKEN_ERROR).toJson()
+    else:
+       fnuser = connection.APP_admin.find_one({'email':toemail,'del':0})
+       activeUrl = "%s/app/activate/%s" % (config.DOMAIN,str(fnuser['_id'])) 
+       content += "<p><a href='%s'>点击激活</a></p>" % (activeUrl) 
+       content += "<p></p><p>%s</p>" % (activeUrl) 
+       result = sms.sendfuc('来自云api的激活邮件',content,'obghpj@163.com','jlmv38599',toemail)
+       result = 1
+       if result == 1:
+       	  return MySucceedResult().toJson()
+       else:
+          return MyException(param.APP_send_email_FAILURE).toJson()
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST

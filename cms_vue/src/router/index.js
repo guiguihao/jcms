@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import login from '@/components/admin/login'
+import register from '@/components/admin/register'
 import applogin from '@/components/app/login'
 import home from '@/components/admin/component/home.vue'
 import apphome from '@/components/app/component/home.vue'
@@ -10,17 +11,8 @@ Vue.use(Router)
 const router = new Router({
   routes: [
     {
-      path: '/',
+      path: '/admin/login',
       name: 'login',
-      component: login,
-      meta: {
-            title: '登陆页面'
-        }
-      
-    },
-    {
-      path: '/login',
-      name: 'login1',
       meta: { ignore: true },
       component: login,
       meta: {
@@ -28,17 +20,26 @@ const router = new Router({
         }
     },
     {
-      path: '/applogin',
-      name: 'applogin',
+      path: '/admin/',
+      name: 'login',
       meta: { ignore: true },
-      component: applogin,
+      component: login,
       meta: {
-            title: 'APP管理登陆页面'
+            title: '登陆页面'
         }
     },
+     {
+      path: '/admin/register',
+      name: 'register',
+      component: register,
+      meta: {
+            title: '应用注册'
+        }
+    },
+   
     {
-      path: '/home',
-      name: 'home',
+      path: '/admin/home',
+      name: 'admin',
       component: home,
       meta: { admin: true },
       children:[
@@ -46,34 +47,35 @@ const router = new Router({
                     path: '/',
                        component: resolve => require(['../components/admin/ArticleList.vue'], resolve),
                 },{
-                    path: '/Article/ArticleList',
+                    path: '/admin/Article/ArticleList',
+                    name:'ArticleList',
                     meta: {
                          title: '文章列表'
                     },
                        component: resolve => require(['../components/admin/ArticleList.vue'], resolve),
                 },{
-                    path: '/Article/ArticleEdit',
+                    path: '/admin/Article/ArticleEdit',
                     name:'ArticleEdit',
                     meta: {
                          title: '编辑文章'
                     },
                        component: resolve => require(['../components/admin/ArticleEdit.vue'], resolve),
                 },{
-                    path: '/Article/ArticleType',
+                    path: '/admin/Article/ArticleType',
                     name:'ArticleType',
                     meta: {
                          title: '类别管理'
                     },
                        component: resolve => require(['../components/admin/ArticleType.vue'], resolve),
                 },{
-                    path: '/ProductList',
+                    path: '/admin/Product/ProductList',
                     name:'ProductList',
                     meta: {
                          title: '产品列表'
                     },
                        component: resolve => require(['../components/admin/ProductList.vue'], resolve),
                 },{
-                    path: '/ProductEdit',
+                    path: '/admin/Product/ProductEdit',
                     name:'ProductEdit',
                     meta: {
                          title: '编辑产品'
@@ -81,7 +83,7 @@ const router = new Router({
                        component: resolve => require(['../components/admin/ProductEdit.vue'], resolve),
                 },
                 {
-                    path: '/ProductSales',
+                    path: '/admin/Product/ProductSales',
                     name:'ProductSales',
                     meta: {
                          title: '促销活动管理'
@@ -89,7 +91,7 @@ const router = new Router({
                        component: resolve => require(['../components/admin/ProductSales.vue'], resolve),
                 },
                 {
-                    path: '/ProductSaleEdit',
+                    path: '/admin/Product/ProductSaleEdit',
                     name:'ProductSaleEdit',
                     meta: {
                          title: '促销活动管理编辑'
@@ -97,7 +99,7 @@ const router = new Router({
                        component: resolve => require(['../components/admin/ProductSaleEdit.vue'], resolve),
                 },
                 {
-                    path: '/ProductOrderList',
+                    path: '/admin/Product/ProductOrderList',
                     name:'ProductOrderList',
                     meta: {
                          title: '订单管理'
@@ -111,42 +113,42 @@ const router = new Router({
                     },
                        component: resolve => require(['../components/admin/ProductType.vue'], resolve),
                 },{
-                    path: '/ProductSaleCode',
+                    path: '/admin/Product/ProductSaleCode',
                     name:'ProductSaleCode',
                     meta: {
                          title: '产品促销码'
                     },
                        component: resolve => require(['../components/admin/ProductSaleCode.vue'], resolve),
                 },{
-                    path: '/ProductReturnGoods',
+                    path: '/admin/Product/ProductReturnGoods',
                     name:'ProductReturnGoods',
                     meta: {
                          title: '退货信息'
                     },
                        component: resolve => require(['../components/admin/ProductReturnGoods.vue'], resolve),
                 },{
-                    path: '/UserList',
+                    path: '/admin/user/UserList',
                     name:'UserList',
                     meta: {
                          title: '用户列表'
                     },
                        component: resolve => require(['../components/admin/UserList.vue'], resolve),
                 },{
-                    path: '/UserType',
+                    path: '/admin/user/UserType',
                     name:'UserType',
                     meta: {
                          title: '用户类型管理'
                     },
                        component: resolve => require(['../components/admin/UserType.vue'], resolve),
                 },{
-                    path: '/SiteInfo',
+                    path: '/admin/SiteInfo',
                     name:'SiteInfo',
                     meta: {
                          title: '网站信息管理'
                     },
                        component: resolve => require(['../components/admin/SiteInfo.vue'], resolve),
                 },{
-                    path: '/AdminList',
+                    path: '/admin/AdminList',
                     name:'AdminList',
                     meta: {
                          title: '管理员列表'
