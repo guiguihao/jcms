@@ -14,17 +14,30 @@
 	         <el-table
 	           :data="tableData2"
 	           style="width: 100%"
-	           :row-class-name="tableRowClassName">
+	           >
 	           <el-table-column
-	             prop="title"
+	             prop="name"
 	             label="管理员"
 	             width="200">
 	           </el-table-column>
               <el-table-column
-               prop="status"
                width="160"
                label="权限">
+               <template slot-scope="scope">
+                   <span v-for="item in scope.row.permission">
+                      {{item}}
+                   </span>
+                </template>
              </el-table-column>
+             <el-table-column
+                   width="220"
+                   label="操作"
+                   >
+                   <template slot-scope="scope">
+                     <el-button type="primary" size="small" v-on:click="edit" >编辑</el-button>
+                     <el-button type="danger" size="small" v-if="scope.row.superadmin==0">删除</el-button>
+                   </template>
+              </el-table-column>
 	         </el-table>
 	       </template>
 	    </div>
@@ -35,9 +48,9 @@
             @current-change="handleCurrentChange"
             :current-page="currentPage"
             :page-sizes="[20, 40, 60, 100]"
-            :page-size="20"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="400">
+            :page-size='pagesize'
+            layout="total, sizes, prev, pager, next"
+            :total=total>
           </el-pagination>
         </div>
 
@@ -81,14 +94,55 @@
       },
        handleSizeChange(val) {
         console.log(`每页 ${val} 条`);
+        this.pagesize = val;
       },
       handleCurrentChange(val) {
         console.log(`当前页: ${val}`);
+        this.currentPage = val;
+        this.requestData();
       },
       handleCheckedCitiesChange(value) {
         let checkedCount = value.length;
         this.isIndeterminate = checkedCount > 0 && checkedCount < this.cities.length;
-      }
+      },
+      requestData() {
+        let self = this;
+        if(process.env.NODE_ENV === 'development') { //TEST
+          self.url = '/api/app/admin/list';
+        } else {
+          self.url = '/app/admin/list';
+        }
+        //myTest();
+        let myToken = self.$token.getToken();
+        var params = {
+          page: self.currentPage,
+          pageSize: self.pagesize,
+          token:myToken
+        }
+        console.log(params);
+        self.$axios.post(self.url, params).then((res) => {
+          console.log(JSON.stringify(res.data));
+          if(res && res.data && res.data.code && res.data.code == 1) {
+              self.tableData2 = res.data.data.data;
+              self.total = res.data.data.count;
+//            self.totalCount = res.data.data.count;
+             // console.log(JSON.stringify(res.data));
+
+          } else {
+            self.$message(res.data.msg);
+          }
+        }).catch(function(error) {
+          self.$message('请求异常');
+          //comJs.handleCommonRequestCallback('rer');
+          self.loadingFlag = false;
+          console.log('----error--' + JSON.stringify(error));
+        
+        });
+      },
+
+    },
+    created(){
+      this.requestData();
     },
     data() {
       return {
@@ -98,33 +152,10 @@
         formLabelWidth: '80px',
         dialogFormVisible: false,
         title:'111',
-        tableData2: [{
-          status:'文章,产品',
-          sort:'20%',
-          source:'转发',
-          date: '2016-05-02',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          status:'文章',
-          sort:1,
-          source:'转发',
-          date: '2016-05-04',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          status:'文章',
-          sort:1,
-          date: '2016-05-01',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          status:'产品',
-          sort:1,
-          date: '2016-05-03',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }],
+        pagesize:20,
+        currentPage:1,
+        total:0,
+        tableData2: [],
         form: {
           name: '222',
           region: '',

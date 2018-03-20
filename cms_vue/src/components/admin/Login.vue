@@ -84,7 +84,7 @@
 
 						self.$message('登录成功');
 						localStorage.setItem('userData',JSON.stringify(res.data.data));
-						self.$router.push('/home');
+						self.$router.push('/admin/home');
 					} else {
 						self.$message(res.data.msg);
 					}

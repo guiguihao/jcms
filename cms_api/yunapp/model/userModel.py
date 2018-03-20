@@ -20,12 +20,13 @@ class APP_admin(Document):
         'phone':unicode,
         'email': unicode,
         'vip'  :unicode,
-        'permission':(int,int,int,int,int,int,int,int), #[0]系统设置 #[1]文章模块 #[2]产品模块 #[3]用户模块 #[4]备用 #[5]备用 
+        'permission':[int,int,int,int,int,int,int,int], #[0]系统设置 #[1]文章模块 #[2]产品模块 #[3]用户模块 #[4]备用 #[5]备用 
         'qq':unicode,    
         'wachat':unicode,
         'nickname':unicode,
         'appkey':unicode,
         'appsecret':unicode,
+        'superadmin':int,        #0不是超级管理员 1超级管理员
         'active':int,            #0未激活 1激活
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 
@@ -49,6 +50,7 @@ class APP_admin(Document):
    default_values = {
         'del': 0,
         'active':0,
+        'superadmin':0,
     }
    use_dot_notation = True
 

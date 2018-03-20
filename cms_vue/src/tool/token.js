@@ -1,8 +1,8 @@
 import {hex_md5} from '../../static/js/common.js'
 
 var token = {
-    appkey:'5aae3e0b1fe6371e1ce9533b',
-    appsecret:'23e38ab5caedc3a1',
+    appkey:'5ab0aacad678fdd7f607d7c6',
+    appsecret:'667ab2786bfa763c',
     DEVELOPER_APPKEY:'A0Zr98jxccdvdvvfbfbbbfbfRsdT',
     getToken: function(){
        var timestamp = Date.parse(new Date())/1000;

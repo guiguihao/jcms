@@ -21,4 +21,5 @@ from yunapp import user
 from yunapp import appMange
 from yunapp import DeveloperUser
 from yunapp import order
+from yunapp import LoginAndRegister
 

@@ -8,236 +8,29 @@ from yunapp import param
 from bson.objectid import ObjectId
 
 
-
 '''
-注册用户,可以用户名,邮箱,手机号码注册, 密码必填选项
+获取管理员列表
 {
-    'name':'xiaosan', #或phone email
-    'password':'11122'
-    'token':'timestamp&&md5(timestamp && config.DEVELOPER_APPKEY)'
-}
-'''
-@app.route('/app/register',methods=['GET', 'POST'])
-def app_register():
-    if request.method == 'POST':
-        data = request.get_json()
-        user = connection.APP_admin()
-        tokenMd5 = ''
-        timestamp = ''
-        for key in data:
-            if key == 'name':
-                user.name = data['name']
-            if key == 'password':
-                user.password = data['password']
-            if key == 'phone':
-                user.phone = data['phone']
-            if key == 'email':
-                user.email = data['email']
-            if key == 'qq':
-                user.qq = data['qq']
-            if key == 'wachat':
-                user.wachat = data['wachat']
-            if key == 'nickname':
-                user.nickname = data['nickname']
-            if key == 'info':
-                user.info = data['info']
-            if key == 'permission':
-                user.permission = data['permission']
-            if key == 'token':
-                token = data['token']
-                tokenParams = token.split('&&')
-                tokenMd5 = tokenParams[1]
-                timestamp = tokenParams[0]
-            if key == 'reserved_1':
-                user.reserved_1 = data['reserved_1']
-            if key == 'reserved_2':
-                user.reserved_1 = data['reserved_2']
-            if key == 'reserved_3':
-                user.reserved_1 = data['reserved_3']
-            if key == 'reserved_4':
-                user.reserved_1 = data['reserved_4']
-
-        mymd5 = tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY)
-        if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
-            return MyException(param.APP_TOKEN_ERROR).toJson()
-
-        if (user.name or user.phone or user.email) and user.password:
-            try:
-                try:
-                    fnuser = connection.APP_admin.find_one({'name':user.name,'del':0})
-                    if fnuser: 
-                        if fnuser.name: return MyException(param.USER_NAME_FAILURE).toJson()
-                    
-                    feuser = connection.APP_admin.find_one({'email':user.email,'del':0})
-                    if feuser: 
-                        if feuser.email: return MyException(param.USER_EMAIL_FAILURE).toJson()
-
-                    fpuser = connection.APP_admin.find_one({'phone':user.phone,'del':0})
-                    #print fpuser
-                    if fpuser:
-                        if fpuser.phone: return MyException(param.USER_PHONE_FAILURE).toJson()
-                except Exception, e:
-                    pass
-                user.password = unicode(tool.md5(user.password))
-                # user.appkey = user['_id']
-                user.appsecret = unicode(tool.randomString(16),'utf-8')
-                user.permission = (1,1,1,1,1,1,1,1)
-                user.save()
-                connection.APP_admin.find_and_modify(user,{'$set':{"appkey":str(user['_id'])}})
-                userVip = connection.UserVip.find({'appkey':user.appkey,'del':0}).sort('level',1)
-                if userVip.count()>0:
-                    for vip in userVip:
-                        if(userVip): connection.APP_admin.find_and_modify({'_id':user['_id'],'del':0},{'$set':{"vip":str(userVip['_id'])}})
-                return  MySucceedResult().toJson()
-            except Exception as e:
-                print e
-                return MyException(param.CHECK_FAILURE).toJson()
-        else:
-           return MyException(param.REGISTER_FAILURE).toJson()
-  
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-
-
-@app.route('/app/activate/<userid>',methods=['GET'])
-def app_active(userid):
-    if request.method == 'GET':
-        fnuser = connection.APP_admin.find_one({'_id':ObjectId(userid),'del':0})
-        if fnuser:
-            if fnuser.active == 1:
-                return  MyException(param.APP_ACTIVE_ED_FAILURE).toJson()
-            else:
-                fnuser.active =1
-                fnuser.save()
-                return  MySucceedResult().toJson()
-        else:
-            return  MyException(param.APP_USER_NULL).toJson()
-        
-
-
-'''
-添加管理员
-{
-    'name':'xiaosan', #或phone email
-    'password':'11122',
-    'permission':[]
-    'token':'timestamp&&md5(timestamp && config.DEVELOPER_APPKEY)'
-}
-'''
-@app.route('/app/admin/add',methods=['GET', 'POST'])
-def add_admin():
-    if request.method == 'POST':
-        data = request.get_json()
-        user = connection.APP_admin()
-        tokenMd5 = ''
-        timestamp = ''
-        for key in data:
-            if key == 'name':
-                user.name = data['name']
-            if key == 'password':
-                user.password = data['password']
-            if key == 'phone':
-                user.phone = data['phone']
-            if key == 'email':
-                user.email = data['email']
-            if key == 'qq':
-                user.qq = data['qq']
-            if key == 'wachat':
-                user.wachat = data['wachat']
-            if key == 'nickname':
-                user.nickname = data['nickname']
-            if key == 'info':
-                user.info = data['info']
-            if key == 'permission':
-                user.permission = data['permission']
-            if key == 'token':
-                token = data['token']
-                tokenParams = token.split('&&')
-                tokenMd5 = tokenParams[1]
-                timestamp = tokenParams[0]
-            if key == 'reserved_1':
-                user.reserved_1 = data['reserved_1']
-            if key == 'reserved_2':
-                user.reserved_1 = data['reserved_2']
-            if key == 'reserved_3':
-                user.reserved_1 = data['reserved_3']
-            if key == 'reserved_4':
-                user.reserved_1 = data['reserved_4']
-
-        mymd5 = tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY)
-        if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
-            return MyException(param.APP_TOKEN_ERROR).toJson()
-
-        if (user.name or user.phone or user.email) and user.password:
-            try:
-                try:
-                    fnuser = connection.APP_admin.find_one({'name':user.name,'del':0})
-                    if fnuser: 
-                        if fnuser.name: return MyException(param.USER_NAME_FAILURE).toJson()
-                    
-                    feuser = connection.APP_admin.find_one({'email':user.email,'del':0})
-                    if feuser: 
-                        if feuser.email: return MyException(param.USER_EMAIL_FAILURE).toJson()
-
-                    fpuser = connection.APP_admin.find_one({'phone':user.phone,'del':0})
-                    #print fpuser
-                    if fpuser:
-                        if fpuser.phone: return MyException(param.USER_PHONE_FAILURE).toJson()
-                except Exception, e:
-                    pass
-                user.password = unicode(tool.md5(user.password))
-                # user.appkey = user['_id']
-                user.appsecret = unicode(tool.randomString(16),'utf-8')
-                user.save()
-                connection.APP_admin.find_and_modify(user,{'$set':{"appkey":str(user['_id'])}})
-                userVip = connection.UserVip.find({'appkey':user.appkey,'del':0}).sort('level',1)
-                if userVip.count()>0:
-                    for vip in userVip:
-                        if(userVip): connection.APP_admin.find_and_modify({'_id':user['_id'],'del':0},{'$set':{"vip":str(userVip['_id'])}})
-                return  MySucceedResult().toJson()
-            except Exception as e:
-                print e
-                return MyException(param.CHECK_FAILURE).toJson()
-        else:
-           return MyException(param.REGISTER_FAILURE).toJson()
-  
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-
-'''
-支持用户名 手机号码  邮箱登陆
-{
-    'name':'xxx',
-    'password':'xxxxx',  #md5(密码)
+    'pageSize': 10,
+    'page':1
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-    { "_id" : ObjectId("5aa0e1ba4683e6051152f780"), "name" : "admin", "password" : "7fef6171469e80d32c0559f88b377245", "appkey" : "5aa0e1ba4683e6051152f780", "appsecret" : "jjjjddjjdjd", "del" : 0 }
 }
 '''
-@app.route('/admin/login',methods=['GET', 'POST'])
-def admin_login():
+@app.route('/app/admin/list',methods=['GET', 'POST'])
+def get_admins():
     if request.method == 'POST':
         data = request.get_json()
         user = connection.APP_admin()
-        token = ''
         appkey = ''
-        try:
-            for key in data:
-                if key == 'name':
-                    user.name = data['name']
-                if key == 'password':
-                    user.password = data['password']
-                if key == 'phone':
-                    user.phone = data['phone']
-                if key == 'email':
-                    user.email = data['email']
-                if key == 'qq':
-                    user.qq = data['qq']
-                if key == 'wachat':
-                    user.wachat = data['wachat']
-                if key == 'token':
-                    token = data['token']
-        except Exception, e:
-            return MyException(param.PARAM_FAILURE).toJson() 
+        pageSize = 50
+        page = 1
+        for key in data:
+            if key == 'token':
+                token = data['token']
+            if key == 'pageSize':
+                pageSize = data['pageSize']
+            if key == 'page':
+                page = data['page']
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
         else:
@@ -246,32 +39,114 @@ def admin_login():
                 return MyException(resultTooken).toJson()
             else:
                 appkey = token.split('&&')[0]
-        # print user
-        if (user.name or user.phone or user.email or user.qq or user.wachat) and user.password:
-            myuser = ''
-            if user.name:
-                 myuser = connection.APP_admin.find_one({'appkey':appkey,'name':user.name,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
-            if user.phone:
-                 myuser = connection.APP_admin.find_one({'appkey':appkey,'name':user.phone,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
-            if user.email:
-                 myuser = connection.APP_admin.find_one({'appkey':appkey,'name':user.email,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
-            if myuser and myuser['password'] == user['password']:
-                # user['_id'] = str(user['_id'])
-                # userVip = connection.UserVip.find_one({'appkey':appkey,'del':0},({'del':-1})
-                # myuser.vip = userVip
-                myuser['_id'] = str(myuser['_id'])
-                myuser.pop('password')
-                return  MyResult(myuser).toJson()
-            else:
-                return  MyException(param.LONGIN_FAILURE).toJson()
+
+        if appkey:
+            try:
+                admins = {
+                   'count':0,
+                    'data':[],
+                }
+                fnuser = connection.APP_admin.find({'appkey':appkey,'del':0},{'active':0,'appsecret':0,'del':0}).limit(pageSize).skip((page-1)*pageSize)
+                for user in fnuser:
+                    user['_id'] = str(user['_id'])
+                    admins['data'].append(user)
+                admins['count']=fnuser.count()
+                return MyResult(admins).toJson()
+            except Exception as e:
+                return MyException(param.CHECK_FAILURE).toJson()
         else:
-            return      MyException(param.PARAM_FAILURE).toJson()
+           return MyException(param.REGISTER_FAILURE).toJson()
+  
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
+
+'''
+添加管理员
+{
+    'name':'xiaosan', #或phone email
+    'password':'11122',
+    'permission':()
+    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
+}
+'''
+@app.route('/app/admin/add',methods=['GET', 'POST'])
+def add_admin():
+    if request.method == 'POST':
+        data = request.get_json()
+        user = connection.APP_admin()
+        appkey = ''
+        for key in data:
+            if key == 'name':
+                user.name = data['name']
+            if key == 'password':
+                user.password = data['password']
+            if key == 'phone':
+                user.phone = data['phone']
+            if key == 'email':
+                user.email = data['email']
+            if key == 'qq':
+                user.qq = data['qq']
+            if key == 'wachat':
+                user.wachat = data['wachat']
+            if key == 'nickname':
+                user.nickname = data['nickname']
+            if key == 'info':
+                user.info = data['info']
+            if key == 'permission':
+                user.permission = data['permission']
+            if key == 'token':
+                token = data['token']
+            if key == 'reserved_1':
+                user.reserved_1 = data['reserved_1']
+            if key == 'reserved_2':
+                user.reserved_1 = data['reserved_2']
+            if key == 'reserved_3':
+                user.reserved_1 = data['reserved_3']
+            if key == 'reserved_4':
+                user.reserved_1 = data['reserved_4']
+
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson() 
+        else:
+            resultTooken = tool.ruleToken(token)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+
+        if (user.name or user.phone or user.email) and user.password:
+            try:
+                try:
+                    fnuser = connection.APP_admin.find_one({'name':user.name,'appkey':appkey,'del':0})
+                    if fnuser: 
+                        if fnuser.name: return MyException(param.USER_NAME_FAILURE).toJson()
+                    
+                    feuser = connection.APP_admin.find_one({'email':user.email,'del':0})
+                    if feuser: 
+                        if feuser.email: return MyException(param.USER_EMAIL_FAILURE).toJson()
+
+                    fpuser = connection.APP_admin.find_one({'phone':user.phone,'del':0})
+                    #print fpuser
+                    if fpuser:
+                        if fpuser.phone: return MyException(param.USER_PHONE_FAILURE).toJson()
+                except Exception, e:
+                    pass
+                user.password = unicode(tool.md5(user.password))
+                user.appkey = appkey
+                user.save()
+                return  MySucceedResult().toJson()
+            except Exception as e:
+                return MyException(param.CHECK_FAILURE).toJson()
+        else:
+           return MyException(param.REGISTER_FAILURE).toJson()
+  
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 
 '''
 post 
 {
+    '_id':'xxx'
     set:{
        设置需要更新的字段即可,如下,可多个字段,不能包含_id
        name : 'xx',
@@ -280,7 +155,7 @@ post
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
-@app.route('/app/update',methods=['GET', 'POST'])
+@app.route('/app/admin/update',methods=['GET', 'POST'])
 def app_update():
     if request.method == 'POST':
         data = request.get_json()
@@ -298,7 +173,7 @@ def app_update():
             else:
                 appkey = token.split('&&')[0]
         try:
-            user = connection.APP_admin.find_one({'appkey':appkey})
+            user = connection.APP_admin.find_one({'appkey':appkey,'_id':ObjectId(data['_id'])})
             user['del'] = int(user['del'])
             for key in data['set']:
                 if key == 'name':
@@ -324,7 +199,9 @@ def app_update():
                 if key == 'reserved_4':
                     user.reserved_4 = data['set']['reserved_4']
                 if key == 'del':
-                    user['del'] = data['set']['del']    
+                    user['del'] = data['set']['del']
+                if key == 'permission':
+                    user.permission = data['set']['permission']    
             user.save()
             # connection.APP_admin.find_and_modify({'appkey':appkey,'del':0},{'$set':data['set']})
             # user = connection.APP_admin.find_one({'appkey':appkey,'del':0},{'del':0,'appsecret':0})
@@ -496,104 +373,5 @@ def user_vip_set():
                 MyException(param.USER_VIP_FAILURE).toJson()
     except Exception as e:
           return MyException(param.PARAM_FAILURE).toJson()
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-
-'''
-发送邮件api
-{
-    emial:''
-    emialPassword:''
-    title:''
-    content:''
-    toemail:''
-    'token':'md5(timestamp&&appsecret)'
-}
-'''
-@app.route('/app/sendmial',methods=['GET', 'POST'])
-def sendmial():
-    if request.method == 'POST':
-        data = request.get_json()
-        token = ''
-        appkey = ''
-        timestamp =''
-        tokenMd5 = ''
-        emial=''
-        emialPassword=''
-        content = ''
-        toemail =''
-        title=''
-        try:
-            for key in data:
-                if key == 'token':
-                    token = data['token']
-                    tokenParams = token.split('&&')
-                    tokenMd5 = tokenParams[1]
-                    timestamp = tokenParams[0]
-                if key == 'emial':
-                	emial = data['emial']
-                if key == 'emialPassword':
-                	emialPassword = data['emialPassword']
-                if key == 'content':
-                	content = data['content']
-                if key == 'toemail':
-                	toemail = data['toemail']
-                if key == 'title':
-                	title = data['title']
-        except Exception as e:
-            pass
-    if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
-            return MyException(param.APP_TOKEN_ERROR).toJson()
-    else:
-       result = sms.sendfuc(title,content,emial,emialPassword,toemail)
-       if result == 1:
-       	  return MySucceedResult().toJson()
-       else:
-          return MyException(param.APP_send_email_FAILURE).toJson()
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-
-
-'''
-发送激活邮件
-{
-    toemail:''
-    'token':'md5(timestamp&&appsecret)'
-}
-'''
-@app.route('/app/sendmial/activate',methods=['GET', 'POST'])
-def sendmial_activate():
-    if request.method == 'POST':
-        data = request.get_json()
-        token = ''
-        appkey = ''
-        timestamp =''
-        tokenMd5 = ''
-        toemail=''
-        content =  '来自云api的激活邮件,点击下方链接激活'
-        try:
-            for key in data:
-                if key == 'token':
-                    token = data['token']
-                    tokenParams = token.split('&&')
-                    tokenMd5 = tokenParams[1]
-                    timestamp = tokenParams[0]
-                if key == 'toemail':
-                	toemail = data['toemail']
-        except Exception as e:
-            pass
-    if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
-            return MyException(param.APP_TOKEN_ERROR).toJson()
-    else:
-       fnuser = connection.APP_admin.find_one({'email':toemail,'del':0})
-       activeUrl = "%s/app/activate/%s" % (config.DOMAIN,str(fnuser['_id'])) 
-       content += "<p><a href='%s'>点击激活</a></p>" % (activeUrl) 
-       content += "<p></p><p>%s</p>" % (activeUrl) 
-       result = sms.sendfuc('来自云api的激活邮件',content,'obghpj@163.com','jlmv38599',toemail)
-       result = 1
-       if result == 1:
-       	  return MySucceedResult().toJson()
-       else:
-          return MyException(param.APP_send_email_FAILURE).toJson()
     if request.method == 'GET':
         return param.PLEASE_USE_POST

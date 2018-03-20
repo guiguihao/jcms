@@ -17,7 +17,7 @@ def randomString(n):
 
 def ruleToken(token):
         tokenParams = token.split('&&')
-        user = connection.APP_admin.find_one({"appkey":tokenParams[0]})
+        user = connection.APP_admin.find_one({"appkey":tokenParams[0],"superadmin":1})
         if not user:
             return param.APP_TOKEN_ERROR
     	timeStamp = time.time()
