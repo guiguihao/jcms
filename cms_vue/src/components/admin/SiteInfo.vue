@@ -8,23 +8,29 @@
 
 	    <div class ="mytable">
         <el-form ref="form" :model="form" label-width="120px">
-          <el-form-item label="网站名称" style="width: 280px">
+          <el-form-item label="应用名称" style="width: 280px">
             <el-input v-model="form.name"></el-input>
           </el-form-item>
-          <el-form-item label="域名" style="width: 280px">
-            <el-input v-model="form.name"></el-input>
+          <el-form-item label="网址" style="width: 280px">
+            <el-input v-model="form.domian"></el-input>
           </el-form-item>
-          <el-form-item label="网站状态" style="width: 280px">
+          <el-form-item label="网站状态" style="width: 280px" >
            <el-radio-group v-model="radio3">
                 <el-radio-button label="开启"></el-radio-button>
                 <el-radio-button label="关闭"></el-radio-button>
               </el-radio-group>
           </el-form-item>
           <el-form-item label="网站备案号" style="width: 380px">
-            <el-input v-model="form.name"></el-input>
+            <el-input v-model="form.beian"></el-input>
+          </el-form-item>
+          <el-form-item label="联系人Email" style="width: 280px">
+            <el-input v-model="form.email"></el-input>
+          </el-form-item>
+          <el-form-item label="联系人电话" style="width: 280px">
+            <el-input v-model="form.phone"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">保存</el-button>
+            <el-button type="primary" @click="ssonSubmit">保存</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -35,60 +41,95 @@
 
 <script>
   export default {
+    created(){
+      this.requestData();
+    },
     methods: {
-     
-      addType(){
-        this.title='添加类别';
-        this.dialogFormVisible = true;
+      handsss(){
+        console.log(val);
       },
-      edit(){
-      	this.title='编辑类别';
-        this.dialogFormVisible = true;
-      }
+      ssonSubmit(){
+        this.requestUpdateData();
+      },
+      requestUpdateData() {
+        let self = this;
+        if(process.env.NODE_ENV === 'development') { //TEST
+          self.url = '/api/app/admin/info/update';
+        } else {
+          self.url = '/app/admin/info/update';
+        }
+        //myTest();
+        let myToken = self.$token.getToken();
+        if (self.radio3==='开启') {
+            self.form.status = 1;
+        }else{
+            self.form.status = 0;
+        }
+        var params = {
+          set:self.form,
+          token:myToken
+        }
+        // console.log(params);
+        self.$axios.post(self.url, params).then((res) => {
+          // console.log(JSON.stringify(res.data));
+          if(res && res.data && res.data.code && res.data.code == 1) {
+              this.requestData();
+             // self.form = res.data.data;
+             // console.log(JSON.stringify(res.data));
+
+          } else {
+            self.$message(res.data.msg);
+          }
+        }).catch(function(error) {
+          self.$message('请求异常');
+          //comJs.handleCommonRequestCallback('rer');
+          self.loadingFlag = false;
+          console.log('----error--' + JSON.stringify(error));
+        
+        });
+      },
+      requestData() {
+        let self = this;
+        if(process.env.NODE_ENV === 'development') { //TEST
+          self.url = '/api/app/admin/info/get';
+        } else {
+          self.url = '/app/admin/info/get';
+        }
+        //myTest();
+        let myToken = self.$token.getToken();
+        var params = {
+          token:myToken
+        }
+        // console.log(params);
+        self.$axios.post(self.url, params).then((res) => {
+          // console.log(JSON.stringify(res.data));
+          if(res && res.data && res.data.code && res.data.code == 1) {
+             self.form = res.data.data;
+             if (self.form.status == 1) {
+                 self.radio3='开启';
+             }else{
+                 self.radio3='关闭';
+             }
+             // console.log(JSON.stringify(res.data));
+
+          } else {
+            self.$message(res.data.msg);
+          }
+        }).catch(function(error) {
+          self.$message('请求异常');
+          //comJs.handleCommonRequestCallback('rer');
+          self.loadingFlag = false;
+          console.log('----error--' + JSON.stringify(error));
+        
+        });
+      },
     },
     data() {
       return {
-        radio3:'',
+        radio3:'关闭',
         formLabelWidth: '80px',
-        dialogFormVisible: false,
-        title:'111',
-        tableData2: [{
-          status:'已发布',
-          sort:1,
-          source:'转发',
-          date: '2016-05-02',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          status:'待审核',
-          sort:1,
-          source:'转发',
-          date: '2016-05-04',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          source:'转发',
-          sort:1,
-          date: '2016-05-01',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          source:'转发',
-          sort:1,
-          date: '2016-05-03',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }],
         form: {
-          name: '222',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: '',
-          sort:1
+         
         },
       }
     }

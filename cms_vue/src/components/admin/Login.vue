@@ -74,7 +74,7 @@
 					password: hex_md5(self.ruleForm.password),
                     token:myToken
 				}
-				// console.log(self.$token.getToken());
+				console.log(params);
 				self.$axios.post(self.url, params).then((res) => {
 					self.loadingFlag = false;
 					if(res && res.data && res.data.code && res.data.code == 1) {

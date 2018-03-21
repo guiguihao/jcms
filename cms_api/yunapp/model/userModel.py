@@ -28,6 +28,7 @@ class APP_admin(Document):
         'appsecret':unicode,
         'superadmin':int,        #0不是超级管理员 1超级管理员
         'active':int,            #0未激活 1激活
+        'appinfo':unicode,       #app信息
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 
         'reserved_3':unicode,    #预留字段1 
@@ -87,50 +88,29 @@ class UserVip(Document):
 
 
 @connection.register
-class App(Document):
-   __collection__ = 'col'
+class AppInfo(Document):
+   __collection__ = 'info'
    __database__ = 'app'
    structure = {
-        'userid': unicode,
         'appkey':unicode,
-        'appsecret':unicode,
-        'appicon':unicode,    
-        'appname':unicode,
-        'del':int,  #0 存在 1删除
+        'domian':unicode, #域名
+        'status':int,    #0关闭 1开启
+        'name':unicode,  #应用名称
+        'email':unicode,  #开发者邮箱
+        'phone':unicode,  #开发者电话
+        'beian':unicode,  #备案号
+        'reserved_1':unicode,    #预留字段1 
+        'reserved_2':unicode,    #预留字段1 
+        'reserved_3':unicode,    #预留字段1 
+        'reserved_4':unicode,    #预留字段1 
     }
    validators = {
-        'userid': max_length(200),
-        'appkey': max_length(200),
-        'appsecret': max_length(200),
-        'appicon': max_length(200),
-        'appname': max_length(200),
     }
    default_values = {
-        'del': 0,
+
     }
    use_dot_notation = True
 
-
-
-@connection.register
-class DeveloperUser(Document):
-   __collection__ = 'DeveloperUser'
-   __database__ = 'user'
-   structure = {
-        'name': unicode,
-        'password':unicode,
-        'phone':unicode,
-        'email': unicode,
-        'vip': unicode,
-    }
-   validators = {
-        'name': max_length(50),
-        'password': max_length(120),
-        'phone': max_length(50),
-        'email': max_length(120),
-    }
-   required = ['password']
-   use_dot_notation = True
 
 
  

@@ -18,7 +18,7 @@ app.debug = True
 
 from yunapp import shop
 from yunapp import user
-from yunapp import appMange
+from yunapp import appInfo
 from yunapp import DeveloperUser
 from yunapp import order
 from yunapp import LoginAndRegister

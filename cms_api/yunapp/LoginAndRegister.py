@@ -85,6 +85,13 @@ def app_register():
                 user.superadmin = 1
                 user.save()
                 connection.APP_admin.find_and_modify(user,{'$set':{"appkey":str(user['_id'])}})
+                
+                #设置应用信息
+                appinfo = connection.AppInfo()
+                appinfo.appkey = unicode(user['_id'])
+                appinfo.status = 1
+                appinfo.save()
+
                 userVip = connection.UserVip.find({'appkey':user.appkey,'del':0}).sort('level',1)
                 if userVip.count()>0:
                     for vip in userVip:
@@ -166,10 +173,15 @@ def admin_login():
             if user.name:
                  myuser = connection.APP_admin.find_one({'appkey':appkey,'name':user.name,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
             if user.phone:
-                 myuser = connection.APP_admin.find_one({'appkey':appkey,'name':user.phone,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+                 myuser = connection.APP_admin.find_one({'appkey':appkey,'phone':user.phone,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
             if user.email:
-                 myuser = connection.APP_admin.find_one({'appkey':appkey,'name':user.email,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+                 myuser = connection.APP_admin.find_one({'appkey':appkey,'email':user.email,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+            print myuser
+            print '---------'
+            print user
             if myuser and myuser['password'] == user['password']:
+                if myuser.active != 1:
+                    return MyException(param.APP_ACTIVE_ERROR).toJson()
                 # user['_id'] = str(user['_id'])
                 # userVip = connection.UserVip.find_one({'appkey':appkey,'del':0},({'del':-1})
                 # myuser.vip = userVip

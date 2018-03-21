@@ -136,6 +136,7 @@ def add_admin():
                 user.save()
                 return  MySucceedResult().toJson()
             except Exception as e:
+                print e
                 return MyException(param.CHECK_FAILURE).toJson()
         else:
            return MyException(param.REGISTER_FAILURE).toJson()
@@ -144,7 +145,7 @@ def add_admin():
         return param.PLEASE_USE_POST
 
 '''
-post 
+post  更新管理员
 {
     '_id':'xxx'
     set:{
@@ -175,6 +176,7 @@ def app_update():
         try:
             user = connection.APP_admin.find_one({'appkey':appkey,'_id':ObjectId(data['_id'])})
             user['del'] = int(user['del'])
+
             for key in data['set']:
                 if key == 'name':
                     user.password = data['set']['password']
@@ -200,6 +202,8 @@ def app_update():
                     user.reserved_4 = data['set']['reserved_4']
                 if key == 'del':
                     user['del'] = data['set']['del']
+                    if user.superadmin == 1 and user['del'] == 1:
+                        return MyException(param.APP_USER_DEL_NULL).toJson()
                 if key == 'permission':
                     user.permission = data['set']['permission']    
             user.save()
