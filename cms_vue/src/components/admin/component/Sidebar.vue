@@ -68,10 +68,10 @@
 						title: '用户模块',
 						permission:0,//1 显示 0不显示
 						subs: [{
-							index: 'UserList',
+							index: '/admin/user/UserList',
 							title: '用户列表',
 						},{
-							index: 'UserType',
+							index: '/admin/user/UserType',
 							title: '用户类型',
 						}]
 					},
@@ -81,10 +81,10 @@
 						title: '系统设置',
 						permission:0,//1 显示 0不显示
 						subs: [{
-							index: 'SiteInfo',
+							index: '/admin/SiteInfo',
 							title: '网站信息管理',
 						},{
-							index: 'AdminList',
+							index: '/admin/AdminList',
 							title: '管理员列表',
 						}]
 					}

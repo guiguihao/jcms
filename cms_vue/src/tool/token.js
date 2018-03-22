@@ -1,13 +1,13 @@
 import {hex_md5} from '../../static/js/common.js'
 
 var token = {
-    appkey:localStorage.getItem('appkey'),
-    appsecret:localStorage.getItem('appsecret'),
     DEVELOPER_APPKEY:'A0Zr98jxccdvdvvfbfbbbfbfRsdT',
     MD5_KEY:'A0Zr98j/3yX R~XHH!jmN]LWX/,?RsdT',
     getToken: function(){
+       var appkey = localStorage.getItem('appkey');
+       var appsecret = localStorage.getItem('appsecret');
        var timestamp = Date.parse(new Date())/1000;
-       return token.appkey + '&&' + timestamp + '&&' + hex_md5(token.appsecret+'&&'+timestamp.toString());
+       return appkey + '&&' + timestamp + '&&' + hex_md5(appsecret+'&&'+timestamp.toString());
     },
     getAppToken: function(){
        var timestamp = Date.parse(new Date())/1000;

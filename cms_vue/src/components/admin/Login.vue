@@ -95,7 +95,9 @@
 //						self.totalCount = res.data.data.count;
 						localStorage.setItem('appkey',res.data.data.appkey);
 						localStorage.setItem('appsecret',res.data.data.appsecret);
-						self.requestData();
+                        console.log(JSON.stringify(res.data.data.appkey));						
+						
+						self.requestData(localStorage.getItem('appkey'));
 
 					} else{
 						self.$message(res.data.msg);

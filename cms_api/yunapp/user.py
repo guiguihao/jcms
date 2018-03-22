@@ -75,6 +75,7 @@ def add_user():
         data = request.get_json()
         user = connection.APP_User()
         appkey = ''
+        token = ''
         for key in data:
             if key == 'name':
                 user.name = data['name']
@@ -92,8 +93,6 @@ def add_user():
                 user.nickname = data['nickname']
             if key == 'info':
                 user.info = data['info']
-            if key == 'permission':
-                user.permission = data['permission']
             if key == 'token':
                 token = data['token']
             if key == 'reserved_1':
@@ -176,9 +175,9 @@ def app_user_update():
         try:
             user = connection.APP_admin.find_one({'appkey':appkey,'_id':ObjectId(data['_id'])})
             if user:
-            	user['del'] = int(user['del'])
-	            for key in data['set']:
-	                if key == 'name':
+                user['del'] = int(user['del'])
+                for key in data['set']:
+	                if key == 'name': 
 	                    user.password = data['set']['password']
 	                if key == 'phone':
 	                    user.phone = data['set']['phone']
@@ -207,12 +206,10 @@ def app_user_update():
 	                    if user.superadmin == 1 and user['del'] == 1:
 	                        return MyException(param.APP_USER_DEL_NULL).toJson()
 	                if key == 'permission':
-	                    user.permission = data['set']['permission']    
-	            user.save()
-	            # connection.APP_admin.find_and_modify({'appkey':appkey,'del':0},{'$set':data['set']})
-	            # user = connection.APP_admin.find_one({'appkey':appkey,'del':0},{'del':0,'appsecret':0})
-	            user['_id'] = str(user['_id'])
-	            return MyResult(user).toJson()
+	                    user.permission = data['set']['permission']
+                user.save()
+                user['_id'] = str(user['_id'])
+                return MyResult(user).toJson()
             
         except Exception as e:
             print e

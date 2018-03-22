@@ -50,6 +50,8 @@
 		methods: {
 			handleCommand(command) {
 				if(command == 'loginout') {
+					localStorage.removeItem('appkey');
+					localStorage.removeItem('appsecret');
 					this.requestData();
 				}
 			},
