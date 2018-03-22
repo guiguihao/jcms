@@ -17,6 +17,7 @@ connection = Connection(app.config['MONGODB_HOST'],
 app.debug = True
 
 from yunapp import shop
+from yunapp import admin
 from yunapp import user
 from yunapp import appInfo
 from yunapp import DeveloperUser

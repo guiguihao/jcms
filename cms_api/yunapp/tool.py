@@ -31,4 +31,19 @@ def ruleToken(token):
         else: 
         	return param.APP_TOKEN_TIME_ERROR
 
+def ruleToken2(token,pw,md5key):
+        timeStamp = time.time()
+        tokenParams = token.split('&&')
+        tktime = float(tokenParams[0])
+        tkmd5 = tokenParams[1]
+        print token,pw,md5key
+        print tkmd5
+        if timeStamp-tktime <= 900000 and timeStamp-tktime >= -900000:
+            if tkmd5 == md5(pw + '&&' + md5key + tokenParams[0]):
+                return param.SUCCEED
+            else:
+                  return param.APP_TOKEN_RULE_ERROR
+        else: 
+            return param.APP_TOKEN_TIME_ERROR
+
 

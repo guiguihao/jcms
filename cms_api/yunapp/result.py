@@ -10,6 +10,14 @@ class MyException:
     def toJson(self):
          return jsonify({'code':self.param[0],'msg':self.param[1]})
 
+class MyExceptionWithResult:
+    '异常提示+返回值'
+    def __init__(self,param,data):
+        self.param = param
+        self.data = data
+    def toJson(self):
+         return jsonify({'code':self.param[0],'msg':self.param[1],'data':self.data})
+
 
 class MySucceedResult:
     '正常提示'

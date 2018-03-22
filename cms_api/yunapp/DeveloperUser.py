@@ -7,6 +7,60 @@ from yunapp import param
 from bson.objectid import ObjectId
 
 
+
+'''
+获取appkey appsecret 
+{
+  name:'',
+  password:'',
+  token:'md5(password+MD5_KEy)'  
+}
+'''
+@app.route('/developer/appkey/get',methods=['GET', 'POST'])
+def appkey_get():
+    if request.method == 'POST':
+        data = request.get_json()
+        user= connection.APP_admin()
+        token = ''
+        for key in data:
+            if key == 'name':
+                user.name = data['name']
+            if key == 'password':
+                user.password = data['password']
+            if key == 'phone':
+                user.phone = data['phone']
+            if key == 'email':
+                user.email = data['email']
+            if key == 'token':
+                token = data['token']
+                user.token = token
+        resultTooken = tool.ruleToken2(token,user.password,config.MD5_KEY)
+        if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+        if (user.name or user.phone or user.email) and user.password:
+            try:
+                myuser = ''
+                if user.name:
+                     myuser = connection.APP_admin.find_one({'name':user.name,'del':0},{'del':0,})
+                if user.phone:
+                     myuser = connection.APP_admin.find_one({'phone':user.phone,'del':0},{'del':0,})
+                if user.email:
+                     myuser = connection.APP_admin.find_one({'email':user.email,'del':0},{'del':0,})
+                if myuser and myuser['password'] == user['password']:
+                    myuser['_id'] = str(myuser['_id'])
+                    myuser.pop('password')
+                    return  MyResult(myuser).toJson()
+                else:
+                    return  MyException(param.LONGIN_FAILURE).toJson()
+            except Exception as e:
+                return MyException(param.CHECK_FAILURE).toJson()
+        else:
+           return MyException(param.REGISTER_FAILURE).toJson()
+  
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
+
+
 '''
 userid+MD5_KEy 校验 
 {

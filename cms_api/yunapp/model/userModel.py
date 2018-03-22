@@ -56,6 +56,47 @@ class APP_admin(Document):
    use_dot_notation = True
 
 
+
+@connection.register
+class APP_User(Document):
+   __collection__ = 'user'
+   __database__ = 'app'
+   structure = {
+        'name': unicode,
+        'password':unicode,
+        'phone':unicode,
+        'email': unicode,
+        'vip'  :unicode,
+        'qq':unicode,    
+        'wachat':unicode,
+        'nickname':unicode,
+        'appkey':unicode,
+        'status':int,              #用户状态 1.正常 2.禁用 3.自定义
+        'reserved_1':unicode,    #预留字段1 
+        'reserved_2':unicode,    #预留字段1 
+        'reserved_3':unicode,    #预留字段1 
+        'reserved_4':unicode,    #预留字段1 
+        'del':int, #0 存在 1删除
+    }
+   validators = {
+        'name': max_length(50),
+        'password': max_length(120),
+        'phone': max_length(50),
+        'email': max_length(120),
+        'qq': max_length(120),
+        'wachat': max_length(120),
+        'nickname': max_length(120),
+        'reserved_1': max_length(120),
+        'reserved_2': max_length(120),
+        'reserved_3': max_length(120),
+        'reserved_4': max_length(120),
+    }
+   default_values = {
+        'del': 0,
+        'status':1,
+    }
+   use_dot_notation = True
+
 @connection.register
 class UserVip(Document):
    __collection__ = 'vip'

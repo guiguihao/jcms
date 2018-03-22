@@ -176,17 +176,14 @@ def admin_login():
                  myuser = connection.APP_admin.find_one({'appkey':appkey,'phone':user.phone,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
             if user.email:
                  myuser = connection.APP_admin.find_one({'appkey':appkey,'email':user.email,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
-            print myuser
-            print '---------'
-            print user
             if myuser and myuser['password'] == user['password']:
+                myuser['_id'] = str(myuser['_id'])
+                myuser.pop('password')
                 if myuser.active != 1:
-                    return MyException(param.APP_ACTIVE_ERROR).toJson()
+                    return MyExceptionWithResult(param.APP_ACTIVE_ERROR,myuser).toJson()
                 # user['_id'] = str(user['_id'])
                 # userVip = connection.UserVip.find_one({'appkey':appkey,'del':0},({'del':-1})
                 # myuser.vip = userVip
-                myuser['_id'] = str(myuser['_id'])
-                myuser.pop('password')
                 return  MyResult(myuser).toJson()
             else:
                 return  MyException(param.LONGIN_FAILURE).toJson()
@@ -281,15 +278,18 @@ def sendmial_activate():
     if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
             return MyException(param.APP_TOKEN_ERROR).toJson()
     else:
-       fnuser = connection.APP_admin.find_one({'email':toemail,'del':0})
-       activeUrl = "%s/app/activate/%s" % (config.DOMAIN,str(fnuser['_id'])) 
-       content += "<p><a href='%s'>点击激活</a></p>" % (activeUrl) 
-       content += "<p></p><p>%s</p>" % (activeUrl) 
-       result = sms.sendfuc('来自云api的激活邮件',content,'obghpj@163.com','jlmv38599',toemail)
-       result = 1
-       if result == 1:
-       	  return MySucceedResult().toJson()
-       else:
-          return MyException(param.APP_send_email_FAILURE).toJson()
+        try:
+            fnuser = connection.APP_admin.find_one({'email':toemail,'del':0})
+            activeUrl = "%s/app/activate/%s" % (config.DOMAIN,str(fnuser['_id'])) 
+            content += "<p><a href='%s'>点击激活</a></p>" % (activeUrl) 
+            content += "<p></p><p>%s</p>" % (activeUrl) 
+            result = sms.sendfuc('来自云api的激活邮件',content,'obghpj@163.com','jlmv38599',toemail)
+            if result == 1:
+                  return MySucceedResult().toJson()
+            else:
+               return MyException(param.APP_send_email_FAILURE).toJson()
+        except Exception, e:
+            return MyException(param.PARAM_FAILURE).toJson()
+       
     if request.method == 'GET':
         return param.PLEASE_USE_POST
