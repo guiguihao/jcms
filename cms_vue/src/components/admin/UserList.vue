@@ -23,17 +23,17 @@
 	           style="width: 100%"
 	           :row-class-name="tableRowClassName">
 	           <el-table-column
-	             prop="title"
+	             prop="name"
 	             label="用户名"
 	             width="160">
 	           </el-table-column>
 	           <el-table-column
-	             prop="ArticleType"
+	             prop="vip"
 	             label="级别"
 	             width="120">
 	           </el-table-column>
 	           <el-table-column
-	             prop="date"
+	             prop="reserved_4"
 	             width="160"
 	             label="注册日期">
 	           </el-table-column>
@@ -42,8 +42,8 @@
 	                 label="状态"
 	                 >
 	                 <template slot-scope="scope">
-	                   <el-button v-if="scope.row.status == '正常'" type="text" size="small" style='color: #67C23A'>正常</el-button>
-	                   <el-button v-if="scope.row.status == '禁用'" type="text" size="small" style='color: #F56C6C' >禁用</el-button>
+	                   <el-button v-if="scope.row.status == 1" type="text" size="small" style='color: #67C23A'>正常</el-button>
+	                   <el-button v-if="scope.row.status == 0" type="text" size="small" style='color: #F56C6C' >禁用</el-button>
 	                 </template>
 	            </el-table-column>
 	            <el-table-column
@@ -60,16 +60,16 @@
 	    </div>
 
 	    <div class="mypage">
-	        <el-pagination
-	          @size-change="handleSizeChange"
-	          @current-change="handleCurrentChange"
-	          :current-page="currentPage"
-	          :page-sizes="[20, 40, 60, 100]"
-	          :page-size="20"
-	          layout="total, sizes, prev, pager, next, jumper"
-	          :total="400">
-	        </el-pagination>
-	      </div>
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[20, 40, 60, 100]"
+            :page-size='pagesize'
+            layout="total, sizes, prev, pager, next"
+            :total=total>
+          </el-pagination>
+        </div>
 
 	       <el-dialog title='管理用户' :visible.sync="dialogFormVisible">
 	        <el-form :model="form" label-width="80px">
@@ -109,45 +109,68 @@
 
 <script>
   export default {
+  	created(){
+      this.requestData();
+  	},
     methods: {
      
+      edit(){
+      	this.dialogFormVisible = true;
+      },
        handleSizeChange(val) {
         console.log(`每页 ${val} 条`);
+        this.pagesize = val;
       },
       handleCurrentChange(val) {
         console.log(`当前页: ${val}`);
+        this.currentPage = val;
+        this.requestData();
       },
-      edit(){
-      	this.dialogFormVisible = true;
-      }
+      requestData() {
+        let self = this;
+        if(process.env.NODE_ENV === 'development') { //TEST
+          self.url = '/api/app/user/list';
+        } else {
+          self.url = '/app/user/list';
+        }
+        //myTest();
+        let myToken = self.$token.getToken();
+        var params = {
+          page: self.currentPage,
+          pageSize: self.pagesize,
+          token:myToken
+        }
+        console.log(params);
+        self.$axios.post(self.url, params).then((res) => {
+          console.log(JSON.stringify(res.data));
+          if(res && res.data && res.data.code && res.data.code == 1) {
+              self.tableData2 = res.data.data.data;
+              self.total = res.data.data.count;
+              this.dialogFormVisible = false;
+//            self.totalCount = res.data.data.count;
+             console.log(JSON.stringify(res.data));
+
+          } else {
+            self.$message(res.data.msg);
+          }
+        }).catch(function(error) {
+          self.$message('请求异常');
+          //comJs.handleCommonRequestCallback('rer');
+          self.loadingFlag = false;
+          console.log('----error--' + JSON.stringify(error));
+        
+        });
+      },
+
+      
     },
     data() {
       return {
       	dialogFormVisible:false,
-      	currentPage: 2,
-        tableData2: [{
-          status:'正常',
-          ArticleType:'普通',
-          date: '2016-05-02',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          status:'禁用',
-          ArticleType:'普通',
-          date: '2016-05-04',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          ArticleType:'普通',
-          date: '2016-05-01',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          ArticleType:'vip',
-          date: '2016-05-03',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }],
+      	pagesize:20,
+        currentPage:1,
+        total:0,
+        tableData2: [],
         form: {
           name: '222',
           region: '',
