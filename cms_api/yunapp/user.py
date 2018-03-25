@@ -1,11 +1,11 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
 from yunapp import app,result,connection,request,tool,config,sms
-from yunapp.model.shopModel import *
 from yunapp.model.userModel import *
 from yunapp.result import *
 from yunapp import param
 from bson.objectid import ObjectId
+from datetime import datetime
 
 
 
@@ -25,6 +25,7 @@ def get_users():
         appkey = ''
         pageSize = 50
         page = 1
+        filter = ''
         for key in data:
             if key == 'token':
                 token = data['token']
@@ -32,6 +33,8 @@ def get_users():
                 pageSize = data['pageSize']
             if key == 'page':
                 page = data['page']
+            if key == 'filter':
+                filter = data['filter']
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
         else:
@@ -47,13 +50,27 @@ def get_users():
                    'count':0,
                     'data':[],
                 }
-                fnuser = connection.APP_User.find({'appkey':appkey,'del':0},{'del':0}).limit(pageSize).skip((page-1)*pageSize)
+                params = {
+                    'appkey': appkey,
+                    'del': 0,
+                }
+                if isinstance(filter,dict):
+                    for k in filter:
+                        params[k] = filter[k]
+                fnuser = connection.APP_User.find(params,{'del':0}).limit(pageSize).skip((page-1)*pageSize).sort([('_id',-1)])
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
+                    user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                    vip = connection.Type.one({'appkey':appkey,'_id':ObjectId(user['vip'])},{'del':0})
+                    if vip:
+                       vip['_id'] = str(vip['_id'])
+                       user.vip = vip
+                       vip.date = vip.date.strftime('%Y-%m-%d %H:%M:%S')
                     admins['data'].append(user)
                 admins['count']=fnuser.count()
                 return MyResult(admins).toJson()
             except Exception as e:
+                print e
                 return MyException(param.CHECK_FAILURE).toJson()
         else:
            return MyException(param.REGISTER_FAILURE).toJson()
@@ -77,6 +94,8 @@ def add_user():
         appkey = ''
         token = ''
         for key in data:
+            if data[key] == '':
+                continue
             if key == 'name':
                 user.name = data['name']
             if key == 'password':
@@ -93,6 +112,8 @@ def add_user():
                 user.nickname = data['nickname']
             if key == 'info':
                 user.info = data['info']
+            if key == 'vip':
+                user.vip = data['vip']
             if key == 'token':
                 token = data['token']
             if key == 'reserved_1':
@@ -112,7 +133,6 @@ def add_user():
                 return MyException(resultTooken).toJson()
             else:
                 appkey = token.split('&&')[0]
-
         if (user.name or user.phone or user.email) and user.password:
             try:
                 try:
@@ -125,17 +145,21 @@ def add_user():
                         if feuser.email: return MyException(param.USER_EMAIL_FAILURE).toJson()
 
                     fpuser = connection.APP_User.find_one({'appkey':appkey,'phone':user.phone,'del':0})
-                    #print fpuser
+                    # print fpuser
                     if fpuser:
                         if fpuser.phone: return MyException(param.USER_PHONE_FAILURE).toJson()
                 except Exception, e:
-                    pass
+                    return MyException(param.CHECK_FAILURE).toJson()
+                vips = connection.Type.find({'appkey': appkey}).sort([('level',1)])
+                if vips.count()>0:
+                     user.vip = unicode(vips[0]['_id'])
                 user.password = unicode(tool.md5(user.password))
                 user.appkey = appkey
+                user.date = datetime.now()
                 user.save()
                 return  MySucceedResult().toJson()
             except Exception as e:
-                print e
+                print  e
                 return MyException(param.CHECK_FAILURE).toJson()
         else:
            return MyException(param.REGISTER_FAILURE).toJson()
@@ -144,7 +168,7 @@ def add_user():
         return param.PLEASE_USE_POST
 
 '''
-post  更新管理员
+post  更新用户信息
 {
     '_id':'xxx'
     set:{
@@ -173,44 +197,49 @@ def app_user_update():
             else:
                 appkey = token.split('&&')[0]
         try:
-            user = connection.APP_admin.find_one({'appkey':appkey,'_id':ObjectId(data['_id'])})
+            user = connection.APP_User.find_one({'appkey':appkey,'_id':ObjectId(data['_id'])})
             if user:
                 user['del'] = int(user['del'])
                 for key in data['set']:
-	                if key == 'name': 
-	                    user.password = data['set']['password']
-	                if key == 'phone':
-	                    user.phone = data['set']['phone']
-	                if key == 'status':
-	                    user.status = data['set']['status']    
-	                if key == 'email':
-	                    user.email = data['set']['email']
-	                if key == 'qq':
-	                    user.qq = data['set']['qq']
-	                if key == 'wachat':
-	                    user.wachat = data['set']['wachat']
-	                if key == 'nickname':
-	                    user.nickname = data['set']['nickname']
-	                if key == 'appsecret':
-	                    user.appsecret = data['set']['appsecret']   
-	                if key == 'reserved_1':
-	                    user.reserved_1 = data['set']['reserved_1']
-	                if key == 'reserved_2':
-	                    user.reserved_2 = data['set']['reserved_2']
-	                if key == 'reserved_3':
-	                    user.reserved_3 = data['set']['reserved_3']
-	                if key == 'reserved_4':
-	                    user.reserved_4 = data['set']['reserved_4']
-	                if key == 'del':
-	                    user['del'] = data['set']['del']
-	                    if user.superadmin == 1 and user['del'] == 1:
-	                        return MyException(param.APP_USER_DEL_NULL).toJson()
-	                if key == 'permission':
-	                    user.permission = data['set']['permission']
+                    if data['set'][key] == '':
+                        continue
+                    if key == 'name':
+                        user.name = data['set']['name']
+                    if key == 'password':
+                        user.password = data['set']['password']
+                    if key == 'phone':
+                        user.phone = data['set']['phone']
+                    if key == 'status':
+                        user.status = data['set']['status']
+                    if key == 'email':
+                        user.email = data['set']['email']
+                    if key == 'qq':
+                        user.qq = data['set']['qq']
+                    if key == 'wachat':
+                        user.wachat = data['set']['wachat']
+                    if key == 'vip':
+                        user.vip = data['set']['vip']
+                    if key == 'integral':
+                        user.integral = data['set']['integral']
+                    if key == 'nickname':
+                        user.nickname = data['set']['nickname']
+                    if key == 'reserved_1':
+                        user.reserved_1 = data['set']['reserved_1']
+                    if key == 'reserved_2':
+                        user.reserved_2 = data['set']['reserved_2']
+                    if key == 'reserved_3':
+                       user.reserved_3 = data['set']['reserved_3']
+                    if key == 'reserved_4':
+                        user.reserved_4 = data['set']['reserved_4']
+                    if key == 'del':
+                        user['del'] = data['set']['del']
+                    if key == 'permission':
+                        user.permission = data['set']['permission']
                 user.save()
                 user['_id'] = str(user['_id'])
                 return MyResult(user).toJson()
-            
+            else:
+                MyException(param.APP_USER_NULL).toJson()
         except Exception as e:
             print e
             return MyException(param.PARAM_FAILURE).toJson()

@@ -1,7 +1,8 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
 from yunapp import connection,Document
-
+import datetime
+from mongokit import OR
 
 
 def max_length(length):
@@ -9,6 +10,7 @@ def max_length(length):
         if len(value) <= length:
             return True
     return validate
+
 
 @connection.register
 class APP_admin(Document):
@@ -67,10 +69,12 @@ class APP_User(Document):
         'phone':unicode,
         'email': unicode,
         'vip'  :unicode,
-        'qq':unicode,    
+        'qq':unicode,
+        'integral':int,    #用户积分点数之类
         'wachat':unicode,
         'nickname':unicode,
         'appkey':unicode,
+        'date':OR(unicode,datetime.datetime),
         'status':int,              #用户状态 1.正常 2.禁用 3.自定义
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 
@@ -94,18 +98,20 @@ class APP_User(Document):
    default_values = {
         'del': 0,
         'status':1,
+        'integral':0,
     }
    use_dot_notation = True
 
 @connection.register
-class UserVip(Document):
-   __collection__ = 'vip'
-   __database__ = 'user'
+class UserType(Document):
+   __collection__ = 'type'
+   __database__ = 'app'
    structure = {
         'level': int,
         'level_name':unicode,
         'level_dec':unicode,
         'appkey':unicode,
+        'date':OR(unicode,datetime.datetime),
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 
         'reserved_3':unicode,    #预留字段1 
@@ -122,6 +128,8 @@ class UserVip(Document):
     }
    default_values = {
         'del': 0,
+        'date':datetime.datetime.now(),
+        'level':1
     }
    use_dot_notation = True
  

@@ -1,146 +1,202 @@
-from yunapp import app,result,connection
-from yunapp.model.typeModel import *
+#!/usr/bin/python
+#-*-coding:utf-8 -*-
+from yunapp import app,result,connection,request,tool,config,sms
+from yunapp.model.userModel import *
 from yunapp.result import *
+from yunapp import param
+from bson.objectid import ObjectId
+from datetime import datetime
+
+
 
 '''
-添加或修改分类
+获取类型列表
 {
-    'name':'xx',
-    'parentID':'xxx',  #parentID = 0为1级分类
-    'sort':0  
+    "type":"user", #article', u'shop', u'user'
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
-@app.route('/type/update',methods=['GET', 'POST'])
-def type_update():
+@app.route('/app/type/list',methods=['GET', 'POST'])
+def get_vips():
     if request.method == 'POST':
         data = request.get_json()
-        mytype = connection.Type()
-        token = ''
+        mtype = ''
         appkey = ''
         for key in data:
-            if key == 'name':
-                mytype.name = data['name']
-            if key == 'sort':
-                mytype.name = data['sort']
-            if key == 'parentID':
-                mytype.parentID = ObjectId(data['parentID'])
             if key == 'token':
                 token = data['token']
-                del data['token']
-    if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-    else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                appkey = token.split('&&')[0]
-                return MyException(resultTooken).toJson()
-            else:
-                mytype.appkey = appkey
-    try:
-          if mytype.name  and mytype.parentID:
-                fvip = connection.mytype.find_one({'name':mytype.name,'parentID':mytype.parentID,'appkey':appkey,'del':0})
-                if fvip:
-                    connection.mytype.find_and_modify({'name':mytype.name,'parentID':mytype.parentID,'appkey':appkey,'del':0},{'$set':data})
-                else:
-                    mytype.save()
-                return  MySucceedResult().toJson()
-          else:
-                return MyException(param.PARAM_FAILURE).toJson()
-    except Exception as e:
-          return MyException(param.PARAM_FAILURE).toJson()
-        
-  
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-
-'''
-删除分类
-{
-    'del':'_id',
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/type/update',methods=['GET', 'POST'])
-def type_update():
-    if request.method == 'POST':
-        data = request.get_json()
-        mytype = connection.Type()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == 'del':
-                mytype['_id'] =ObjectId(data['del'])
-            if key == 'token':
-                token = data['token']
-                del data['token']
-    if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-    else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                appkey = token.split('&&')[0]
-                return MyException(resultTooken).toJson()
-            else:
-                mytype.appkey = appkey
-    try:
-          if mytype['_id']:
-          	    pid = mytype['_id'] == '0'?'0':str(mytype['_id'])
-                connection.mytype.find_and_modify($or:[{'_id':mytype['_id'],'appkey':appkey,'del':0},{'parentID':pid),'appkey':appkey,'del':0}],{'$set':{'del':1}})
-                return  MySucceedResult().toJson()
-          else:
-                return MyException(param.PARAM_FAILURE).toJson()
-    except Exception as e:
-          return MyException(param.PARAM_FAILURE).toJson()
-        
-  
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-
-
-'''
-获取分类
-{
-    'type':'0',  # 'type':'0' 获取所有分类, 'type':'_id' 获取某个分类
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/type/get',methods=['GET', 'POST'])
-def type_update():
-    if request.method == 'POST':
-        data = request.get_json()
-        mytype = connection.Type()
-        token = ''
-        appkey = ''
-        for key in data:
             if key == 'type':
-                mytype['_id'] = data['type']
-            if key == 'token':
-                token = data['token']
-                del data['token']
-    if token == '' or not token:
+                mtype = data['type']
+        if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
-    else:
+        else:
             resultTooken = tool.ruleToken(token)
             if resultTooken[0] != 1:
-                appkey = token.split('&&')[0]
                 return MyException(resultTooken).toJson()
             else:
-                mytype.appkey = appkey
-    try:
-          if mytype['_id']:
-          	    cols = ''
-          	    if mytype['_id'] == '0':
-          	    	cols = connection.mytype.group({key:{'type':true},initial:{'type':[]},reduce: function(cur,prev){prev.type.push({'name':cur.name})},condition:{'appkey':appkey,'del':0}})
-                else:
-                	cols = connection.mytype.group({key:{'type':true},initial:{'type':[]},reduce: function(cur,prev){prev.type.push({'name':cur.name})},condition:{'appkey':appkey,'del':0}}
-                return  MyResult(cols).toJson()
-          else:
-                return MyException(param.PARAM_FAILURE).toJson()
-    except Exception as e:
-          return MyException(param.PARAM_FAILURE).toJson()
-        
+                appkey = token.split('&&')[0]
+        if appkey and mtype != '':
+            try:
+                types = []
+                fnuser = connection.Type.find({'appkey':appkey,'del':0,'parentID':'','type':mtype},{'del':0})
+                queryChildrenType(fnuser,types)
+                return MyResult(types).toJson()
+            except Exception as e:
+                print e
+                return MyException(param.CHECK_FAILURE).toJson()
+        else:
+           return MyException(param.PARAM_FAILURE).toJson()
   
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 
+def queryChildrenType(types,lists):
+    for user in types:
+        admins = {
+           'type':'',
+            'children':[],
+        }
+        user['_id'] = str(user['_id'])
+        user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+        admins['type'] = user
+        childrenTypes = connection.Type.find({'del':0,'parentID':user['_id']},{'del':0})
+        lists.append(admins)
+        queryChildrenType(childrenTypes,admins['children'])
+
+      
+
+'''
+用户注册/添加
+{
+    'level':11
+    'name':'11122',
+    'dec':'11',
+    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
+}
+'''
+@app.route('/app/type/add',methods=['GET', 'POST'])
+def add_vip():
+    if request.method == 'POST':
+        data = request.get_json()
+        user = connection.Type()
+        appkey = ''
+        token = ''
+        for key in data:
+            if data['set'] == '':
+                continue
+            if key == 'level':
+                user.level = data['level']
+            if key == 'name':
+                user.name = data['name']
+            if key == 'dec':
+                user.dec = data['dec']
+            if key == 'parentID':
+                user.parentID = data['parentID']
+            if key == 'type':
+                user.type = data['type']
+            if key == 'token':
+                token = data['token']
+            if key == 'reserved_1':
+                user.reserved_1 = data['reserved_1']
+            if key == 'reserved_2':
+                user.reserved_1 = data['reserved_2']
+            if key == 'reserved_3':
+                user.reserved_1 = data['reserved_3']
+            if key == 'reserved_4':
+                user.reserved_1 = data['reserved_4']
+
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson() 
+        else:
+            resultTooken = tool.ruleToken(token)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+
+        if user.name and user.type:
+            try:
+                try:
+                    fnuser = connection.Type.find_one({'appkey':appkey,'name':user.name,'del':0})
+                    if fnuser: 
+                        if fnuser.name: return MyException(param.USER_VIP_REPEAT_FAILURE).toJson()
+                except Exception, e:
+                    pass
+                user.appkey = appkey
+                user.save()
+                return  MySucceedResult().toJson()
+            except Exception as e:
+                print e
+                return MyException(param.CHECK_FAILURE).toJson()
+        else:
+           return MyException(param.PARAM_FAILURE).toJson()
+  
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
+
+'''
+post  更新管理员
+{
+    '_id':'xxx'
+    set:{
+       设置需要更新的字段即可,如下,可多个字段,不能包含_id
+       name : 'xx',
+       'vip': 'vip类型_id', #通过获取所有vip类型可以获取_id  /user/vip/type/get 
+    },
+    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
+}
+'''
+@app.route('/app/type/update',methods=['GET', 'POST'])
+def app_vip_update():
+    if request.method == 'POST':
+        data = request.get_json()
+        token = ''
+        appkey = ''
+        for key in data:
+            if key == 'token':
+                token = data['token']
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson() 
+        else:
+            resultTooken = tool.ruleToken(token)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+        try:
+            user = connection.Type.find_one({'appkey':appkey,'_id':ObjectId(data['_id'])})
+            if user:
+                user['del'] = int(user['del'])
+                for key in data['set']:
+                    if data['set'][key] == '':
+                        continue
+                    if key == 'parentID':
+                        user.parentID = data['set']['parentID']
+                    if key == 'level':
+                        user.level = data['set']['level']
+                    if key == 'name':
+                        user.name = data['set']['name']
+                    if key == 'dec':
+                        user.dec = data['set']['dec']
+                    if key == 'reserved_1':
+                        user.reserved_1 = data['set']['reserved_1']
+                    if key == 'reserved_2':
+                        user.reserved_2 = data['set']['reserved_2']
+                    if key == 'reserved_3':
+                        user.reserved_3 = data['set']['reserved_3']
+                    if key == 'reserved_4':
+                        user.reserved_4 = data['set']['reserved_4']
+                    if key == 'del':
+                        user['del'] = data['set']['del']
+                user.save()
+                user['_id'] = str(user['_id'])
+                return MyResult(user).toJson()
+            else:
+                return MyException(param.USER_VIP_FAILURE).toJson()
+            
+        except Exception as e:
+            print e
+            return MyException(param.PARAM_FAILURE).toJson()
+            
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST

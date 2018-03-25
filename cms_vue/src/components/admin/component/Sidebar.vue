@@ -27,10 +27,10 @@
 						title: '文章模块',
 						permission:0,//1 显示 0不显示
 						subs: [{
-							index: 'ArticleList',
+							index: '/admin/Article/ArticleList',
 							title: '文章列表',
 						},{
-							index: 'ArticleType',
+							index: '/admin/Article/ArticleType',
 							title: '类别管理',
 						},]
 					},
