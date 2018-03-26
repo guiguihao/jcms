@@ -24,4 +24,5 @@ from yunapp import appInfo
 from yunapp import DeveloperUser
 from yunapp import order
 from yunapp import LoginAndRegister
+from yunapp import Article
 

@@ -82,8 +82,6 @@ def add_vip():
         appkey = ''
         token = ''
         for key in data:
-            if data['set'] == '':
-                continue
             if key == 'level':
                 user.level = data['level']
             if key == 'name':

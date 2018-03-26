@@ -28,14 +28,14 @@ class Comment(Document):
         'appkey':unicode,
         'del': int, #0 存在 1删除
     }
-    required = ['pid','level','content','appkey']
-    validators = {
+   required = ['pid','level','content','appkey']
+   validators = {
         'name': max_length(100),
         'content': max_length(1000),
         'level':max_value(),
-    }
-    default_values = {
+   }
+   default_values = {
         'del': 0,
         'sort':0,
-    }
+   }
    use_dot_notation = True
