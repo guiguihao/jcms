@@ -112,6 +112,8 @@ def add_article():
                 user.source = data['source']
             if key == 'content':
                 user.content = data['content']
+            if key == 'htmlcontent':
+                user.htmlcontent = data['htmlcontent']
             if key == 'review':
                 user.review = data['review']
             if key == 'push':
@@ -209,6 +211,8 @@ def app_article_update():
                         user.recommend = data['set']['recommend']
                     if key == 'content':
                         user.content = data['set']['content']
+                    if key == 'htmlcontent':
+                        user.content = data['set']['htmlcontent']
                     if key == 'review':
                         user.review = data['set']['review']
                     if key == 'push':

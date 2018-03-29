@@ -25,7 +25,8 @@ class Article(Document):
         'date': OR(unicode,datetime.datetime),
         'source':int, #0 转发 1原创
         'recommend':[int,int,int,int,int,int,int,int], #推荐类型 0未推荐 1推荐
-        'content':unicode,
+        'content':unicode, #markdown代码
+        'htmlcontent':unicode, #html代码
         'review':int, #0未审核 1,审核
         'push':int,   #0,未发布 1发布
         'reserved_1':unicode,    #预留字段1
@@ -40,6 +41,7 @@ class Article(Document):
         'author': max_length(50),
         'type': max_length(120),
         'content': max_length(10000),
+        'htmlcontent': max_length(10000),
     }
    default_values = {
         'del': 0,

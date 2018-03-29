@@ -13,6 +13,8 @@ app.config.from_object(config)
 # connect to the database
 connection = Connection(app.config['MONGODB_HOST'],
                         app.config['MONGODB_PORT'])
+app.config['UPLOADS_DEFAULT_DEST'] = '/uploads/image'
+
 
 app.debug = True
 
@@ -25,4 +27,5 @@ from yunapp import DeveloperUser
 from yunapp import order
 from yunapp import LoginAndRegister
 from yunapp import Article
+from yunapp import ImgManage
 

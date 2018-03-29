@@ -1,19 +1,21 @@
 import token from './token'
 import axios from '../http/http'
 
-var RequestType = {
-   getTypeList: function(type){
+var RequestArticle = {
+   getArticleList: function(currentPage,pagesize,filter){
           let url = '';
           if(process.env.NODE_ENV === 'development') { //TEST
-            url = '/api/app/type/list';
+            url = '/api/app/article/list';
           } else {
-            url = '/app/type/list';
+            url = '/app/article/list';
           }
           //myTest();
           let myToken = token.getToken();
           let params = {
-            type:type,
-            token:myToken
+            page:currentPage,
+            pageSize:pagesize,
+            token:myToken,
+            filter:filter
           }
           let p = new Promise(function(resolve, reject){        //做一些异步操作
             axios.post(url, params).then((res) => {
@@ -27,22 +29,22 @@ var RequestType = {
           return p;
    },
 
-   addType: function(type,paramsDic){
+   addArticle: function(paramsDic){
           let url = '';
           if(process.env.NODE_ENV === 'development') { //TEST
-            url = '/api/app/type/add';
+            url = '/api/app/article/add';
           } else {
-            url = '/app/type/add';
+            url = '/app/article/add';
           }
           //myTest();
           let myToken = token.getToken();
           let params = {
-            type:type,
             token:myToken,
           }
           for (let k in paramsDic){
                params[k] = paramsDic[k];
           }
+          console.log(JSON.stringify(params)); 
           let p = new Promise(function(resolve, reject){        //做一些异步操作
             axios.post(url, params).then((res) => {
              // console.log(JSON.stringify(res.data)); 
@@ -55,12 +57,12 @@ var RequestType = {
           return p;
    },
 
-   updateType: function(paramsDic){
+   updateArticle: function(paramsDic){
           let url = '';
           if(process.env.NODE_ENV === 'development') { //TEST
-            url = '/api/app/type/update';
+            url = '/api/app/article/update';
           } else {
-            url = '/app/type/update';
+            url = '/app/article/update';
           }
           //myTest();
           let myToken = token.getToken();
@@ -88,4 +90,4 @@ var RequestType = {
 
 }
 
-export default RequestType
+export default RequestArticle

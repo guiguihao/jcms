@@ -7,7 +7,7 @@ import App from './App'
 import router from './router'
 import axios from './http/http'
 
-import mavonEditor from 'mavon-editor'
+import mavonEditor from 'mavon-editor' //markdown
 import 'mavon-editor/dist/css/index.css'
 
 import token from './tool/token'

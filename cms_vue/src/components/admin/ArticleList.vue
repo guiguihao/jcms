@@ -17,7 +17,7 @@
 	            <el-option label="类别一" value="shanghai"></el-option>
 	            <el-option label="类别二" value="beijing"></el-option>
 	       </el-select>
-	      <el-button>添加文章</el-button>
+	      <el-button v-on:click = "addArticle">添加文章</el-button>
 	    </div>
 
 	    <div class ="mytable">
@@ -25,7 +25,7 @@
 	         <el-table
 	           :data="tableData2"
 	           style="width: 100%"
-	           :row-class-name="tableRowClassName">
+	           >
 	           <el-table-column
 	             prop="title"
 	             label="标题"
@@ -85,49 +85,195 @@
 
 <script>
   export default {
+  	watch:{
+  		status: function (val) {
+  		      if (val === '正常' || val === '1') {
+  		      	this.form.status = 1;
+  		      }else if (val === '禁用' || val === '2') {
+  		      	this.form.status = 2;
+  		      }else{
+  		      	this.form.status = 0;
+  		      }
+  		},
+  		userType: function (val) {
+
+  		    let params = {
+  		    	vip:val,
+  		    }
+  		    if (val === '') {
+  		    	delete(params['vip'])
+  		    }
+  		    this.requestData(params);
+  		},
+
+  		
+  	},
+  	created(){
+
+      this.requestData();
+      this.requestUserType();
+
+  	},
     methods: {
-      tableRowClassName({row, rowIndex}) {
-        if (row.status == '待审核') {
-          return 'warning-row';
-        } 
-        return '';
+    	query(){
+
+    		let params = {
+  		    	name:this.username,
+  		    	email:this.useremail,
+  		    	phone:this.userphone,
+  		    }
+  		    if (this.username === '') {
+  		    	delete(params['name'])
+  		    }
+  		    if (this.useremail === '') {
+  		    	delete(params['email'])
+  		    }
+  		    if (this.userphone === '') {
+  		    	delete(params['phone'])
+  		    }
+  		    this.requestData(params);
+
+    	},
+	   submit(){
+	   	 for (let i in this.type) {
+	   	 	let vip = this.type[i];
+	   	 	if (this.form.vip === vip.type.name) {
+	   	 		this.form.vip = vip.type._id;
+	   	 	}
+	   	 }
+         // console.log(this.form);
+         // let dic = {_id:data._id,del:1,};
+         this.updataUser(this.form);
+	  },
+	  addArticle(){
+	  	this.$router.push('/admin/Article/ArticleEdit');
+	  },
+      edit(data){
+      	this.form = JSON.parse(JSON.stringify(data));
+      	this.form.vip = this.form.vip.name;
+      	if (this.form.status === 1) {
+      		this.status = '正常';
+      	}else if (this.form.status === 2) {
+      		this.status = '禁用';
+      	}else {
+      		this.status = '非法';
+      	}
+      	this.dialogFormVisible = true;
+      },
+      del(data){
+         let dic = {_id:data._id,del:1,};
+         this.updataUser(dic);
       },
        handleSizeChange(val) {
         console.log(`每页 ${val} 条`);
+        this.pagesize = val;
       },
       handleCurrentChange(val) {
         console.log(`当前页: ${val}`);
+        this.currentPage = val;
+        this.requestData();
       },
-      edit(){
-      	this.$router.push({ name: 'ArticleEdit', params: 123});
-      }
+ 
+      //获取文章类型
+      requestUserType(){
+      	 let self = this;
+         self.$request.type.getTypeList('article').then((res)=>{
+         	// console.log(JSON.stringify(res.data));
+         	  if(res && res.data && res.data.code && res.data.code == 1) {
+         	      self.type = res.data.data;
+         	     // console.log(JSON.stringify(self.type));  
+         	  } else {
+         	    self.$message(res.data.msg);
+         	  }
+         }).catch(function(error){
+         	self.$message('请求异常');
+         	 console.log('----error--' + JSON.stringify(error));
+         });
+      }, 
+
+      //添加文章
+      requestAddData(data) {
+        let self = this;
+        self.$request.article.addArticle(data).then((res)=>{
+          // console.log(JSON.stringify(res.data));
+            if(res && res.data && res.data.code && res.data.code == 1) {
+                this.requestData();
+            } else {
+              self.$message(res.data.msg);
+            }
+         }).catch(function(error){
+           self.$message('请求异常');
+           console.log('----error--' + JSON.stringify(error));
+         });
+        
+      },
+
+      //获取文章列表
+      requestData(data) {
+        let self = this;
+        self.$request.article.getArticleList(self.currentPage,self.pagesize,data).then((res)=>{
+         	if(res && res.data && res.data.code && res.data.code == 1) {
+              self.tableData2 = res.data.data.data;
+              self.total = res.data.data.count;
+              self.dialogFormVisible = false;
+             console.log(JSON.stringify(res.data.data.data));  
+          } else {
+            self.$message(res.data.msg);
+          }
+
+         }).catch(function(error){
+         	self.$message('请求异常');
+         	 console.log('----error--' + JSON.stringify(error));
+         });
+        },
+
+        //更新文章信息
+        updataUser(dic){
+        	 let self = this;
+             self.$request.article.updateArticle(dic).then((res)=>{
+             	console.log(JSON.stringify(res.data));
+             	  if(res && res.data && res.data.code && res.data.code == 1) {
+             	     self.requestData();
+             	     // console.log(JSON.stringify(self.type));  
+             	  } else {
+             	    self.$message(res.data.msg);
+             	  }
+             }).catch(function(error){
+             	self.$message('请求异常');
+             	 console.log('----error--' + JSON.stringify(error));
+             });
+        }
     },
     data() {
       return {
-      	currentPage: 2,
-        tableData2: [{
-          status:'已发布',
-          ArticleType:'转发',
-          date: '2016-05-02',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          status:'待审核',
-          ArticleType:'转发',
-          date: '2016-05-04',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          ArticleType:'转发',
-          date: '2016-05-01',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          ArticleType:'转发',
-          date: '2016-05-03',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }]
+      	username:'',
+      	useremail:'',
+      	userphone:'',
+      	status: 0,
+      	formLabelWidth:120,
+      	dialogFormVisible:false,
+      	userType:'',
+      	input:'',
+      	pagesize:20,
+        currentPage:1,
+        total:0,
+        tableData2: [],
+        type:[],
+        form: {
+          name:'',
+          vip:'',
+        },
+        rules: {
+          name: [
+            { required: true, message: '请输入类别名称', trigger: 'blur' },
+            { min: 2, max: 16, message: '长度在 2 到 16 个字符', trigger: 'blur' }
+          ],
+          
+          integral: [
+            { required: true, message: '请输入积分', trigger: 'blur' },
+            { type: 'number', message: '必须为数字值'}
+          ],
+        }
       }
     }
   }
