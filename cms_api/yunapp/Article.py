@@ -12,6 +12,7 @@ from datetime import datetime
 {
     'pageSize': 10,
     'page':1
+    filter = ''
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
@@ -57,6 +58,8 @@ def get_articles():
                 if isinstance(filter, dict):
                     for k in filter:
                         params[k] = filter[k]
+                        if k == '_id':
+                            params[k] = ObjectId(filter[k])
                 fnuser = connection.Article.find(params, {'del': 0}).limit(pageSize).skip((page - 1) * pageSize).sort(
                     [('_id', -1)])
                 for user in fnuser:
@@ -67,6 +70,15 @@ def get_articles():
                         type['_id'] = str(type['_id'])
                         user.type = type
                         type.date = type.date.strftime('%Y-%m-%d %H:%M:%S')
+                    authorId = ObjectId(user['author'])
+                    author = connection.APP_admin.one({'appkey': appkey, '_id': authorId}, {'del': 0,'permission':0,'password':0,'superadmin':0,'vip':0,'appsecret':0})
+                    if author:
+                        author['_id'] = str(author['_id'])
+                        user.author = author
+                    author1 = connection.APP_User.one({'appkey': appkey, '_id': authorId}, {'del': 0})
+                    if author1:
+                        author1['_id'] = str(author1['_id'])
+                        user.author = author1
                     admins['data'].append(user)
                 admins['count'] = fnuser.count()
                 return MyResult(admins).toJson()
@@ -110,14 +122,14 @@ def add_article():
                 user.type = data['type']
             if key == 'source':
                 user.source = data['source']
+            if key == 'recommend':
+                user.recommend = data['recommend']
             if key == 'content':
                 user.content = data['content']
             if key == 'htmlcontent':
                 user.htmlcontent = data['htmlcontent']
-            if key == 'review':
-                user.review = data['review']
-            if key == 'push':
-                user.push = data['push']
+            if key == 'status':
+                user.status = data['status']
             if key == 'token':
                 token = data['token']
             if key == 'reserved_1':
@@ -143,6 +155,11 @@ def add_article():
                     fnuser = connection.Article.find_one({'appkey': appkey, 'title': user.title, 'del': 0})
                     if fnuser:
                         if fnuser.title: return MyException(param.ARTICLE_RE_TITLE_FAILURE).toJson()
+                    if user.author:
+                       fnuser1 = connection.APP_admin.find_one({'appkey': appkey, '_id': ObjectId(user.author), 'del': 0})
+                       fnuser2 = connection.APP_User.find_one({'appkey': appkey, '_id': ObjectId(user.author), 'del': 0})
+                       if not fnuser1 and not fnuser2:
+                             return MyException(param.ARTICLE_AUTHOR_NULL).toJson()
                 except Exception, e:
                     return MyException(param.CHECK_FAILURE).toJson()
                 user.appkey = appkey
@@ -213,10 +230,8 @@ def app_article_update():
                         user.content = data['set']['content']
                     if key == 'htmlcontent':
                         user.content = data['set']['htmlcontent']
-                    if key == 'review':
-                        user.review = data['set']['review']
-                    if key == 'push':
-                        user.push = data['set']['push']
+                    if key == 'status':
+                        user.status = data['set']['status']
                     if key == 'reserved_1':
                         user.reserved_1 = data['set']['reserved_1']
                     if key == 'reserved_2':

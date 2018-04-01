@@ -32,6 +32,9 @@
 						},{
 							index: '/admin/Article/ArticleType',
 							title: '类别管理',
+						},{
+							index: '/admin/Article/ArticleRcmType',
+							title: '推荐类型管理',
 						},]
 					},
 					{

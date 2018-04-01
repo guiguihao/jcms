@@ -61,7 +61,7 @@
 	                 >
 	                 <template slot-scope="scope">
 	                   <el-button type="primary" size="small">查看</el-button>
-	                   <el-button type="primary" size="small" v-on:click="edit">编辑</el-button>
+	                   <el-button type="primary" size="small" v-on:click="edit(scope.row)">编辑</el-button>
 	                   <el-button type="danger" size="small">删除</el-button>
 	                 </template>
 	            </el-table-column>
@@ -146,19 +146,10 @@
          this.updataUser(this.form);
 	  },
 	  addArticle(){
-	  	this.$router.push('/admin/Article/ArticleEdit');
+	  	this.$router.push('/admin/Article/ArticleEdit/0');
 	  },
       edit(data){
-      	this.form = JSON.parse(JSON.stringify(data));
-      	this.form.vip = this.form.vip.name;
-      	if (this.form.status === 1) {
-      		this.status = '正常';
-      	}else if (this.form.status === 2) {
-      		this.status = '禁用';
-      	}else {
-      		this.status = '非法';
-      	}
-      	this.dialogFormVisible = true;
+      	this.$router.push('/admin/Article/ArticleEdit/' + data._id);
       },
       del(data){
          let dic = {_id:data._id,del:1,};

@@ -76,6 +76,7 @@ var RequestArticle = {
                params.set[k] = paramsDic[k];
             }
           }
+          console.log(JSON.stringify(params)); 
           let p = new Promise(function(resolve, reject){        //做一些异步操作
             axios.post(url, params).then((res) => {
              // console.log(JSON.stringify(res.data)); 

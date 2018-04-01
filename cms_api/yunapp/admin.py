@@ -13,6 +13,7 @@ from bson.objectid import ObjectId
 {
     'pageSize': 10,
     'page':1
+    filter = ''
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
@@ -24,6 +25,7 @@ def get_admins():
         appkey = ''
         pageSize = 50
         page = 1
+        filter = ''
         for key in data:
             if key == 'token':
                 token = data['token']
@@ -31,6 +33,8 @@ def get_admins():
                 pageSize = data['pageSize']
             if key == 'page':
                 page = data['page']
+            if key == 'filter':
+                filter = data['filter']
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
         else:
@@ -46,7 +50,14 @@ def get_admins():
                    'count':0,
                     'data':[],
                 }
-                fnuser = connection.APP_admin.find({'appkey':appkey,'del':0},{'active':0,'appsecret':0,'del':0}).limit(pageSize).skip((page-1)*pageSize)
+                params = {
+                    'appkey': appkey,
+                    'del': 0,
+                }
+                if isinstance(filter, dict):
+                    for k in filter:
+                        params[k] = filter[k]
+                fnuser = connection.APP_admin.find(params,{'active':0,'appsecret':0,'del':0}).limit(pageSize).skip((page-1)*pageSize)
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
                     admins['data'].append(user)

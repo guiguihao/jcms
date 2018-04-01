@@ -54,7 +54,7 @@ const router = new Router({
                     },
                        component: resolve => require(['../components/admin/ArticleList.vue'], resolve),
                 },{
-                    path: '/admin/Article/ArticleEdit',
+                    path: '/admin/Article/ArticleEdit/:id',
                     name:'ArticleEdit',
                     meta: {
                          title: '编辑文章'
@@ -67,6 +67,13 @@ const router = new Router({
                          title: '类别管理'
                     },
                        component: resolve => require(['../components/admin/ArticleType.vue'], resolve),
+                },{
+                    path: '/admin/Article/ArticleRcmType',
+                    name:'ArticleRcmType',
+                    meta: {
+                         title: '推荐类别管理'
+                    },
+                       component: resolve => require(['../components/admin/ArticleRcmType.vue'], resolve),
                 },{
                     path: '/admin/Product/ProductList',
                     name:'ProductList',

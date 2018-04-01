@@ -13,7 +13,7 @@ app.config.from_object(config)
 # connect to the database
 connection = Connection(app.config['MONGODB_HOST'],
                         app.config['MONGODB_PORT'])
-app.config['UPLOADS_DEFAULT_DEST'] = '/uploads/image'
+app.config['UPLOADS_DEFAULT_DEST'] = app.config['UPLOAD_FOLDER']
 
 
 app.debug = True
