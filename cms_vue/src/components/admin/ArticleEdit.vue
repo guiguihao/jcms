@@ -3,7 +3,7 @@
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 	          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
 	          <el-breadcrumb-item>文章列表</el-breadcrumb-item>
-	          <el-breadcrumb-item>编辑文章</el-breadcrumb-item>
+	          <el-breadcrumb-item>{{nav_title}}</el-breadcrumb-item>
 	    </el-breadcrumb>
         
         <div class = "myform">
@@ -205,6 +205,7 @@
          self.$request.article.addArticle(data).then((res)=>{
              if(res && res.data && res.data.code && res.data.code == 1) {
                 self.$message('添加文章成功');
+                this.$router.push('/admin/Article/ArticleList');
              } else {
                self.$message(res.data.msg);
              }
@@ -324,6 +325,11 @@
 
     created(){
       this.id = this.$route.params.id;
+      if (this.id === '0') {
+        this.nav_title = '添加文章';
+      }else{
+        this.nav_title = '编辑文章';
+      }
       this.requestUserType();
       this.requestTypeHot();
       this.getUser();

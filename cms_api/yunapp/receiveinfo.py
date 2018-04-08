@@ -1,6 +1,11 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
-from yunapp import connection,Document
+from yunapp import app,result,connection,request,tool,config,sms
+from yunapp.model.shopModel import *
+from yunapp.result import *
+from yunapp import param
+from bson.objectid import ObjectId
+from datetime import datetime
 
 
 
@@ -60,9 +65,11 @@ def Receiveinfo_del():
         receiveinfo = connection.Receiveinfo()
         token = ''
         appkey = ''
+        order = ''
         for key in data:
             if key == 'del':
-                order.titile = ObjectId data['del']
+                pass
+                # order.titile = ObjectId data['del']
             if key == 'token':
                 token = data['token']
         if token == '' or not token:
@@ -73,7 +80,7 @@ def Receiveinfo_del():
                 return MyException(resultTooken).toJson()
             else:
                 appkey = token.split('&&')[0] 
-        if order.titile and order.price
+        if order.titile and order.price:
             try:
                 connection.Receiveinfo.find_and_modify({'_id':order['_id'],'del':0},{'$set':{"del":1}})
                 return  MySucceedResult().toJson()

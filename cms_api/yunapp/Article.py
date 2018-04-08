@@ -70,6 +70,12 @@ def get_articles():
                         type['_id'] = str(type['_id'])
                         user.type = type
                         type.date = type.date.strftime('%Y-%m-%d %H:%M:%S')
+                    recommendID = ObjectId(user['recommend'])
+                    recommend = connection.Type.one({'appkey': appkey, '_id': recommendID},
+                                                      {'del': 0, 'date':0})
+                    if recommend:
+                        recommend['_id'] = str(recommend['_id'])
+                        user.recommend = recommend
                     authorId = ObjectId(user['author'])
                     author = connection.APP_admin.one({'appkey': appkey, '_id': authorId}, {'del': 0,'permission':0,'password':0,'superadmin':0,'vip':0,'appsecret':0})
                     if author:

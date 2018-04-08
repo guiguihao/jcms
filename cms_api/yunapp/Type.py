@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
 from yunapp import app,result,connection,request,tool,config,sms
-from yunapp.model.userModel import *
+from yunapp.model.typeModel import *
 from yunapp.result import *
 from yunapp import param
 from bson.objectid import ObjectId
@@ -53,15 +53,20 @@ def get_vips():
 def queryChildrenType(types,lists):
     for user in types:
         admins = {
-           'type':'',
+            'title':'',
+            'type':'',
             'children':[],
         }
         user['_id'] = str(user['_id'])
         user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
         admins['type'] = user
-        childrenTypes = connection.Type.find({'del':0,'parentID':user['_id']},{'del':0})
+        admins['title'] = user.name
         lists.append(admins)
-        queryChildrenType(childrenTypes,admins['children'])
+        childrenTypes = connection.Type.find({'del':0,'parentID':user['_id']},{'del':0})
+        if(childrenTypes.count()>0):
+           queryChildrenType(childrenTypes,admins['children'])
+        else:
+            del admins['children']
 
       
 
@@ -186,6 +191,8 @@ def app_vip_update():
                         user.reserved_4 = data['set']['reserved_4']
                     if key == 'del':
                         user['del'] = data['set']['del']
+                        if user['del'] == 1:
+                            delSubNode(appkey,data['_id'])
                 user.save()
                 user['_id'] = str(user['_id'])
                 return MyResult(user).toJson()
@@ -198,3 +205,11 @@ def app_vip_update():
             
     if request.method == 'GET':
         return param.PLEASE_USE_POST
+
+
+def delSubNode(appkey,id):
+     col = connection.Type.find({'appkey': appkey, 'parentID': id})
+     for type in  col:
+          type['del'] = 1
+          type.save()
+          delSubNode(appkey,str(type['_id']))

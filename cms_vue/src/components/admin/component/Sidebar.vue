@@ -28,7 +28,7 @@
 						permission:0,//1 显示 0不显示
 						subs: [{
 							index: '/admin/Article/ArticleList',
-							title: '文章列表',
+							title: '文章管理',
 						},{
 							index: '/admin/Article/ArticleType',
 							title: '类别管理',
@@ -43,25 +43,28 @@
 						title: '产品模块',
 						permission:0,//权限信息
 						subs: [{
-							index: 'ProductList',
+							index: '/admin/Product/ProductList',
 							title: '产品列表',
 						},{
-							index: 'ProductSales',
+							index: '/admin/Product/ProductSales',
 							title: '活动管理',
 						},{
-							index: 'ProductOrderList',
+							index: '/admin/Product/ProductOrderList',
 							title: '订单管理',
 						},{
-							index: 'ProductType',
+							index: '/admin/Product/ProductType',
 							title: '类别管理',
 						},{
-							index: 'ProductSaleCode',
+							index: '/admin/Product/ProductRcmType',
+							title: '推荐类型管理',
+						},{
+							index: '/admin/Product/ProductSaleCode',
 							title: '优惠码',
 						},{
-							index: 'home',
+							index: '/admin/Product/home',
 							title: '支付插件',
 						},{
-							index: 'ProductReturnGoods',
+							index: '/admin/Product/ProductReturnGoods',
 							title: '退货信息',
 						}]
 					},

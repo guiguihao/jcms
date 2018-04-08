@@ -1,147 +1,231 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
-from yunapp import app,result,connection
+from yunapp import app,result,connection,request,tool,config,sms
 from yunapp.model.shopModel import *
-from yunapp.model.typeModel import *
 from yunapp.result import *
+from yunapp import param
+from bson.objectid import ObjectId
+from datetime import datetime
+
 
 '''
-添加产品
+获取文章列表
 {
-    'titile':'xiaosan', #或phone email
-    'price':88
-    ''
-    ''
-    ...
+    'pageSize': 10,
+    'page':1
+    filter = ''
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
-@app.route('/shop/product/add',methods=['GET', 'POST'])
-def product_add():
+
+def getSubTypes(appkey,parentId,types):
+     types.append(parentId)
+     ftype = connection.Type.find({'appkey': appkey, 'del': 0, 'parentID': parentId}, {'del': 0})
+     for mtype in ftype:
+         mtypeid = str(mtype['_id'])
+         getSubTypes(appkey,mtypeid,types)
+
+
+@app.route('/app/product/list', methods=['GET', 'POST'])
+def get_products():
     if request.method == 'POST':
         data = request.get_json()
-        product = connection.Product()
-        token = ''
+        user = connection.Product()
         appkey = ''
+        pageSize = 50
+        page = 1
+        filter = ''
         for key in data:
-            if key == 'titile':
-                product.titile = data['titile']
+            if key == 'token':
+                token = data['token']
+            if key == 'pageSize':
+                pageSize = data['pageSize']
+            if key == 'page':
+                page = data['page']
+            if key == 'filter':
+                filter = data['filter']
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        else:
+            resultTooken = tool.ruleToken(token)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+
+        if appkey:
+            try:
+                typeid = ''
+                types = []
+                admins = {
+                    'count': 0,
+                    'data': [],
+                }
+                params = {
+                    'appkey': appkey,
+                    'del': 0,
+                }
+                if isinstance(filter, dict):
+                    for k in filter:
+                        if k == 'type':
+                            typeid = filter[k]
+                        else:
+                            params[k] = filter[k]
+                            if k == '_id':
+                                params[k] = ObjectId(filter[k])
+                if (len(typeid)>0):
+                    getSubTypes(appkey,typeid,types)
+                if(len(types)>0):
+                    params['type'] = {'$in':types}
+                fnuser = connection.Product.find(params,{'del':0})
+                for user in fnuser:
+                    user['_id'] = str(user['_id'])
+                    user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                    type = connection.Type.one({'appkey': appkey, '_id': ObjectId(user['type'])}, {'del': 0})
+                    if type:
+                        type['_id'] = str(type['_id'])
+                        user.type = type
+                        type.date = type.date.strftime('%Y-%m-%d %H:%M:%S')
+                    recommendID = ObjectId(user['recommend'])
+                    recommend = connection.Type.one({'appkey': appkey, '_id': recommendID},
+                                                      {'del': 0, 'date':0})
+                    if recommend:
+                        recommend['_id'] = str(recommend['_id'])
+                        user.recommend = recommend
+                    authorId = ObjectId(user['author'])
+                    author = connection.APP_admin.one({'appkey': appkey, '_id': authorId}, {'del': 0,'permission':0,'password':0,'superadmin':0,'vip':0,'appsecret':0})
+                    if author:
+                        author['_id'] = str(author['_id'])
+                        user.author = author
+                    author1 = connection.APP_User.one({'appkey': appkey, '_id': authorId}, {'del': 0})
+                    if author1:
+                        author1['_id'] = str(author1['_id'])
+                        user.author = author1
+                    admins['data'].append(user)
+                admins['count'] = fnuser.count()
+                return MyResult(admins).toJson()
+            except Exception as e:
+                print e
+                return MyException(param.CHECK_FAILURE).toJson()
+        else:
+            return MyException(param.REGISTER_FAILURE).toJson()
+
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
+
+
+'''
+添加文章
+{
+    'name':'xiaosan', #或phone email
+    'password':'11122',
+    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
+}
+'''
+
+
+@app.route('/app/product/add', methods=['GET', 'POST'])
+def add_product():
+    if request.method == 'POST':
+        data = request.get_json()
+        user = connection.Product()
+        appkey = ''
+        token = ''
+        for key in data:
+            if data[key] == '':
+                continue
+            if key == 'title':
+                user.title = data['title']
             if key == 'price':
-                product.price = data['price']
-            if key == 'sale':
-                product.sale = data['sale']
+                user.price = data['price']
+            if key == 'costprice':
+                user.costprice = data['costprice']
             if key == 'overview':
-                product.overview = data['overview']
-            if key == 'saleinfo':
-                product.saleinfo = data['saleinfo']
+                user.overview = data['overview']
+            if key == 'sale':
+                user.sale = data['sale']
             if key == 'type':
-                product.type = data['type']
+                user.type = data['type']
             if key == 'imgs':
-                product.imgs = data['imgs']
+                user.imgs = data['imgs']
             if key == 'describe':
-                product.describe = data['describe']
-            if key == 'token':
-                token = data['token']
+                user.describe = data['describe']
+            if key == 'recommend':
+                user.recommend = data['recommend']
             if key == 'buycount':
-                product.buycount = data['buycount']
-            if key == 'evaluate':
-                product.evaluate = data['evaluate']
-            if key == 'reserved_1':
-                product.reserved_1 = data['reserved_1']
-            if key == 'reserved_2':
-                product.reserved_1 = data['reserved_2']
-            if key == 'reserved_3':
-                product.reserved_1 = data['reserved_3']
-            if key == 'reserved_4':
-                product.reserved_1 = data['reserved_4']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-        else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0] 
-        if product.titile and product.price:
-            try:
-                product.save()
-                return  MySucceedResult().toJson()
-            except Exception as e:
-                return MyException(param.CHECK_FAILURE).toJson()
-        else:
-           return MyException(param.REGISTER_FAILURE).toJson()
-  
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-    
-
-'''
-删除产品
-{
-    'del':'pid'
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/shop/product/del',methods=['GET', 'POST'])
-def product_del():
-    if request.method == 'POST':
-        data = request.get_json()
-        product = connection.Product()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == 'del':
-                product.titile = ObjectId(data['del'])
+                user.buycount = data['buycount']
+            if key == 'author':
+                user.author = data['author']
+            if key == 'status':
+                user.status = data['status']
             if key == 'token':
                 token = data['token']
+            if key == 'reserved_1':
+                user.reserved_1 = data['reserved_1']
+            if key == 'reserved_2':
+                user.reserved_2 = data['reserved_2']
+            if key == 'reserved_3':
+                user.reserved_3 = data['reserved_3']
+            if key == 'reserved_4':
+                user.reserved_4 = data['reserved_4']
+
         if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
             resultTooken = tool.ruleToken(token)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
-                appkey = token.split('&&')[0] 
-        if product.titile and product.price:
+                appkey = token.split('&&')[0]
+        if user.title:
             try:
-                connection.product.find_and_modify({'_id':product['_id'],'del':0},{'$set':{"del":1}})
-                return  MySucceedResult().toJson()
+                try:
+                    if user.author:
+                       fnuser1 = connection.APP_admin.find_one({'appkey': appkey, '_id': ObjectId(user.author), 'del': 0})
+                       fnuser2 = connection.APP_User.find_one({'appkey': appkey, '_id': ObjectId(user.author), 'del': 0})
+                       if not fnuser1 and not fnuser2:
+                             return MyException(param.PRODUCT_AUTHOR_NULL).toJson()
+                except Exception, e:
+                    return MyException(param.CHECK_FAILURE).toJson()
+                user.appkey = appkey
+                user.date = datetime.now()
+                user.save()
+                return MySucceedResult().toJson()
             except Exception as e:
+                print  e
                 return MyException(param.CHECK_FAILURE).toJson()
         else:
-           return MyException(param.REGISTER_FAILURE).toJson()
-  
+            return MyException(param.ARTICLE_MUST_TITLE_FAILURE).toJson()
+
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 
 
-
-
 '''
-post 
+post  更新用户信息
 {
-    '_id': 'xxxxxxx',
+    '_id':'xxx'
     set:{
        设置需要更新的字段即可,如下,可多个字段,不能包含_id
-       titile : 'xx',
-       'price': '' 
+       name : 'xx',
+       'vip': 'vip类型_id', #通过获取所有vip类型可以获取_id  /user/vip/type/get 
     },
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
-@app.route('/shop/product/update',methods=['GET', 'POST'])
-def product_update():
+
+
+@app.route('/app/product/update', methods=['GET', 'POST'])
+def app_product_update():
     if request.method == 'POST':
         data = request.get_json()
         token = ''
         appkey = ''
         for key in data:
-            if key == '_id':
-                data['_id'] = ObjectId(data['_id'])
             if key == 'token':
                 token = data['token']
         if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
             resultTooken = tool.ruleToken(token)
             if resultTooken[0] != 1:
@@ -149,169 +233,54 @@ def product_update():
             else:
                 appkey = token.split('&&')[0]
         try:
-            connection.product.find_and_modify({'_id':data['_id'],'appkey':appkey,'del':0},{'$set':data['set']})
-            product = connection.product.find_one({'_id':data['_id'],'appkey':appkey,'del':0},{'del':0})
-            ptype = connection.Type.find_one({'_id':product.type,'appkey':appkey,'del':0},{'del':0})
-            product['_id'] = str(product['_id'])
-            product.type = ptype
-            return MyResult(product).toJson()
+            user = connection.Product.find_one({'appkey': appkey, '_id': ObjectId(data['_id'])})
+            if user:
+                user['del'] = int(user['del'])
+                for key in data['set']:
+                    if data['set'][key] == '':
+                        continue
+                    if key == 'title':
+                        user.title = data['set']['title']
+                    if key == 'price':
+                        user.price = data['set']['price']
+                    if key == 'costprice':
+                        user.costprice = data['set']['costprice']
+                    if key == 'overview':
+                        user.overview = data['set']['overview']
+                    if key == 'type':
+                        user.type = data['set']['type']
+                    if key == 'imgs':
+                        user.imgs = data['set']['imgs']
+                    if key == 'describe':
+                        user.describe = data['set']['describe']
+                    if key == 'recommend':
+                        user.recommend = data['set']['recommend']
+                    if key == 'buycount':
+                        user.buycount = data['set']['buycount']
+                    if key == 'author':
+                        user.author = data['set']['author']
+                    if key == 'status':
+                        user.status = data['set']['status']
+                    if key == 'reserved_1':
+                        user.reserved_1 = data['set']['reserved_1']
+                    if key == 'reserved_2':
+                        user.reserved_2 = data['set']['reserved_2']
+                    if key == 'reserved_3':
+                        user.reserved_3 = data['set']['reserved_3']
+                    if key == 'reserved_4':
+                        user.reserved_4 = data['set']['reserved_4']
+                    if key == 'del':
+                        user['del'] = data['set']['del']
+                user.save()
+                user['_id'] = str(user['_id'])
+                user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                return MyResult(user).toJson()
+            else:
+                return MyException(param.PRODUCT_NULL).toJson()
         except Exception as e:
+            print e
             return MyException(param.PARAM_FAILURE).toJson()
-            
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
 
-
-'''
-根据id获取产品 
-{
-    '_id': 'xxxxxxx',
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/shop/product/get/id',methods=['GET', 'POST'])
-def product_get_id():
-    if request.method == 'POST':
-        data = request.get_json()
-        token = ''
-        appkey = ''
-        _id = ''
-        for key in data:
-            if key == '_id':
-                _id = ObjectId(data['_id'])
-            if key == 'token':
-                token = data['token']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-        else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0]
-        if _id == '' or not _id:
-            return MyException(param.PARAM_FAILURE).toJson() 
-        try:
-            plist = [];
-            products = connection.product.find({'_id':_id,'appkey':appkey,'del':0},{'del':0})
-            for p in products:
-                ptype = connection.Type.find_one({'_id':p.type,'appkey':appkey,'del':0},{'del':0})
-                p['_id'] = str(p['_id'])
-                p.type = ptype
-                plist.append(p)
-            return MyResult(plist).toJson()
-        except Exception as e:
-            return MyException(param.PARAM_FAILURE).toJson()
-            
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-
-'''
-获取type下的产品
-{
-    'type': 'xxxxxxx',
-    'limit'10, 0 ,获取全部
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/shop/product/get/type',methods=['GET', 'POST'])
-def product_get_type():
-    if request.method == 'POST':
-        data = request.get_json()
-        token = ''
-        appkey = ''
-        ptype = ''
-        limit = 0
-        for key in data:
-            if key == 'type':
-                ptype = ObjectId(data['type'])
-            if key == 'limit':
-                limit = data['limit'] if data['limit'] >0 else 0
-            if key == 'token':
-                token = data['token']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-        else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0]
-        if ptype == '' or not ptype:
-            return MyException(param.PARAM_FAILURE).toJson() 
-        try:
-            plist = [];
-            products = ''
-            if limit == 0:
-                products = connection.Product.find({'type':ptype,'appkey':appkey,'del':0},{'del':0})
-            else:
-                products = connection.Product.find({'type':ptype,'appkey':appkey,'del':0},{'del':0}).limit(limit)
-            for p in products:
-                ptype = connection.Type.find_one({'_id':p.type,'appkey':appkey,'del':0},{'del':0})
-                p['_id'] = str(p['_id'])
-                p.type = ptype
-                plist.append(p)
-            return MyResult(plist).toJson()
-        except Exception as e:
-            return MyException(param.PARAM_FAILURE).toJson()
-            
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-
-
-'''
-获取type 推荐下的产品
-{
-    'type': 'xxxxxxx',
-    'recommend': 111  获取推荐值>111的数据
-    'limit'10, 0 ,获取全部
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/shop/product/get/type/recommend',methods=['GET', 'POST'])
-def product_get_type_recommend():
-    if request.method == 'POST':
-        data = request.get_json()
-        token = ''
-        appkey = ''
-        ptype = ''
-        recommend = ''
-        limit = 0
-        for key in data:
-            if key == 'type':
-                ptype = ObjectId(data['type'])
-            if key == 'recommend':
-                recommend = data['recommend'] 
-            if key == 'limit':
-                limit = data['limit'] if data['limit'] >0 else 0  
-            if key == 'token':
-                token = data['token']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-        else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0]
-        if (ptype == '' or not ptype) and (recommend == '' or not recommend):
-            return MyException(param.PARAM_FAILURE).toJson() 
-        try:
-            plist = [];
-            products = ''
-            if limit == 0:
-                 products = connection.Product.find({'type':ptype,'recommend':{'$gt':recommend},'appkey':appkey,'del':0},{'del':0}).sort({'recommend':-1})
-            else:
-                 products = connection.Product.find({'type':ptype,'recommend':{'$gt':recommend},'appkey':appkey,'del':0},{'del':0}).sort({'recommend':-1}).limit(limit)
-            for p in products:
-                ptype = connection.Type.find_one({'_id':p.type,'appkey':appkey,'del':0},{'del':0})
-                p['_id'] = str(p['_id'])
-                p.type = ptype
-                plist.append(p)
-            return MyResult(plist).toJson()
-        except Exception as e:
-            return MyException(param.PARAM_FAILURE).toJson()
-            
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 

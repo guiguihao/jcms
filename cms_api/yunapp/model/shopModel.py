@@ -1,6 +1,8 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
 from yunapp import connection,Document
+import datetime
+from mongokit import OR
 
 
 
@@ -17,19 +19,21 @@ class Product(Document):
    __collection__ = 'product'
    __database__ = 'shop'
    structure = {
-        'titile': unicode,      #标题
-        'price':float,          #原价
-        'sale':float,           #促销价格
+        'title': unicode,      #标题
+        'price':OR(float,int),          #销售价
+        'costprice': OR(float,int),      # 成本价 用于计算分销提成
         'overview': unicode,    #简介\概述
-        'saleinfo': unicode,    #促销信息
         'type':unicode,         #类型
         'imgs':list,            #主图list 地址
         'describe':unicode,     #描述
-        'recommend':int,        #推荐
+        'describe_html': unicode,  # 描述html
+        'recommend':unicode,        #推荐
         'buycount':int,         #购买数量
         'collectcount':int,     #收藏数量
-        'evaluate':list,         #评价
         'appkey':unicode,
+        'author':unicode,         #所有者 上传者
+        'date': OR(unicode, datetime.datetime),
+        'status':int, #0未审核 1,审核,2,未上架 3上架
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 
         'reserved_3':unicode,    #预留字段1 
@@ -37,13 +41,20 @@ class Product(Document):
         'del': int,#0 存在 1删除
     }
    validators = {
-        'titile': max_length(200),
+        'title': max_length(200),
         'overview': max_length(200),
-        'saleinfo': max_length(200),
+        'type': max_length(200),
+        'author': max_length(200),
         'describe': max_length(20000),
     }
    default_values = {
-        'del': 0,
+       'status':0,
+       'del': 0,
+       'date': datetime.datetime.now(),
+       'buycount': 0,
+       'collectcount': 0,
+       'price':0,
+       'costprice':0,
     }
    use_dot_notation = True
  
@@ -102,4 +113,31 @@ class Receiveinfo(Document):
         'del': 0,
     }
    required = ['time','user','price','product','receiveinfo','status']
+   use_dot_notation = True
+
+#退货信息
+@connection.register
+class ReturnGoodsinfo(Document):
+   __collection__ = 'returnGoods'
+   __database__ = 'shop'
+   structure = {
+        'appkey': unicode,         #appkey
+        'phone':unicode,          #手机号码
+        'telephone':unicode,           #电话
+        'address': unicode,        #详细地址
+        'receiver':unicode,        #收件人
+        'code':unicode,             #邮编
+        'mark': unicode,           # 备注
+    }
+   validators = {
+        'receiver': max_length(200),
+        'code': max_length(200),
+        'telephone': max_length(200),
+        'phone': max_length(200),
+        'address': max_length(200),
+        'mark': max_length(10000),
+    }
+   default_values = {
+    }
+   required = ['appkey']
    use_dot_notation = True

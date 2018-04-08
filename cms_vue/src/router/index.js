@@ -82,7 +82,7 @@ const router = new Router({
                     },
                        component: resolve => require(['../components/admin/ProductList.vue'], resolve),
                 },{
-                    path: '/admin/Product/ProductEdit',
+                    path: '/admin/Product/ProductEdit/:id',
                     name:'ProductEdit',
                     meta: {
                          title: '编辑产品'
@@ -113,12 +113,19 @@ const router = new Router({
                     },
                        component: resolve => require(['../components/admin/ProductOrderList.vue'], resolve),
                 },{
-                    path: '/ProductType',
+                    path: '/admin/Product/ProductType',
                     name:'ProductType',
                     meta: {
                          title: '产品类别'
                     },
                        component: resolve => require(['../components/admin/ProductType.vue'], resolve),
+                },{
+                    path: '/admin/Product/ProductRcmType',
+                    name:'ProductRcmType',
+                    meta: {
+                         title: '产品推荐类别管理'
+                    },
+                       component: resolve => require(['../components/admin/ProductRcmType.vue'], resolve),
                 },{
                     path: '/admin/Product/ProductSaleCode',
                     name:'ProductSaleCode',

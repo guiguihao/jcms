@@ -104,14 +104,16 @@
         self.$axios.post(self.url, params).then((res) => {
           // console.log(JSON.stringify(res.data));
           if(res && res.data && res.data.code && res.data.code == 1) {
-             self.form = res.data.data;
+            if (res.data.data) {
+              self.form = res.data.data;
              if (self.form.status == 1) {
                  self.radio3='开启';
              }else{
                  self.radio3='关闭';
              }
              // console.log(JSON.stringify(res.data));
-
+            }
+             
           } else {
             self.$message(res.data.msg);
           }

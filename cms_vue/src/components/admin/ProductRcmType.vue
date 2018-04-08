@@ -6,35 +6,44 @@
       </el-breadcrumb>
 
       <div class ="mytable">
-        <el-button v-on:click="addType">添加一级分类</el-button>
+        <el-button v-on:click="addType">添加类别</el-button>
       </div>
 
       <div class ="mytable">
-         <el-tree :data="tableData2" :props="defaultProps" :default-expand-all="true">
-              <span class="custom-tree-node" slot-scope="{ node, data }">
-                      <span>{{ node.label }}</span>
-                      <span>
-                        <el-button
-                          type="text"
-                          size="mini"
-                          @click="() => append(data)">
-                          添加子类
-                        </el-button>
-                        <el-button
-                          type="text"
-                          size="mini"
-                          @click="() => edit(node, data)">
-                          编辑
-                        </el-button>
-                        <el-button
-                          type="text"
-                          size="mini"
-                          @click="() => remove(node, data)">
-                          删除
-                        </el-button>
-                      </span>
-                    </span>
-         </el-tree>
+         <template>
+           <el-table
+             :data="tableData2"
+             style="width: 100%"
+            >
+             <el-table-column
+               prop="type.name"
+               label="类别名称"
+               width="200">
+             </el-table-column>
+
+              <el-table-column
+               prop="type.dec"
+               label="描述"
+               width="300">
+             </el-table-column>
+         
+             <el-table-column
+               prop="type.level"
+               width="160"
+               label="排序(级别)">
+             </el-table-column>
+
+              <el-table-column
+                   width="220"
+                   label="操作"
+                   >
+                   <template slot-scope="scope">
+                     <el-button type="primary" size="small" v-on:click="edit(scope.row)">编辑</el-button>
+                     <el-button type="danger" size="small" v-on:click="del(scope.row)">删除</el-button>
+                   </template>
+              </el-table-column>
+           </el-table>
+         </template>
       </div>
 
      
@@ -71,19 +80,23 @@
 
     methods: {
 
-      append(data){
-         this.form={
-          parentID:data.type._id,
+      addType(){
+        this.form={
           name: '',
           level: 1,
-          dec:''  
+          dec:''
         };
-        this.title='添加一级分类';
+        this.title='添加推荐类别';
         this.addOrEdit = true;
         this.dialogFormVisible = true;
-
       },
-      remove(node, data) {
+      edit(data){
+        this.form = JSON.parse(JSON.stringify(data.type));
+        this.title='编辑推荐类别';
+        this.addOrEdit = false;
+        this.dialogFormVisible = true;
+      },
+      del(data){
         this.form={
           del:0,
           _id:''
@@ -91,24 +104,8 @@
         let ojc = JSON.parse(JSON.stringify(data.type));
         this.form.del = 1;
         this.form._id = ojc._id;
-        console.log
         this.requestUpData(this.form);
-       },
-      addType(){
-        this.form={
-          name: '',
-          level: 1,
-          dec:''  
-        };
-        this.title='添加一级分类';
-        this.addOrEdit = true;
-        this.dialogFormVisible = true;
-      },
-      edit(node,data){
-        this.form = JSON.parse(JSON.stringify(data.type));
-        this.title='编辑类别';
-        this.addOrEdit = false;
-        this.dialogFormVisible = true;
+
       },
       submitForm(formName){
          this.$refs[formName].validate((valid) => {
@@ -131,7 +128,7 @@
 
       requestData() {
         let self = this;
-         self.$request.type.getTypeList('shop').then((res)=>{
+         self.$request.type.getTypeList('shop_hot').then((res)=>{
           console.log(JSON.stringify(res.data));
             if(res && res.data && res.data.code && res.data.code == 1) {
                 self.tableData2 = res.data.data;
@@ -147,7 +144,7 @@
 
       requestAddData(data) {
         let self = this;
-        self.$request.type.addType('shop',data).then((res)=>{
+        self.$request.type.addType('shop_hot',data).then((res)=>{
           // console.log(JSON.stringify(res.data));
             if(res && res.data && res.data.code && res.data.code == 1) {
                 this.requestData();
@@ -202,10 +199,6 @@
             { required: true, message: '请输入级别', trigger: 'blur' },
             { type: 'number', message: '必须为数字值'}
           ],
-        },
-        defaultProps: {
-          children: 'children',
-          label: 'title',
         }
       }
     }
@@ -228,13 +221,5 @@
 
   .el-table .success-row {
     background: #f0f9eb;
-  }
-  .custom-tree-node {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 14px;
-    padding-right: 18px;
   }
 </style>

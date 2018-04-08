@@ -46,6 +46,30 @@ def save_img():
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 
+
+@app.route('/app/save/img2', methods=['GET', 'POST'])
+def save_img2():
+    if request.method == 'POST':
+        print '```````````````````'
+        token = request.form['token']
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        else:
+            resultTooken = tool.ruleToken(token)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+        if appkey:
+            filename = files.save(request.files['file'])
+            url = files.url(filename)
+            return MyResult({'url':url}).toJson()
+        else:
+            return MyException(resultTooken).toJson()
+
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
+
 @app.route('/app/del/img', methods=['GET', 'POST'])
 def del_img():
     if request.method == 'POST':

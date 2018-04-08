@@ -13,6 +13,7 @@ def max_length(length):
         raise Exception('%s must be at most %s characters long' % length)
     return validate
 
+
 @connection.register
 class Type(Document):
    __collection__ = 'type'
@@ -23,7 +24,7 @@ class Type(Document):
         'dec':unicode,
         'appkey':unicode,
         'date':OR(unicode,datetime.datetime),
-        'type':IS(u'article',u'article_hot', u'shop', u'user'),
+        'type':IS(u'article',u'article_hot', u'shop',u'shop_hot', u'user'),
         'parentID':unicode, 
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 

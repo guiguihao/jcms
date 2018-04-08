@@ -39,7 +39,8 @@ def app_info_get():
             appInfo.appkey = appkey
     try:
         fdApp = connection.AppInfo.find_one({'appkey':appkey})
-        fdApp['_id'] = str(fdApp['_id'])
+        if fdApp:
+            fdApp['_id'] = str(fdApp['_id'])
         return MyResult(fdApp).toJson()              
     except Exception as e:
           return MyException(param.PARAM_FAILURE).toJson()
