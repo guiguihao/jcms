@@ -19,6 +19,7 @@ app.config['UPLOADS_DEFAULT_DEST'] = app.config['UPLOAD_FOLDER']
 app.debug = True
 
 from yunapp import shop
+from yunapp import ShopSale
 from yunapp import admin
 from yunapp import user
 from yunapp import Type

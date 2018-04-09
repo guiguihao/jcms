@@ -2,6 +2,7 @@ import RequestType from './RequstType'
 import RequstUser from './RequstUser'
 import RequstArticle from './RequstArticle'
 import Requestproduct from './Requestproduct'
+import RequestproductSale from './RequestproductSale'
 import RequstImg from './RequstImg'
 import RequstReturnGoods from './RequstReturnGoods'
 
@@ -12,6 +13,7 @@ var Request = {
 	img:RequstImg,
 	RequstReturnGoods:RequstReturnGoods,
 	product:Requestproduct,
+	productSale:RequestproductSale,
 };
 
 export default Request

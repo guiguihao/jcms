@@ -57,6 +57,35 @@ class Product(Document):
        'costprice':0,
     }
    use_dot_notation = True
+
+
+@connection.register
+class Sale(Document):
+   __collection__ = 'sale'
+   __database__ = 'shop'
+   structure = {
+        'title': unicode,      #标题
+        'describe':unicode,     #描述
+        'startdate':unicode,
+        'enddate': unicode,
+        'appkey': unicode,
+        'products':[],           #参与活动的产品
+        'reserved_1':unicode,    #预留字段1
+        'reserved_2':unicode,    #预留字段1
+        'reserved_3':unicode,    #预留字段1
+        'reserved_4':unicode,    #预留字段1
+        'del': int,#0 存在 1删除
+    }
+   validators = {
+        'title': max_length(200),
+        'describe': max_length(200),
+        'startdate': max_length(200),
+        'enddate': max_length(200),
+    }
+   default_values = {
+       'del': 0,
+    }
+   use_dot_notation = True
  
 @connection.register
 class Order(Document):
