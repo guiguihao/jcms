@@ -12,6 +12,7 @@ import 'mavon-editor/dist/css/index.css'
 
 import token from './tool/token'
 import Request from './tool/Requst'
+import Orther from './tool/orther'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
@@ -19,6 +20,7 @@ Vue.use(mavonEditor)
 Vue.prototype.$axios = axios
 Vue.prototype.$token = token
 Vue.prototype.$request = Request
+Vue.prototype.$orther = Orther
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

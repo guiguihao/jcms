@@ -1,68 +1,124 @@
 <template>
 	<div>
 		<el-breadcrumb separator-class="el-icon-arrow-right">
-	          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-	          <el-breadcrumb-item>活动管理</el-breadcrumb-item>
-	          <el-breadcrumb-item>活动列表</el-breadcrumb-item>
+	          <el-breadcrumb-item :to="{ path: '/admin' }">首页</el-breadcrumb-item>
 	          <el-breadcrumb-item>订单管理</el-breadcrumb-item>
 	    </el-breadcrumb>
 
 	    <div class ="mytable">
-	      <el-button>全部</el-button>
-	      <el-button>待付款</el-button>
-	      <el-button>待发货</el-button>
-	      <el-button>已发货</el-button>
-	      <el-button>已完成</el-button>
-	      <el-button>退款中</el-button>
+	     
+	        <el-button v-on:click = "status = 0">待付款</el-button>
+	        <el-button v-on:click = "status = 1">待发货</el-button>
+	        <el-button v-on:click = "status = 2">已发货</el-button>
+	        <el-button v-on:click = "status = 3">已完成</el-button>
+	        <el-button v-on:click = "status = 4">已关闭</el-button>
 	    </div>
 
-	    <div class ="mytable">
-	       <template>
-	         <el-table
-	           :data="tableData2"
-	           style="width: 100%"
-	           :row-class-name="tableRowClassName">
-	           <el-table-column
-	             prop="title"
-	             label="产品名称"
-	             width="360">
-	           </el-table-column>
-	          
-	           <el-table-column
-	             prop="Price"
-	             width="120"
-	             label="原价">
-	           </el-table-column>
-	            <el-table-column
-	             prop="Price"
-	             width="120"
-	             label="实付价格">
-	           </el-table-column>
-	           <el-table-column
-	                 width="130"
-	                 label="状态"
-	                 >
-	                 <template slot-scope="scope">
-	                   <el-button v-if="scope.row.status == '已发布'" type="text" size="small" style='color: #67C23A'>已完成</el-button>
-	                   <el-button v-if="scope.row.status == '已下架'" type="text" size="small" style='color: #F56C6C' >待付款</el-button>
-	                 </template>
-	            </el-table-column>
-               <el-table-column
-	             prop="ArticleType"
-	             label="推荐"
-	             width="80">
-	           </el-table-column>
+	     <div class ="mytable" style="margin-top: 10px">
 	       
-	            <el-table-column
-	                 width="220"
-	                 label="操作"
-	                 >
-	                 <template slot-scope="scope">
-	                   <el-button type="primary" size="small">查看</el-button>
-	                   <el-button type="primary" size="small" v-on:click="edit">编辑</el-button>
-	                 </template>
-	            </el-table-column>
-	         </el-table>
+	        <el-button v-on:click = "refundstatus = 1">处理申请退款</el-button>
+	        <el-button v-on:click = "refundstatus = 2">同意退款</el-button>
+	        <el-button v-on:click = "refundstatus = 3">拒绝退款</el-button>
+	        <el-button v-on:click = "refundstatus = 4">已完成退款</el-button>
+	        <el-button v-on:click = "refundstatus = 5">关闭退款</el-button>
+	    </div>
+
+	     <div class ="mytable" style="margin-top: 10px">
+	       
+	       <el-input v-model="orderCode" placeholder="请输入订单编号" style="width: 360px;"></el-input>
+	       <el-input v-model="username" placeholder="请输入用户名" style="width: 160px;" ></el-input>
+	       <el-input v-model="userphone" placeholder="请输入手机号码" style="width: 160px; "></el-input>
+	       <el-button type="primary" icon="el-icon-search" v-on:click="query">搜索</el-button>
+	    </div>
+
+	    <div class ="mytable" v-for="item in tableData2">
+	       <template > 
+	         <el-card class="box-card">
+	           <div slot="header" class="clearfix">
+	             <span>订单编号:{{item._id}}</span>
+	             <span  style="margin-left: 50px">下单日期:{{item.date}}</span>
+	             <span style="margin-left: 50px">购买用户:{{item.user.name}}</span>
+	             <el-button  style="margin-left: 50px" type="warning" v-if = "item.status == 0" v-on:click = "orderStatus(item)">待付款</el-button>
+	             <el-button  style="margin-left: 50px" type="danger" v-if = "item.status == 1" v-on:click = "orderStatus(item)">发货</el-button>
+	             <el-button  style="margin-left: 50px" type="primary" v-if = "item.status == 2" v-on:click = "orderStatus(item)">已发货</el-button>
+	             <el-button  style="margin-left: 50px" type="success" v-if = "item.status == 3" v-on:click = "orderStatus(item)">交易完成</el-button>
+	             <el-button  style="margin-left: 50px" type="info" v-if = "item.status == 4" v-on:click = "orderStatus(item)">交易已关闭</el-button>
+	           </div>
+               	         <el-table
+               	           :data=item.product
+               	           style="width: 100%"
+               	           :show-header = "false"
+               	           >
+               	           <el-table-column
+               	              prop="_id"
+               	             label="订单编号"
+               	             width="380">
+               	               <template slot-scope="scope">
+                                      <img :src=scope.row.imgs[0] width="50" height="50"  style="float: left; margin-right: 15px">
+                                     <el-button type="text" style="color: #606266">{{scope.row.title }}</el-button>
+                                 </template>
+               	           </el-table-column>
+               	           <el-table-column
+               	             label="价格"
+               	             width="100">
+               	              <template slot-scope="scope">
+                                      <el-button type="text"  style="color: #606266">专柜价 :    {{scope.row.price }}</el-button>
+                                 </template>
+               	           </el-table-column>
+               	           <el-table-column
+               	             label="促销价"
+               	             width="100">
+               	              <template slot-scope="scope">
+                                      <el-button type="text"  style="color: #606266" v-if = "scope.row.saleprice>0">活动价 :    {{scope.row.saleprice }}</el-button>
+                                 </template>
+               	           </el-table-column>
+
+               	           <el-table-column
+               	             label="颜色"
+               	             width="100">
+               	              <template slot-scope="scope">
+                                      <el-button type="text"  style="color: #606266" v-if = "scope.row.price.length>0">颜色 :    {{scope.row.colour }}</el-button>
+                                 </template>
+               	           </el-table-column>
+               	           <el-table-column
+               	             prop="price"
+               	             label="尺寸"
+               	             width="100">
+               	              <template slot-scope="scope">
+                                      <el-button type="text"  style="color: #606266" v-if = "scope.row.price.length>0">尺寸 :    {{scope.row.size }}</el-button>
+                                 </template>
+               	           </el-table-column>
+               	           <el-table-column
+               	             label="购买数量"
+               	             width="100">
+               	              <template slot-scope="scope">
+                                      <el-button type="text"  style="color: #606266" v-if = "scope.row.count>0">购买数量 :    {{scope.row.购买数量 }}</el-button>
+                                 </template>
+               	           </el-table-column>
+               	         </el-table>
+
+               	       <div class="bottom">
+
+               	          <el-button v-if="item.refund.status === 1" type="text" style=" float: right; margin-top: 3px; margin-left: 20px; color: #F56C6C" @click="refundInfo(item)">
+                              退款申请中
+               	          </el-button>
+               	           <el-button v-if="item.refund.status === 2" type="text" style=" float: right; margin-top: 3px; margin-left: 20px; color: #F56C6C" @click="refundInfo(item)">
+                              同意退款,等待买家退回货物
+               	          </el-button>
+               	           <el-button v-if="item.refund.status === 3" type="text" style=" float: right; margin-top: 3px; margin-left: 20px; color: #F56C6C" @click="refundInfo(item)">
+                              拒绝退款
+               	          </el-button>
+               	          <el-button v-if="item.refund.status === 4" type="text" style=" float: right; margin-top: 3px; margin-left: 20px; color: #F56C6C" @click="refundInfo(item)">
+                              退款完成
+               	          </el-button>
+               	          <el-button v-if="item.refund.status === 5" type="text" style=" float: right; margin-top: 3px; margin-left: 20px; color: #F56C6C" @click="refundInfo(item)">
+                              退款取消
+               	          </el-button>
+               	          <el-button type="text" style=" float: right; margin-top: 3px;margin-left: 20px" v-if = "item.status > 1 && item.status!=4" @click="expressinfo(item)">物流信息</el-button>  
+               	          <el-button type="text" style=" float: right; margin-top: 3px; margin-left: 20px" @click="receiveinfo(item)">收件信息</el-button>     
+               	          <span style=" float: right; margin-right: 50px">实际支付:   {{item.price}}  元</span>    
+               	       </div>
+	         </el-card>
 	       </template>
 	    </div>
 
@@ -72,111 +128,426 @@
 	          @current-change="handleCurrentChange"
 	          :current-page="currentPage"
 	          :page-sizes="[20, 40, 60, 100]"
-	          :page-size="20"
+	          :page-size=pagesize
 	          layout="total, sizes, prev, pager, next, jumper"
-	          :total="400">
+	          :total=total>
 	        </el-pagination>
-	      </div>
+	    </div>
 
-	     <el-dialog :title=title :visible.sync="dialogFormVisible">
-	      <el-form :model="form">
-	        <el-form-item label="产品名称" :label-width="formLabelWidth">
-	          <el-input v-model="form.name" auto-complete="off" :disabled="true" style="width: 300px;"></el-input>
-	        </el-form-item>
-	        <el-form-item label="价格" :label-width="formLabelWidth">
-	          <el-input v-model="form.sort" auto-complete="off" :disabled="true" style="width: 80px;"></el-input>
-	        </el-form-item>
-	        <el-form-item label="实付价格"  :label-width="formLabelWidth">
-	          <el-input v-model="form.sort" auto-complete="off"  style="width: 80px;"></el-input>
-	        </el-form-item>
-	        <el-form-item label="优惠嘛" :label-width="formLabelWidth">
-	          <el-input v-model="form.sort" auto-complete="off" :disabled="true"  style="width: 80px;"></el-input>
-	        </el-form-item>
-	        <el-form-item label="参加的活动" :label-width="formLabelWidth">
-	          <el-tag type="info">XXX大促</el-tag>
-	        </el-form-item>
-	        <el-form-item label="状态" :label-width="formLabelWidth">
-	         <el-select v-model="form.region" placeholder="请选择活动区域">
-	               <el-option label="已发货" value="shanghai"></el-option>
-	               <el-option label="已完成" value="beijing"></el-option>
-	             </el-select>
-	        </el-form-item>
-	        <el-form-item label="买家ID" :label-width="formLabelWidth">
-	          <el-button type="text">xxxxx</el-button>
-	        </el-form-item>
-	        <el-form-item label="买家手机" :label-width="formLabelWidth">
-	          <el-input v-model="form.name" auto-complete="off" style="width: 300px;"></el-input>
-	        </el-form-item>
-	        <el-form-item label="收货地址" :label-width="formLabelWidth">
-	          <el-input v-model="form.name" auto-complete="off" style="width: 300px;"></el-input>
-	        </el-form-item>
+
+        <!-- 等待买家付款 -->
+	    <el-dialog
+	      title="等待买家付款"
+	      :visible.sync="dialogFormVisible0"
+	      >
+	      <el-form :model="form" :label-width="formLabelWidth" label-position="left">
+	          <el-form-item label="实际支付价格" >
+	            <el-input v-model.number="form.price" auto-complete="off" style="width: 120px"></el-input>
+	            <el-button type="danger" plain  @click="updateOrder('updatePrice')">修改</el-button>
+	          </el-form-item>
+
+	          <el-button plain  type="danger"   @click="updateOrder('clodesOrder')">关闭订单</el-button>
+	         
 	      </el-form>
-	      <div slot="footer" class="dialog-footer">
-	        <el-button @click="dialogFormVisible = false">取 消</el-button>
-	        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-	      </div>
+	      <span slot="footer" class="dialog-footer">
+	        <el-button type="primary" @click="dialogFormVisible0 = false">关闭窗口</el-button>
+	      </span>
 	    </el-dialog>
+
+
+
+
+       <!-- 发货 -->
+      <el-dialog title="发货" :visible.sync="dialogFormVisible1">
+        <el-form :model="expressform">
+          <el-form-item label="快递名称" :label-width="formLabelWidth">
+            <el-select v-model="expressform.name" placeholder="请选择活动物流">
+                  <el-option label="顺丰快递" value="顺丰快递"></el-option>
+                  <el-option label="申通快递" value="申通快递"></el-option>
+                  <el-option label="圆通快递" value="圆通快递"></el-option>
+                  <el-option label="中通快递" value="中通快递"></el-option>
+                  <el-option label="韵达快递" value="韵达快递"></el-option>
+                  <el-option label="天天快递" value="天天快递"></el-option>
+                  <el-option label="邮政-平邮" value="邮政-平邮"></el-option>
+                  <el-option label="邮政-EMS" value="邮政-EMS"></el-option>
+             </el-select>
+          </el-form-item>
+          <el-form-item label="快递单号" :label-width="formLabelWidth">
+            <el-input v-model="expressform.code" auto-complete="off" style="width: 300px;"></el-input>
+          </el-form-item>
+         
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible1 = false">取 消</el-button>
+          <el-button type="primary" @click="updateOrder('express')">确 定</el-button>
+        </div>
+      </el-dialog>
+
+
+
+      <!-- 修改订单状态 -->
+      <el-dialog title="修改订单状态" :visible.sync="dialogFormVisible2">
+        <el-form :model="form">
+             <el-button plain  type="danger"   @click="updateOrder('OrderDone')">交易完成</el-button>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+           <el-button type="primary" @click="dialogFormVisible2 = false">关闭窗口</el-button>
+        </div>
+      </el-dialog>
+
+
+       <!-- 修改收货地址 -->
+      <el-dialog title="收件信息" :visible.sync="dialogFormVisible3">
+        <el-form :model="form"  label-width="80px">
+            <el-form-item label="收件姓名:" >
+              <el-input v-model="form.name" auto-complete="off"  style="width: 300px;"></el-input>
+            </el-form-item>
+            <el-form-item label="收件电话" >
+              <el-input v-model="form.phone" auto-complete="off"  ></el-input>
+            </el-form-item>
+            <el-form-item label="收件地址" >
+                  <el-input  v-model="form.address" style="width: 220px;"></el-input>
+            </el-form-item>
+             <el-form-item label="邮编"  >
+                  <el-input  type="textarea" v-model="form.code" style="width: 400px;"></el-input>
+            </el-form-item>
+            <el-form-item label="备注"  >
+                  <el-input  type="textarea" v-model="form.remake" style="width: 400px;"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+           <el-button @click="dialogFormVisible3 = false">取 消</el-button>
+          <el-button type="primary" @click="submitReceiveinfo">确 定</el-button>
+        </div>
+      </el-dialog>
+
+       <!-- 退款信息 -->
+      <el-dialog title="退款信息" :visible.sync="dialogFormVisible4">
+        <el-form :model="refundInfoform"  label-width="80px">
+             <el-form-item label="退款状态:">
+                  <el-button type="text"  v-if="refundInfoform.status === 1" >退款申请中</el-button>
+                  <el-button type="text"  v-if="refundInfoform.status === 2" >已同意退款</el-button>
+                  <el-button type="text"  v-if="refundInfoform.status === 3" >已拒绝退款</el-button>
+                  <el-button type="text"  v-if="refundInfoform.status === 4" >完成退款</el-button>
+             </el-form-item>
+             <el-form-item label="退款操作:">
+                  <el-button plain  type="danger" v-if="refundInfoform.status === 1 || refundInfoform.status === 2 || refundInfoform.status === 3"   @click="updateOrder('OrderApprove')">同意退款</el-button>
+                  <el-button plain  type="danger" v-if="refundInfoform.status === 1 || refundInfoform.status === 2 || refundInfoform.status === 3"   @click="updateOrder('OrderDisapprove')">拒绝退款</el-button>
+                   <el-button plain  type="danger" v-if="refundInfoform.status === 2"  @click="updateOrder('OrderDidapprove')">完成退款</el-button>
+             </el-form-item>
+            <el-form-item label="退款产品" >
+              <el-table
+               	           :data=refundInfoform.products
+               	           style="width: 100%"
+               	           :show-header = "false"
+               	           >
+               	           <el-table-column
+               	              prop="_id"
+               	             label="订单编号"
+               	             width="380">
+               	               <template slot-scope="scope">
+                                      <img :src=scope.row.imgs[0] width="50" height="50"  style="float: left; margin-right: 15px">
+                                     <el-button type="text" style="color: #606266">{{scope.row.title }}</el-button>
+                                 </template>
+               	           </el-table-column>
+               	           <el-table-column
+               	             label="数量"
+               	             width="150">
+               	               <template slot-scope="scope">
+                                     <el-button type="text" style="color: #606266">退款数量:{{scope.row.price }}</el-button>
+                                 </template>
+               	           </el-table-column>
+               	          
+               	</el-table>
+
+            </el-form-item>
+            <el-form-item label="退款金额" >
+              <el-input v-model="refundInfoform.price" auto-complete="off"  style="width: 80px;"></el-input>
+            </el-form-item>
+            <el-form-item label="物流名称" >
+                  <el-input  v-model="refundInfoform.express.name" style="width: 220px;"></el-input>
+            </el-form-item>
+            <el-form-item label="物流单号" >
+                  <el-input  v-model="refundInfoform.express.code" style="width: 220px;"></el-input>
+            </el-form-item>
+            <el-form-item label="备注"  >
+                  <el-input  type="textarea" v-model="refundInfoform.remake" style="width: 400px;"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+           <el-button @click="dialogFormVisible4 = false">取 消</el-button>
+          <el-button type="primary" @click="submitrefundInfo">确 定</el-button>
+        </div>
+      </el-dialog>
+
     </div>
 </template>
 
 <script>
   export default {
+  	watch:{
+  		status: function (val) {
+  		      let params = {
+            status:val,
+          }
+          this.requestData(params);
+  		},
+  		refundstatus: function (val) {
+  		 let params = {
+            refund:{
+               status:val,
+            },
+          }
+          console.log(params);
+          this.requestData(params);
+  		},
+  		
+  	},
+  	created(){
+
+      this.requestData();
+
+  	},
     methods: {
-     
+
+      orderStatus(data){
+         
+         this.form = JSON.parse(JSON.stringify(data));
+         console.log(this.form);
+ 
+      	// 待付款状态
+      	if (data.status === 0) {
+          this.dialogFormVisible0=true;
+          
+      	}   
+
+      	// 待发货状态
+      	if (data.status === 1) {
+          this.dialogFormVisible1=true;
+          this.expressform = JSON.parse(JSON.stringify(this.form.express));
+      	}
+
+      	// 已发货
+      	if (data.status === 2) {
+          this.dialogFormVisible2=true;
+      	}
+
+      },
+       
+       updateOrder(data){
+       	  
+       	  let params = {
+             _id:this.form._id,
+       	  }
+       	  if (data === 'updatePrice') {
+              params.price = this.form.price;
+       	  }
+       	  if (data === 'clodesOrder') {
+              params.status = 4;
+       	  }
+       	  if (data === 'express') {
+              params.status = 2;
+              params.express=this.expressform;
+       	  }
+       	  if (data === 'OrderDone') {
+              params.status = 3;
+       	  }
+       	   if (data === 'OrderApprove') {
+       	   	  this.refundInfoform.status = 2;
+       	   	  params._id=this.refundInfoform._id,
+              params.refund = this.refundInfoform;
+       	  }
+       	  if (data === 'OrderDisapprove') {
+       	  	 this.refundInfoform.status = 3;
+       	  	 params._id=this.refundInfoform._id,
+              params.refund = this.refundInfoform;
+              
+       	  }
+         if (data === 'OrderDidapprove') {
+       	  	 this.refundInfoform.status = 4;
+       	  	 params._id=this.refundInfoform._id,
+              params.refund = this.refundInfoform;
+              
+       	  }
+
+       	  this.updataUser(params);
+          
+       },
+      receiveinfo(data){
+        this.form = JSON.parse(JSON.stringify(data.receiveinfo));
+        this.form._id = data._id;
+        this.dialogFormVisible3 = true;
+       
+
+       },
+       submitReceiveinfo(){
+       		let params = {
+       	      _id:this.form._id,
+              receiveinfo:{},
+       		  }
+       		 for (let k in this.form){
+       	     params.receiveinfo[k] = this.form[k];
+       	   }
+       	    this.updataUser(params);
+       },
+       expressinfo(data){
+
+            this.expressform = JSON.parse(JSON.stringify(data.express));
+            this.expressform._id = data._id;
+            this.dialogFormVisible1 = true;
+       },
+       refundInfo(data){
+        this.refundInfoform = JSON.parse(JSON.stringify(data.refund));
+        this.refundInfoform._id = data._id;
+        this.dialogFormVisible4 = true;   
+       },
+       submitrefundInfo(){
+       			let params = {
+       		      _id:this.refundInfoform._id,
+       	          refund:{},
+       			  }
+       			 for (let k in this.refundInfoform){
+       		     params.refund[k] = this.refundInfoform[k];
+       		   }
+       		    this.updataUser(params);
+       },
+      getSummaries(param) {
+        const { columns, data } = param;
+        const sums = [];
+
+        columns.forEach((column, index) => {
+          if (index === 0) {
+            sums[index] = '总价';
+            return;
+          }
+          const values = data.map(item => Number(item[column.property]));
+          if (!values.every(value => isNaN(value)) && index === 1) {
+            sums[index] = values.reduce((prev, curr) => {
+              const value = Number(curr);
+              if (!isNaN(value)) {
+              	      	console.log('======dddddddddddddddddddddddd' + prev);
+                return prev + curr;
+              } else {
+                return prev;
+              }
+            }, 0);
+            console.log('======aaaaaaaaaaaaaa' + JSON.stringify(param));
+            console.log('========================');
+            sums[index] += ' 元';
+          } else {
+            sums[index] = 'N/A';
+          }
+        });
+
+        return sums;
+      },
+
+
+	  addArticle(){
+	  	this.$router.push('/admin/Article/ArticleEdit/0');
+	  },
+      edit(data){
+      	this.$router.push('/admin/Article/ArticleEdit/' + data._id);
+      },
+      del(data){
+         let dic = {_id:data._id,del:1,};
+         this.updataUser(dic);
+      },
        handleSizeChange(val) {
         console.log(`每页 ${val} 条`);
+        this.pagesize = val;
       },
       handleCurrentChange(val) {
         console.log(`当前页: ${val}`);
+        this.currentPage = val;
+        this.requestData();
       },
-      edit(){
-      	this.dialogFormVisible=true;
-      }
+ 
+
+     
+
+      //获取订单列表
+      requestData(data) {
+        let self = this;
+        self.$request.order.getOrderList(self.currentPage,self.pagesize,data).then((res)=>{
+         	if(res && res.data && res.data.code && res.data.code == 1) {
+              self.tableData2 = res.data.data.data;
+              self.total = res.data.data.count;
+              self.dialogFormVisible = false;
+              self.dialogFormVisible0 = false;
+              self.dialogFormVisible1 = false;
+              self.dialogFormVisible2 = false;
+              self.dialogFormVisible3 = false;
+              self.dialogFormVisible4 = false;
+             console.log(JSON.stringify(res.data.data));  
+          } else {
+            self.$message(res.data.msg);
+          }
+
+         }).catch(function(error){
+         	self.$message('请求异常');
+         	 console.log('----error--' + JSON.stringify(error));
+         });
+        },
+
+        //更新订单信息
+        updataUser(dic){
+        	 let self = this;
+             self.$request.order.updateOrder(dic).then((res)=>{
+             	console.log(JSON.stringify(res.data));
+             	  if(res && res.data && res.data.code && res.data.code == 1) {
+             	     self.requestData();
+             	      self.$message('修改成功');
+             	     // console.log(JSON.stringify(self.type));  
+             	  } else {
+             	    self.$message(res.data.msg);
+             	  }
+             }).catch(function(error){
+             	self.$message('请求异常');
+             	 console.log('----error--' + JSON.stringify(error));
+             });
+        }
     },
     data() {
       return {
-      	dialogFormVisible: false,
-      	productType:'',
-      	currentPage: 2,
-        tableData2: [{
-          status:'已发布',
-          ArticleType:'已推荐',
-          date: '2016-05-02',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          Price:'111',
-
-        }, {
-          status:'已下架',
-          ArticleType:'已推荐',
-          date: '2016-05-04',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          Price:'111'
-        }, {
-          ArticleType:'已推荐',
-          date: '2016-05-01',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          Price:'111'
-        }, {
-          ArticleType:'已推荐',
-          date: '2016-05-03',
-          title: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          Price:'111'
-        }],
-        form: {
-          name: '222',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: '',
-          sort:1
-        },
+      	refundInfoform:{
+           express:{
+           	name:'',
+           	code:'',
+           }
+      	},
+      	expressform:{},
+      	dialogFormVisible0:false,
+      	dialogFormVisible1:false,
+      	dialogFormVisible2:false,
+      	dialogFormVisible3:false,
+      	dialogFormVisible4:false,
+        status:-1,
+        refundstatus:-1,
+        orderCode:'',
+        username:'',
+        userphone:'',
+      	formLabelWidth:"120",
+      	dialogFormVisible:false,
+      	userType:'',
+        total:'',
+        type:'',
+      	pagesize:20,
+        currentPage:1,
+        total:0,
+        tableData2: [],
+        form:{},
+        rules: {
+          name: [
+            { required: true, message: '请输入类别名称', trigger: 'blur' },
+            { min: 2, max: 16, message: '长度在 2 到 16 个字符', trigger: 'blur' }
+          ],
+          
+          integral: [
+            { required: true, message: '请输入积分', trigger: 'blur' },
+            { type: 'number', message: '必须为数字值'}
+          ],
+        }
       }
     }
   }
@@ -184,6 +555,10 @@
 
 
 <style >
+    .bottom{
+    	height: 30px;
+    	line-height: 48px;
+    }
 	.mytable{
 
         margin-top: 40px;

@@ -5,6 +5,7 @@ import Requestproduct from './Requestproduct'
 import RequestproductSale from './RequestproductSale'
 import RequstImg from './RequstImg'
 import RequstReturnGoods from './RequstReturnGoods'
+import RequestOrder from './RequestOrder'
 
 var Request = {
 	type:RequestType,
@@ -14,6 +15,7 @@ var Request = {
 	RequstReturnGoods:RequstReturnGoods,
 	product:Requestproduct,
 	productSale:RequestproductSale,
+	order:RequestOrder,
 };
 
 export default Request

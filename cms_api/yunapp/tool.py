@@ -5,6 +5,9 @@ import os
 import time
 from yunapp import connection,Document
 from yunapp import param
+import pytz
+from datetime import datetime
+
 
 def md5(str):
     m = hashlib.md5()   
@@ -46,4 +49,11 @@ def ruleToken2(token,pw,md5key):
         else: 
             return param.APP_TOKEN_TIME_ERROR
 
-
+# UTCS时间转换为时间戳 2016-07-31T16:00:00Z
+def utc_to_local(utc_time_str, utc_format='%Y-%m-%dT%H:%M:%S.%fZ'):
+    local_tz = pytz.timezone('Asia/Chongqing')
+    local_format = "%Y-%m-%d %H:%M"
+    utc_dt = datetime.strptime(utc_time_str, utc_format)
+    local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
+    time_str = local_dt.strftime(local_format)
+    return int(time.mktime(time.strptime(time_str, local_format)))

@@ -97,14 +97,7 @@ const router = new Router({
                     },
                        component: resolve => require(['../components/admin/ProductSales.vue'], resolve),
                 },
-                {
-                    path: '/admin/Product/ProductSaleEdit/:id',
-                    name:'ProductSaleEdit',
-                    meta: {
-                         title: '促销活动管理编辑'
-                    },
-                       component: resolve => require(['../components/admin/ProductSaleEdit.vue'], resolve),
-                },
+               
                 {
                     path: '/admin/Product/ProductOrderList',
                     name:'ProductOrderList',

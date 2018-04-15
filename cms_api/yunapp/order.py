@@ -1,224 +1,325 @@
 #!/usr/bin/python
-#-*-coding:utf-8 -*-
-from yunapp import app,result,connection
+# -*-coding:utf-8 -*-
+from yunapp import app, result, connection, request, tool, config, sms
+from yunapp.model.shopModel import *
+from yunapp.result import *
+from yunapp import param
+from bson.objectid import ObjectId
+from datetime import datetime
 
+'''
+获取订单列表
+{
+    'pageSize': 10,
+    'page':1
+    filter = ''
+    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
+}
+'''
+
+
+@app.route('/app/order/list', methods=['GET', 'POST'])
+def get_orders():
+    if request.method == 'POST':
+        data = request.get_json()
+        appkey = ''
+        pageSize = 50
+        page = 1
+        filter = ''
+        for key in data:
+            if key == 'token':
+                token = data['token']
+            if key == 'pageSize':
+                pageSize = data['pageSize']
+            if key == 'page':
+                page = data['page']
+            if key == 'filter':
+                filter = data['filter']
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        else:
+            resultTooken = tool.ruleToken(token)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+
+        if appkey:
+            try:
+                admins = {
+                    'count': 0,
+                    'data': [],
+                }
+                params = {
+                    'appkey': appkey,
+                    'del': 0,
+                }
+                if isinstance(filter, dict):
+                    for k in filter:
+                        params[k] = filter[k]
+                        if k == '_id':
+                            params[k] = ObjectId(filter[k])
+                fnuser = connection.Order.find(params, {'del': 0}).limit(pageSize).skip((page - 1) * pageSize).sort(
+                    [('_id', -1)])
+                for user in fnuser:
+                    user['_id'] = str(user['_id'])
+                    user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                    author1 = connection.APP_User.one({'appkey': appkey, '_id': ObjectId(user.user)}, {'del': 0,'password':0})
+                    if author1:
+                        author1['_id'] = str(author1['_id'])
+                        user.user = author1
+                    admins['data'].append(user)
+                admins['count'] = fnuser.count()
+                return MyResult(admins).toJson()
+            except Exception as e:
+                print e
+                return MyException(param.CHECK_FAILURE).toJson()
+        else:
+            return MyException(param.REGISTER_FAILURE).toJson()
+
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
 
 
 '''
 添加订单
 {
-    'set':{
-      time:''
-      user:''
-      price:''
-      product:''
-      colour:''
-      receiveinfo:''
-    }
+    'name':'xiaosan', #或phone email
+    'password':'11122',
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
-@app.route('/shop/order/add',methods=['GET', 'POST'])
-def order_add():
+
+
+@app.route('/app/order/add', methods=['GET', 'POST'])
+def add_order():
     if request.method == 'POST':
         data = request.get_json()
-        order = connection.Order()
-        token = ''
+        user = connection.Order()
         appkey = ''
+        token = ''
         for key in data:
+            if data[key] == '':
+                continue
+            if key == 'user':
+                user.user = data['user']
+            if key == 'price':
+                user.price = data['price']
+            if key == 'product':
+                for product in data['product']:
+                    newProduct = {
+                        'imgs':[],
+                    }
+                    for subkey in product:
+                        if subkey == 'title':
+                            newProduct['title'] = product['title']
+                        if subkey == 'imgs':
+                            newProduct['imgs'] = product['imgs']
+                        if subkey == 'price':
+                            newProduct['price'] = product['price']
+                        if subkey == 'saleprice':
+                            newProduct['saleprice'] = product['saleprice']
+                        if subkey == 'colour':
+                            newProduct['colour'] = product['colour']
+                        if subkey == 'size':
+                            newProduct['size'] = product['size']
+                        if subkey == 'count':
+                            newProduct['count'] = product['count']
+                    if(len(newProduct)>0):
+                        user.product.append(newProduct)
+            if key == 'receiveinfo':
+                for subkey in data['receiveinfo']:
+                    if subkey == 'name':
+                        user.receiveinfo.name = data['receiveinfo']['name']
+                    if subkey == 'phone':
+                        user.receiveinfo.phone = data['receiveinfo']['phone']
+                    if subkey == 'address':
+                        user.receiveinfo.address = data['receiveinfo']['address']
+                    if subkey == 'code':
+                        user.receiveinfo.code = data['receiveinfo']['code']
+                    if subkey == 'remake':
+                        user.receiveinfo.remake = data['receiveinfo']['remake']
+            if key == 'express':
+                for subkey in data['express']:
+                    if subkey == 'name':
+                        user.express['name'] = data['express']['name']
+                    if subkey == 'code':
+                        user.express['code'] = data['express']['code']
+            if key == 'status':
+                user.status = data['status']
             if key == 'token':
                 token = data['token']
+            if key == 'remake':
+                user.remake = data['remake']
+            if key == 'reserved_1':
+                user.reserved_1 = data['reserved_1']
+            if key == 'reserved_2':
+                user.reserved_1 = data['reserved_2']
+            if key == 'reserved_3':
+                user.reserved_1 = data['reserved_3']
+            if key == 'reserved_4':
+                user.reserved_1 = data['reserved_4']
+
         if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
             resultTooken = tool.ruleToken(token)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
-                appkey = token.split('&&')[0] 
-        try:
-            order.save()
-            return  MySucceedResult().toJson()
-        except Exception as e:
-            return MyException(param.CHECK_FAILURE).toJson()
-  
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-    
-
-'''
-删除订单
-{
-    'del':'id'
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/shop/order/del',methods=['GET', 'POST'])
-def order_del():
-    if request.method == 'POST':
-        data = request.get_json()
-        order = connection.Order()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == 'del':
-                order.titile = ObjectId(data['del'])
-            if key == 'token':
-                token = data['token']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
+                appkey = token.split('&&')[0]
+        if user.user and user.price and user.product and user.receiveinfo:
+            try:
+                try:
+                       fnuser2 = connection.APP_User.find_one({'appkey': appkey, '_id': ObjectId(user.user), 'del': 0})
+                       if not fnuser2:
+                             return MyException(param.ORDER_USERID_ERROR).toJson()
+                except Exception, e:
+                    return MyException([param.PARAM_FAILURE[0],unicode(e)]).toJson()
+                user.appkey = appkey
+                user.date = datetime.now()
+                user.save()
+                return MySucceedResult().toJson()
+            except Exception as e:
+                print  e
+                return MyException([param.CHECK_FAILURE[0],unicode(e)]).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0] 
-        try:
-            connection.Order.find_and_modify({'_id':order['_id'],'del':0},{'$set':{"del":1}})
-            return  MySucceedResult().toJson()
-        except Exception as e:
-            return MyException(param.CHECK_FAILURE).toJson()
-  
+            return MyException(param.PARAM_FAILURE).toJson()
+
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 
 
-
-
 '''
-post 
+post  更新用户信息
 {
-    '_id': 'xxxxxxx',
+    '_id':'xxx'
     set:{
        设置需要更新的字段即可,如下,可多个字段,不能包含_id
-        time:''
-      user:''
-      price:''
-      product:''
-      colour:''
-      receiveinfo:''
+       name : 'xx',
+       'vip': 'vip类型_id', #通过获取所有vip类型可以获取_id  /user/vip/type/get 
     },
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
-@app.route('/shop/order/update',methods=['GET', 'POST'])
-def order_update():
-    if request.method == 'POST':
-        data = request.get_json()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == '_id':
-                data['_id'] = ObjectId(data['_id'])
-            if key == 'token':
-                token = data['token']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-        else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0]
-        try:
-            connection.Order.find_and_modify({'_id':data['_id'],'appkey':appkey,'del':0},{'$set':data['set']})
-            order = connection.Order.find_one({'_id':data['_id'],'appkey':appkey,'del':0},{'del':0})
-            #ptype = connection.Type.find_one({'_id':product.type,'appkey':appkey,'del':0},{'del':0})
-            order['_id'] = str(order['_id'])
-            #product.type = ptype
-            return MyResult(order).toJson()
-        except Exception as e:
-            return MyException(param.PARAM_FAILURE).toJson()
-            
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
 
-'''
-post 
-{
-    根据id获取订单
-    '_id': 'xxxxxxx'
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/shop/order/get/id',methods=['GET', 'POST'])
-def order_get_id():
-    if request.method == 'POST':
-        data = request.get_json()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == '_id':
-                data['_id'] = ObjectId(data['_id'])
-            if key == 'token':
-                token = data['token']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-        else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0]
-        try:
-            #connection.Order.find_and_modify({'_id':data['_id'],'appkey':appkey,'del':0},{'$set':data['set']})
-            order = connection.Order.find_one({'_id':data['_id'],'appkey':appkey,'del':0},{'del':0})
-            #ptype = connection.Type.find_one({'_id':product.type,'appkey':appkey,'del':0},{'del':0})
-            order['_id'] = str(order['_id'])
-            #product.type = ptype
-            return MyResult(order).toJson()
-        except Exception as e:
-            return MyException(param.PARAM_FAILURE).toJson()
-            
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
 
-'''
-post 
-{
-    获取用户订单
-    'get':{
-       user:
-       status:
-    }
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/shop/order/get/user',methods=['GET', 'POST'])
-def order_get_user():
+@app.route('/app/order/update', methods=['GET', 'POST'])
+def app_order_update():
     if request.method == 'POST':
         data = request.get_json()
         token = ''
         appkey = ''
-        query = {}
         for key in data:
-            if key == '_id':
-                data['_id'] = ObjectId(data['_id'])
             if key == 'token':
                 token = data['token']
-            if key == 'get':
-                query = data['get']
         if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
             resultTooken = tool.ruleToken(token)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
                 appkey = token.split('&&')[0]
-                query['appkey'] = appkey
-                query['del'] = 0
         try:
-            #connection.Order.find_and_modify({'_id':data['_id'],'appkey':appkey,'del':0},{'$set':data['set']})
-            orders = connection.Order.find(query,{'del':0})
-            olist = []
-            for o in orders:
-            	o['_id'] = str(o['_id'])
-                olist.append(o)
-            #product.type = ptype
-            return MyResult(olist).toJson()
+            user = connection.Order.find_one({'appkey': appkey, '_id': ObjectId(data['_id'])})
+            if user:
+                user['del'] = int(user['del'])
+                for key in data['set']:
+                    if data['set'][key] == '':
+                        continue
+                    if key == 'price':
+                        if (user.status>1):
+                            return MyException(param.ORDER_PRICE_ERROR).toJson()
+                        user.price = data['set']['price']
+                    if key == 'receiveinfo':
+                        if (user.status>2):
+                            return MyException(param.ORDER_ADDRESS_ERROR).toJson()
+                        user.receiveinfo = data['set']['receiveinfo']
+                        for subkey in data['set']['receiveinfo']:
+                            if data['set']['receiveinfo'][subkey] == '' and data['set']['receiveinfo'][subkey] == None:
+                                continue
+                            if subkey == 'name':
+                                user.receiveinfo['name'] = data['set']['receiveinfo']['name']
+                            if subkey == 'phone':
+                                user.receiveinfo['phone'] = data['set']['receiveinfo']['phone']
+                            if subkey == 'address':
+                                user.receiveinfo['address'] = data['set']['receiveinfo']['address']
+                            if subkey == 'code':
+                                user.receiveinfo['code'] = data['set']['receiveinfo']['code']
+                            if subkey == 'remake':
+                                user.receiveinfo['remake']= data['set']['receiveinfo']['remake']
+                    if key == 'status':
+                        user.status = data['set']['status']
+                    if key == 'express':
+                        for subkey in data['set']['express']:
+                             if subkey == 'name':
+                                 user.express['name'] = data['set']['express']['name']
+                             if subkey == 'code':
+                                 user.express['code'] = data['set']['express']['code']
+                    if key == 'remake':
+                        user.remake = data['set']['remake']
+                    if key == 'refund':
+                        for subkey in data['set']['refund']:
+                            if data['set']['refund'][subkey] == '' and data['set']['refund'][subkey] == None:
+                                continue
+                            if subkey == 'status':
+                                if (user.status == 0 and user.status == 4 and data['set']['refund']['status']==1):
+                                     return MyException(param.ORDER_REFUND_PRICE_ERROR).toJson()
+                                if user.refund['status'] == 4:
+                                    return MyException(param.ORDER_REFUND_STATUS_DONE_ERROR).toJson()
+                                if user.refund['status'] == 4 and data['set']['refund']['status'] == 5:
+                                    return MyException(param.ORDER_REFUND_STATUS_ERROR1).toJson()
+                                user.refund['status'] = data['set']['refund']['status']
+                            if subkey == 'remake':
+                                user.refund['remake'] = data['set']['refund']['remake']
+                            if subkey == 'price':
+                                if data['set']['refund']['price'] > user.price :
+                                    return MyException(param.ORDER_REFUND_PRICE_GT_ERROR).toJson()
+                                user.refund['price'] = data['set']['refund']['price']
+                            if subkey == 'products':
+                                user.refund['products'] = data['set']['refund']['products']
+                            if subkey == 'express':
+                                for expresskey in data['set']['refund']['express']:
+                                    if expresskey == 'name':
+                                        user.refund['express']['name'] = data['set']['refund']['express']['name']
+                                    if expresskey == 'code':
+                                        user.refund['express']['code'] = data['set']['refund']['express']['code']
+                    if key == 'product':
+                        for subkey in data['product']:
+                            if subkey == 'title':
+                                user.product.title = data['set']['product']['title']
+                            if subkey == 'imgs':
+                                user.product.imgs = data['set']['product']['imgs']
+                            if subkey == 'price':
+                                user.product.price = data['set']['product']['price']
+                            if subkey == 'saleprice':
+                                user.product.saleprice = data['set']['product']['saleprice']
+                            if subkey == 'colour':
+                                user.product.colour = data['set']['product']['colour']
+                            if subkey == 'size':
+                                user.product.size = data['set']['product']['size']
+                            if subkey == 'count':
+                                user.product.count = data['set']['product']['count']
+                    if key == 'reserved_1':
+                        user.reserved_1 = data['set']['reserved_1']
+                    if key == 'reserved_2':
+                        user.reserved_2 = data['set']['reserved_2']
+                    if key == 'reserved_3':
+                        user.reserved_3 = data['set']['reserved_3']
+                    if key == 'reserved_4':
+                        user.reserved_4 = data['set']['reserved_4']
+                    if key == 'del':
+                        user['del'] = data['set']['del']
+                user.save()
+                user['_id'] = str(user['_id'])
+                user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                return MyResult(user).toJson()
+            else:
+                return MyException(param.ARTICLE_NULL).toJson()
         except Exception as e:
-            return MyException(param.PARAM_FAILURE).toJson()
-            
+            print e
+            return MyException([param.PARAM_FAILURE[0],unicode(e)]).toJson()
+
     if request.method == 'GET':
         return param.PLEASE_USE_POST

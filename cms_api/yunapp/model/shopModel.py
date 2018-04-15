@@ -3,6 +3,7 @@
 from yunapp import connection,Document
 import datetime
 from mongokit import OR
+from mongokit import IS
 
 
 
@@ -24,6 +25,9 @@ class Product(Document):
         'costprice': OR(float,int),      # 成本价 用于计算分销提成
         'overview': unicode,    #简介\概述
         'type':unicode,         #类型
+        'colour': list,  # 颜色 大小
+        'size': list,  # 大小
+        'repertory':int,  # 库存
         'imgs':list,            #主图list 地址
         'describe':unicode,     #描述
         'describe_html': unicode,  # 描述html
@@ -69,6 +73,7 @@ class Sale(Document):
         'startdate':unicode,
         'enddate': unicode,
         'appkey': unicode,
+        'status': int,
         'products':[],           #参与活动的产品
         'reserved_1':unicode,    #预留字段1
         'reserved_2':unicode,    #预留字段1
@@ -84,21 +89,50 @@ class Sale(Document):
     }
    default_values = {
        'del': 0,
+       'status':-1,
     }
    use_dot_notation = True
  
 @connection.register
 class Order(Document):
-   __collection__ = 'orde'
+   __collection__ = 'order'
    __database__ = 'shop'
    structure = {
-        'time':unicode,           #订单时间
         'user':unicode,           #订单客户
-        'price': unicode,         #订单实付价格
-        'product': unicode,       #订单产品
-        'colour':unicode,          #颜色 大小 
-        'receiveinfo':unicode,      #收货信息
-        'status':int,               #0 待付款 1已付款 2待发货 3已发货 4已收货 5申请退款中 6退款确认中.. 7同意退款,等待退货完成 8完成退款
+        'price': OR(float,int),         #订单实付价格
+        'product': [{                #订单产品
+            'title':unicode,        #产品名称
+            'imgs':[],              #产品图片
+            'price': OR(float,int),  # 产品单价
+            'saleprice': OR(float, int),  # 产品促销价
+            'colour': unicode,  # 颜色 大小
+            'size': unicode,  # 大小
+            'count':int,     #购买数量
+        }],
+        'date': OR(unicode, datetime.datetime),
+        'receiveinfo':{
+            'name':unicode,
+            'phone':unicode,
+            'address':unicode,
+            'code':unicode,   #邮编
+            'remake': unicode,  # 备注
+        },      #收货信息
+        'status':IS(0,1,2,3,4),               #0 待付款 1已付款 2,已发货  3.交易完成 4关闭交易
+        'refund': {                #退款信息
+            'status': IS(0,1,2,3,4,5),         # 退款状态 0 无退款 1申请退款  2同意退款 3拒绝退款 4退款完成,5关闭退款
+            'remake':unicode,      #退款备注
+            'price': OR(float, int), #退款金额
+            'products': list,  # 退款产品
+            'express':{            #快递信息
+                'name':unicode,    #快递名称
+                'code': unicode,  # 快递单号
+            },
+        },
+        'express':{        #物流信息
+            'name': unicode,  # 快递名称
+            'code': unicode,  # 快递单号
+        },
+        'remake': unicode,  # 备注
         'appkey':unicode,
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 
@@ -107,14 +141,21 @@ class Order(Document):
         'del': int,#0 存在 1删除
     }
    validators = {
-        'time': max_length(200),
-        'product': max_length(200),
-        'receiveinfo': max_length(200),
+       'user': max_length(200),
+       'refund.remake': max_length(200),
+       'refund.express.name': max_length(200),
+       'refund.express.code': max_length(200),
+       'remake': max_length(200),
+       'express.code': max_length(200),
+       'express.name': max_length(200),
     }
    default_values = {
         'del': 0,
+        'date': datetime.datetime.now(),
+        'status':0,
+        'refund.status':0,
     }
-   required = ['time','user','price','product','receiveinfo','status']
+   required = ['user','price','receiveinfo','status']
    use_dot_notation = True
 
 

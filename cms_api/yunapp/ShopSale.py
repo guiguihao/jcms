@@ -6,7 +6,7 @@ from yunapp.result import *
 from yunapp import param
 from bson.objectid import ObjectId
 from datetime import datetime
-
+import time
 
 '''
 获取活动列表
@@ -73,6 +73,17 @@ def get_products_sale():
                 fnuser = connection.Sale.find(params,{'del':0})
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
+                    try:
+                        t = time.time()
+                        if t >= tool.utc_to_local(user.startdate):
+                            if t <= tool.utc_to_local(user.enddate):
+                                user.status = 1
+                            else:
+                                user.status = 2
+                        else:
+                            user.status = 0
+                    except Exception as e:
+                        pass
                     admins['data'].append(user)
                 admins['count'] = fnuser.count()
                 return MyResult(admins).toJson()
@@ -182,7 +193,7 @@ def app_product_sale_update():
             else:
                 appkey = token.split('&&')[0]
         try:
-            user = connection.Product.find_one({'appkey': appkey, '_id': ObjectId(data['_id'])})
+            user = connection.Sale.find_one({'appkey': appkey, '_id': ObjectId(data['_id'])})
             if user:
                 user['del'] = int(user['del'])
                 for key in data['set']:

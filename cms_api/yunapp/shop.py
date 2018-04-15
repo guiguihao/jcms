@@ -144,6 +144,12 @@ def add_product():
                 user.overview = data['overview']
             if key == 'sale':
                 user.sale = data['sale']
+            if key == 'colour':
+                user.colour = data['colour']
+            if key == 'size':
+                user.size = data['size']
+            if key == 'repertory':
+                user.repertory = data['repertory']
             if key == 'type':
                 user.type = data['type']
             if key == 'imgs':
@@ -249,6 +255,12 @@ def app_product_update():
                         user.overview = data['set']['overview']
                     if key == 'type':
                         user.type = data['set']['type']
+                    if key == 'colour':
+                        user.colour = data['set']['colour']
+                    if key == 'size':
+                        user.size = data['set']['size']
+                    if key == 'repertory':
+                        user.repertory = data['set']['repertory']
                     if key == 'imgs':
                         user.imgs = data['set']['imgs']
                     if key == 'describe':
