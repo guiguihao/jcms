@@ -77,7 +77,8 @@ def get_products():
                     getSubTypes(appkey,typeid,types)
                 if(len(types)>0):
                     params['type'] = {'$in':types}
-                fnuser = connection.Product.find(params,{'del':0})
+                fnuser = connection.Product.find(params,{'del':0}).limit(pageSize).skip((page - 1) * pageSize).sort(
+                    [('_id', -1)])
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
                     user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')

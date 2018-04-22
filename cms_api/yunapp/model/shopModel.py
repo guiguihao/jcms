@@ -101,6 +101,7 @@ class Order(Document):
         'user':unicode,           #订单客户
         'price': OR(float,int),         #订单实付价格
         'product': [{                #订单产品
+            '_id':unicode,
             'title':unicode,        #产品名称
             'imgs':[],              #产品图片
             'price': OR(float,int),  # 产品单价
@@ -120,7 +121,10 @@ class Order(Document):
         'status':IS(0,1,2,3,4),               #0 待付款 1已付款 2,已发货  3.交易完成 4关闭交易
         'refund': {                #退款信息
             'status': IS(0,1,2,3,4,5),         # 退款状态 0 无退款 1申请退款  2同意退款 3拒绝退款 4退款完成,5关闭退款
-            'remake':unicode,      #退款备注
+            'remake':[{   #卖退款备注
+                'user':unicode,
+                'msg':unicode,
+            }],
             'price': OR(float, int), #退款金额
             'products': list,  # 退款产品
             'express':{            #快递信息
@@ -211,3 +215,34 @@ class ReturnGoodsinfo(Document):
     }
    required = ['appkey']
    use_dot_notation = True
+
+   # 优惠码
+@connection.register
+class saleCode(Document):
+       __collection__ = 'code'
+       __database__ = 'shop'
+       structure = {
+           'appkey': unicode,  # appkey
+           'salerange': OR(float, int),  # 优惠幅度
+           'saleprice': OR(float, int),  # 优惠价格
+           'count': int,  # 总数量
+           'usedcount': int,  # 已使用数量
+           'products':[{                #产品
+            '_id':unicode,
+            'title':unicode,        #产品名称
+            'imgs':[],              #产品图片
+        }], #可使用优惠卷的产品id
+           'validdate':unicode, #有效日期
+           'code': unicode,  # 优惠码
+           'del': int,  # 0 存在 1删除
+       }
+       validators = {
+           'appkey': max_length(200),
+       }
+       default_values = {
+           'salerange':0,
+           'saleprice':0,
+           'del': 0
+       }
+       required = ['appkey']
+       use_dot_notation = True

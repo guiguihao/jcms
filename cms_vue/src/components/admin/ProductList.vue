@@ -41,7 +41,6 @@
 	       <template>
 	         <el-table
 	           :data="tableData2"
-	           style="width: 100%"
 	           >
 	           <el-table-column
 	             prop="title"

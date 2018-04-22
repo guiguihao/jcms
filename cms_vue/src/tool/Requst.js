@@ -3,6 +3,7 @@ import RequstUser from './RequstUser'
 import RequstArticle from './RequstArticle'
 import Requestproduct from './Requestproduct'
 import RequestproductSale from './RequestproductSale'
+import RequestProductSaleCode from './RequestProductSaleCode'
 import RequstImg from './RequstImg'
 import RequstReturnGoods from './RequstReturnGoods'
 import RequestOrder from './RequestOrder'
@@ -15,6 +16,7 @@ var Request = {
 	RequstReturnGoods:RequstReturnGoods,
 	product:Requestproduct,
 	productSale:RequestproductSale,
+	ProductSaleCode:RequestProductSaleCode,
 	order:RequestOrder,
 };
 

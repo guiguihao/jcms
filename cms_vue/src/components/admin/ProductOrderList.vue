@@ -12,6 +12,7 @@
 	        <el-button v-on:click = "status = 2">已发货</el-button>
 	        <el-button v-on:click = "status = 3">已完成</el-button>
 	        <el-button v-on:click = "status = 4">已关闭</el-button>
+	        <el-button type="primary" v-on:click="requestData()">显示全部</el-button>
 	    </div>
 
 	     <div class ="mytable" style="margin-top: 10px">
@@ -270,8 +271,13 @@
             <el-form-item label="物流单号" >
                   <el-input  v-model="refundInfoform.express.code" style="width: 220px;"></el-input>
             </el-form-item>
-            <el-form-item label="备注"  >
-                  <el-input  type="textarea" v-model="refundInfoform.remake" style="width: 400px;"></el-input>
+            <el-form-item label="留言详情" >
+                  <div  v-for="item in refundInfoform.remake">
+                      <el-tag type="danger">{{item.user}}  :  {{item.msg}}</el-tag>
+                  </div>
+            </el-form-item>
+            <el-form-item label="说明"  >
+                  <el-input  type="textarea" v-model="refundInfoform.nextremake" style="width: 400px;"></el-input>
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -294,12 +300,28 @@
   		},
   		refundstatus: function (val) {
   		 let params = {
-            refund:{
-               status:val,
-            },
+            'refund.status':val,
           }
           console.log(params);
           this.requestData(params);
+  		},
+  		orderCode: function (val) {
+  		      let params = {
+             _id:val,
+          }
+          this.requestData(params);
+  		},
+  		username: function (val) {
+  		      let params = {
+             name:val,
+          }
+          this.requestUserData(params);
+  		},
+  		userphone: function (val) {
+  		      let params = {
+             phone:val,
+          }
+          this.requestUserData(params);
   		},
   		
   	},
@@ -310,6 +332,10 @@
   	},
     methods: {
 
+      query(){
+        
+      
+      },
       orderStatus(data){
          
          this.form = JSON.parse(JSON.stringify(data));
@@ -404,11 +430,20 @@
        submitrefundInfo(){
        			let params = {
        		      _id:this.refundInfoform._id,
-       	          refund:{},
+       	          refund:{
+                     remake:{},
+       	          },
        			  }
        			 for (let k in this.refundInfoform){
-       		     params.refund[k] = this.refundInfoform[k];
+       			 	if (k != 'remake') {
+       		            params.refund[k] = this.refundInfoform[k];
+       			 	}
        		   }
+       		    let userData = localStorage.getItem('userData');
+				let user = JSON.parse(userData);
+				let name = user.name;
+       		    params.refund.remake.msg = this.refundInfoform.nextremake,
+       		    params.refund.remake.user = name,
        		    this.updataUser(params);
        },
       getSummaries(param) {
@@ -464,7 +499,30 @@
       },
  
 
-     
+     //获取用户列表
+      requestUserData(data) {
+        let self = this;
+        self.$request.user.getUserList(self.currentPage,self.pagesize,data).then((res)=>{
+        	console.log(JSON.stringify(res)); 
+         	if(res && res.data && res.data.code && res.data.code == 1) {
+         		if (res.data.data.data.length>0) {
+         			let _id = {user:res.data.data.data[0]._id};
+         			this.requestData(_id);
+         		}else{
+         			self.tableData2 = [];
+         		}
+             
+              
+          } else {
+            self.$message(res.data.msg);
+          }
+
+         }).catch(function(error){
+         	self.$message('请求异常');
+         	 console.log('----error--' + JSON.stringify(error));
+         });
+        },
+
 
       //获取订单列表
       requestData(data) {
@@ -562,6 +620,7 @@
 	.mytable{
 
         margin-top: 40px;
+        width: 960px;
      
 	}
 	.mypage{

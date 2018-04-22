@@ -58,7 +58,10 @@ def get_orders():
                     for k in filter:
                         params[k] = filter[k]
                         if k == '_id':
-                            params[k] = ObjectId(filter[k])
+                            try:
+                               params[k] = ObjectId(filter[k])
+                            except Exception as e:
+                                params[k] =  ObjectId('5ad4acd21fe63712a04a1111')
                 fnuser = connection.Order.find(params, {'del': 0}).limit(pageSize).skip((page - 1) * pageSize).sort(
                     [('_id', -1)])
                 for user in fnuser:
@@ -248,7 +251,7 @@ def app_order_update():
                             if subkey == 'code':
                                 user.receiveinfo['code'] = data['set']['receiveinfo']['code']
                             if subkey == 'remake':
-                                user.receiveinfo['remake']= data['set']['receiveinfo']['remake']
+                                user.receiveinfo['remake'] = data['set']['receiveinfo']['remake']
                     if key == 'status':
                         user.status = data['set']['status']
                     if key == 'express':
@@ -272,7 +275,7 @@ def app_order_update():
                                     return MyException(param.ORDER_REFUND_STATUS_ERROR1).toJson()
                                 user.refund['status'] = data['set']['refund']['status']
                             if subkey == 'remake':
-                                user.refund['remake'] = data['set']['refund']['remake']
+                                user.refund['remake'].append(data['set']['refund']['remake'])
                             if subkey == 'price':
                                 if data['set']['refund']['price'] > user.price :
                                     return MyException(param.ORDER_REFUND_PRICE_GT_ERROR).toJson()
@@ -285,22 +288,6 @@ def app_order_update():
                                         user.refund['express']['name'] = data['set']['refund']['express']['name']
                                     if expresskey == 'code':
                                         user.refund['express']['code'] = data['set']['refund']['express']['code']
-                    if key == 'product':
-                        for subkey in data['product']:
-                            if subkey == 'title':
-                                user.product.title = data['set']['product']['title']
-                            if subkey == 'imgs':
-                                user.product.imgs = data['set']['product']['imgs']
-                            if subkey == 'price':
-                                user.product.price = data['set']['product']['price']
-                            if subkey == 'saleprice':
-                                user.product.saleprice = data['set']['product']['saleprice']
-                            if subkey == 'colour':
-                                user.product.colour = data['set']['product']['colour']
-                            if subkey == 'size':
-                                user.product.size = data['set']['product']['size']
-                            if subkey == 'count':
-                                user.product.count = data['set']['product']['count']
                     if key == 'reserved_1':
                         user.reserved_1 = data['set']['reserved_1']
                     if key == 'reserved_2':

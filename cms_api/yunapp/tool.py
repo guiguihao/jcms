@@ -57,3 +57,12 @@ def utc_to_local(utc_time_str, utc_format='%Y-%m-%dT%H:%M:%S.%fZ'):
     local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
     time_str = local_dt.strftime(local_format)
     return int(time.mktime(time.strptime(time_str, local_format)))
+
+# UTCS时间转换为本地时间 2016-07-31T16:00:00Z
+def utc_to_localtime(utc_time_str, utc_format='%Y-%m-%dT%H:%M:%S.%fZ'):
+    local_tz = pytz.timezone('Asia/Chongqing')
+    local_format = "%Y-%m-%d %H:%M"
+    utc_dt = datetime.strptime(utc_time_str, utc_format)
+    local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
+    time_str = local_dt.strftime(local_format)
+    return time_str

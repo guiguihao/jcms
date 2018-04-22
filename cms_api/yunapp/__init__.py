@@ -30,3 +30,4 @@ from yunapp import LoginAndRegister
 from yunapp import Article
 from yunapp import ImgManage
 from yunapp import ShopReturnInfo
+from yunapp import ShopSaleCode
