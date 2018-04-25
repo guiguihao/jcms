@@ -148,6 +148,13 @@ const router = new Router({
                     },
                        component: resolve => require(['../components/admin/UserType.vue'], resolve),
                 },{
+                    path: '/admin/comment',
+                    name:'comment',
+                    meta: {
+                         title: '评论管理'
+                    },
+                       component: resolve => require(['../components/admin/Comment.vue'], resolve),
+                },{
                     path: '/admin/SiteInfo',
                     name:'SiteInfo',
                     meta: {

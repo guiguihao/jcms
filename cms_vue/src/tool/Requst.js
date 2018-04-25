@@ -7,6 +7,7 @@ import RequestProductSaleCode from './RequestProductSaleCode'
 import RequstImg from './RequstImg'
 import RequstReturnGoods from './RequstReturnGoods'
 import RequestOrder from './RequestOrder'
+import RequestComment from './RequestComment'
 
 var Request = {
 	type:RequestType,
@@ -18,6 +19,7 @@ var Request = {
 	productSale:RequestproductSale,
 	ProductSaleCode:RequestProductSaleCode,
 	order:RequestOrder,
+	comment:RequestComment,
 };
 
 export default Request

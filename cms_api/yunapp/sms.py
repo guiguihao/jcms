@@ -33,6 +33,10 @@ def sendfuc(subject,content,msg_from,passwd,msg_to):
 	return result
 
 
+# sendfuc("多福多寿biaoti",'ceshi来说地方',"dtadhm@163.com",'he088063','jiangguishun@126.com')
+
+
+
 
 
 

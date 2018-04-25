@@ -84,6 +84,16 @@
 					{
 						icon: 'el-icon-menu',
 						index: '4',
+						title: '评论管理',
+						permission:0,//1 显示 0不显示
+						subs: [{
+							index: '/admin/comment',
+							title: '评论管理',
+						}]
+					},
+					{
+						icon: 'el-icon-menu',
+						index: '4',
 						title: '系统设置',
 						permission:0,//1 显示 0不显示
 						subs: [{

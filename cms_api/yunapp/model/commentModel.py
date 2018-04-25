@@ -1,7 +1,9 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
 from yunapp import connection,Document
-
+import datetime
+from mongokit import OR
+from mongokit import IS
 
 
 def max_length(length):
@@ -19,23 +21,24 @@ def max_value(length):
 
 @connection.register
 class Comment(Document):
-   __collection__ = 'Comment'
-   __database__ = 'type'
+   __collection__ = 'col'
+   __database__ = 'comment'
    structure = {
-        'pid': unicode,           #文章或产品id
+        'oid': unicode,           #文章或产品id
         'level':int,              #评价级别 1- 5
         'content': unicode,       #内容
+        'imgs':[unicode],
         'appkey':unicode,
+        'date': OR(unicode, datetime.datetime),
         'del': int, #0 存在 1删除
     }
-   required = ['pid','level','content','appkey']
+   required = ['oid','level','content','appkey']
    validators = {
-        'name': max_length(100),
+        'oid': max_length(100),
         'content': max_length(1000),
-        'level':max_value(),
    }
    default_values = {
         'del': 0,
-        'sort':0,
+        'date': datetime.datetime.now(),
    }
    use_dot_notation = True

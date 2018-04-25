@@ -1,131 +1,160 @@
-from yunapp import app,result,connection
+#!/usr/bin/python
+# -*-coding:utf-8 -*-
+from yunapp import app, result, connection, request, tool, config, sms
 from yunapp.model.commentModel import *
 from yunapp.result import *
+from yunapp import param
+from bson.objectid import ObjectId
+from datetime import datetime
 
 '''
-添加评论/评价
+获取评论列表
 {
-    'pid':'pid'
-    'level':1-5
-    ''
-    ''
-    ...
+    'pageSize': 10,
+    'page':1
+    filter = ''
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
-@app.route('/comment/add',methods=['GET', 'POST'])
-def comment_add():
+
+
+@app.route('/app/comment/list', methods=['GET', 'POST'])
+def get_comments():
     if request.method == 'POST':
         data = request.get_json()
-        comment = connection.Comment()
-        token = ''
+        user = connection.Comment()
         appkey = ''
+        pageSize = 50
+        page = 1
+        filter = ''
         for key in data:
-            if key == 'pid':
-                comment.pid = data['pid']
+            if key == 'token':
+                token = data['token']
+            if key == 'pageSize':
+                pageSize = data['pageSize']
+            if key == 'page':
+                page = data['page']
+            if key == 'filter':
+                filter = data['filter']
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        else:
+            resultTooken = tool.ruleToken(token)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+
+        try:
+            admins = {
+                'count': 0,
+                'data': [],
+            }
+            params = {
+                'appkey': appkey,
+                'del': 0,
+            }
+            if isinstance(filter, dict):
+                for k in filter:
+                    params[k] = filter[k]
+                    if k == '_id':
+                        params[k] = ObjectId(filter[k])
+            fnuser = connection.Comment.find(params, {'del': 0}).limit(pageSize).skip((page - 1) * pageSize).sort(
+                [('_id', -1)])
+            for user in fnuser:
+                user['_id'] = str(user['_id'])
+                user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                admins['data'].append(user)
+            admins['count'] = fnuser.count()
+            return MyResult(admins).toJson()
+        except Exception as e:
+            print e
+            return MyException(param.CHECK_FAILURE).toJson()
+
+
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
+
+
+'''
+添加评论
+{
+    'name':'xiaosan', #或phone email
+    'password':'11122',
+    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
+}
+'''
+
+
+@app.route('/app/comment/add', methods=['GET', 'POST'])
+def add_comment():
+    if request.method == 'POST':
+        data = request.get_json()
+        user = connection.Comment()
+        appkey = ''
+        token = ''
+        for key in data:
+            if data[key] == '':
+                continue
+            if key == 'oid':
+                user.oid = data['oid']
             if key == 'level':
-                comment.level = data['level']
+                user.level = data['level']
             if key == 'content':
-                comment.content = data['content']
+                user.content = data['content']
+            if key == 'imgs':
+                user.imgs = data['imgs']
             if key == 'token':
                 token = data['token']
-            if key == 'reserved_1':
-                comment.reserved_1 = data['reserved_1']
-            if key == 'reserved_2':
-                comment.reserved_1 = data['reserved_2']
-            if key == 'reserved_3':
-                comment.reserved_1 = data['reserved_3']
-            if key == 'reserved_4':
-                comment.reserved_1 = data['reserved_4']
         if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
             resultTooken = tool.ruleToken(token)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
-                appkey = token.split('&&')[0] 
-                comment.appkey = appkey
-        if comment.titile and comment.price
+                appkey = token.split('&&')[0]
+        if user.oid and user.content:
             try:
-                comment.save()
-                return  MySucceedResult().toJson()
+                user.appkey = appkey
+                user.date = datetime.now()
+                user.save()
+                return MySucceedResult().toJson()
             except Exception as e:
-                return MyException(param.CHECK_FAILURE).toJson()
+                print  e
+                return MyException([param.CHECK_FAILURE[0], unicode(e)]).toJson()
         else:
-           return MyException(param.REGISTER_FAILURE).toJson()
-  
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-    
+            return MyException(param.ARTICLE_MUST_TITLE_FAILURE).toJson()
 
-'''
-删除评论
-{
-    'del':'pid'
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/comment/del',methods=['GET', 'POST'])
-def comment_del():
-    if request.method == 'POST':
-        data = request.get_json()
-        comment = connection.omment()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == 'del':
-                comment.titile = ObjectId data['del']
-            if key == 'token':
-                token = data['token']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-        else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0] 
-        if comment.titile and comment.price
-            try:
-                connection.Comment.find_and_modify({'_id':comment['_id'],'del':0},{'$set':{"del":1}})
-                return  MySucceedResult().toJson()
-            except Exception as e:
-                return MyException(param.CHECK_FAILURE).toJson()
-        else:
-           return MyException(param.REGISTER_FAILURE).toJson()
-  
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 
 
-
-
 '''
-post 
+post  更新评论信息
 {
-    '_id': 'xxxxxxx',
+    '_id':'xxx'
     set:{
        设置需要更新的字段即可,如下,可多个字段,不能包含_id
-       titile : 'xx',
-       'price': '' 
+       name : 'xx',
+       'vip': 'vip类型_id', #通过获取所有vip类型可以获取_id  /user/vip/type/get 
     },
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
-@app.route('/comment/update',methods=['GET', 'POST'])
-def comment_update():
+
+
+@app.route('/app/comment/update', methods=['GET', 'POST'])
+def app_comment_update():
     if request.method == 'POST':
         data = request.get_json()
         token = ''
         appkey = ''
         for key in data:
-            if key == '_id':
-                data['_id'] = ObjectId(data['_id'])
             if key == 'token':
                 token = data['token']
         if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
             resultTooken = tool.ruleToken(token)
             if resultTooken[0] != 1:
@@ -133,59 +162,31 @@ def comment_update():
             else:
                 appkey = token.split('&&')[0]
         try:
-            connection.Comment.find_and_modify({'_id':data['_id'],'appkey':appkey,'del':0},{'$set':data['set']})
-            return MyResult(comment).toJson()
-        except Exception as e:
-            return MyException(param.PARAM_FAILURE).toJson()
-            
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-
-
-'''
-获取评论
-{
-    'pid':'0',  # 'pid':'0' 获取所有评论, 'pid':'_id' 获取某个产品或文章或..评论
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/type/get',methods=['GET', 'POST'])
-def type_update():
-    if request.method == 'POST':
-        data = request.get_json()
-        mytype = connection.Comment()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == 'pid':
-                mytype['_id'] = data['pid']
-            if key == 'token':
-                token = data['token']
-                del data['token']
-    if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-    else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                appkey = token.split('&&')[0]
-                return MyException(resultTooken).toJson()
+            user = connection.Comment.find_one({'appkey': appkey, '_id': ObjectId(data['_id'])})
+            if user:
+                user['del'] = int(user['del'])
+                for key in data['set']:
+                    if data['set'][key] == '':
+                        continue
+                    if key == 'oid':
+                        user.oid = data['set']['oid']
+                    if key == 'level':
+                        user.level = data['set']['level']
+                    if key == 'content':
+                        user.content = data['set']['content']
+                    if key == 'imgs':
+                        user.imgs = data['set']['imgs']
+                    if key == 'del':
+                        user['del'] = data['set']['del']
+                user.save()
+                user['_id'] = str(user['_id'])
+                user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                return MyResult(user).toJson()
             else:
-                mytype.appkey = appkey
-    try:
-          if mytype['_id']:
-                cols = ''
-                if mytype['_id'] == '0':
-                    cols = connection.Comment.find({'appkey':appkey,'del':0})
-                else:
-                    cols = connection.Comment.find({'appkey':appkey,'del':0,'pid':mytype['_id']})
-                return  MyResult(cols).toJson()
-          else:
-                return MyException(param.PARAM_FAILURE).toJson()
-    except Exception as e:
-          return MyException(param.PARAM_FAILURE).toJson()
-        
-  
+                return MyException(param.ARTICLE_NULL).toJson()
+        except Exception as e:
+            print e
+            return MyException(param.PARAM_FAILURE).toJson()
+
     if request.method == 'GET':
         return param.PLEASE_USE_POST
-
-

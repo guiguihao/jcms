@@ -1,234 +1,205 @@
 #!/usr/bin/python
-#-*-coding:utf-8 -*-
-from yunapp import app,result,connection,request,tool,config,sms
-from yunapp.model.shopModel import *
+# -*-coding:utf-8 -*-
+from yunapp import app, result, connection, request, tool, config, sms
+from yunapp.model.commentModel import *
 from yunapp.result import *
 from yunapp import param
 from bson.objectid import ObjectId
 from datetime import datetime
 
+'''
+获取收货地址列表
+{
+    'pageSize': 10,
+    'page':1
+    filter = ''
+    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
+}
+'''
+
+
+@app.route('/app/receive/list', methods=['GET', 'POST'])
+def get_receiveinfos():
+    if request.method == 'POST':
+        data = request.get_json()
+        user = connection.Receiveinfo()
+        appkey = ''
+        pageSize = 50
+        page = 1
+        filter = ''
+        for key in data:
+            if key == 'token':
+                token = data['token']
+            if key == 'pageSize':
+                pageSize = data['pageSize']
+            if key == 'page':
+                page = data['page']
+            if key == 'filter':
+                filter = data['filter']
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        else:
+            resultTooken = tool.ruleToken(token)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+
+        try:
+            admins = {
+                'count': 0,
+                'data': [],
+            }
+            params = {
+                'appkey': appkey,
+                'del': 0,
+            }
+            if isinstance(filter, dict):
+                for k in filter:
+                    params[k] = filter[k]
+                    if k == '_id':
+                        params[k] = ObjectId(filter[k])
+            fnuser = connection.Receiveinfo.find(params, {'del': 0}).limit(pageSize).skip((page - 1) * pageSize).sort(
+                [('_id', -1)])
+            for user in fnuser:
+                user['_id'] = str(user['_id'])
+                admins['data'].append(user)
+            admins['count'] = fnuser.count()
+            return MyResult(admins).toJson()
+        except Exception as e:
+            print e
+            return MyException(param.CHECK_FAILURE).toJson()
+
+
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
 
 
 '''
 添加收货地址
 {
-    'set':{
-      userid:''
-      mphone:''
-      phone:''
-      area:''
-      address:''
-      sort:''
-    }
+    'name':'xiaosan', #或phone email
+    'password':'11122',
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
-@app.route('/shop/Receiveinfo/add',methods=['GET', 'POST'])
-def Receiveinfo_add():
-    if request.method == 'POST':
-        data = request.get_json()
-        receiveinfo = connection.Receiveinfo()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-        else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0] 
-        try:
-            receiveinfo.save()
-            return  MySucceedResult().toJson()
-        except Exception as e:
-            return MyException(param.CHECK_FAILURE).toJson()
-  
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
-    
 
-'''
-删除收货地址
-{
-    'del':'id'
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/shop/Receiveinfo/del',methods=['GET', 'POST'])
-def Receiveinfo_del():
+
+@app.route('/app/receive/add', methods=['GET', 'POST'])
+def add_receive():
     if request.method == 'POST':
         data = request.get_json()
-        receiveinfo = connection.Receiveinfo()
-        token = ''
+        user = connection.Receiveinfo()
         appkey = ''
-        order = ''
+        token = ''
         for key in data:
-            if key == 'del':
-                pass
-                # order.titile = ObjectId data['del']
+            if data[key] == '':
+                continue
+            if key == 'userid':
+                user.userid = data['userid']
+            if key == 'mphone':
+                user.mphone = data['mphone']
+            if key == 'phone':
+                user.phone = data['phone']
+            if key == 'province':
+                user.province = data['province']
+            if key == 'city':
+                user.city = data['city']
+            if key == 'area':
+                user.area = data['area']
+            if key == 'address':
+                user.address = data['address']
+            if key == 'default':
+                user.default = data['default']
             if key == 'token':
                 token = data['token']
         if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
             resultTooken = tool.ruleToken(token)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
-                appkey = token.split('&&')[0] 
-        if order.titile and order.price:
+                appkey = token.split('&&')[0]
+        if user.userid and user.phone:
             try:
-                connection.Receiveinfo.find_and_modify({'_id':order['_id'],'del':0},{'$set':{"del":1}})
-                return  MySucceedResult().toJson()
+                user.appkey = appkey
+                user.save()
+                return MySucceedResult().toJson()
             except Exception as e:
-                return MyException(param.CHECK_FAILURE).toJson()
+                print  e
+                return MyException([param.CHECK_FAILURE[0],unicode(e)]).toJson()
         else:
-           return MyException(param.REGISTER_FAILURE).toJson()
-  
+            return MyException(param.PARAM_FAILURE).toJson()
+
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 
 
-
-
 '''
-post 
+post  更新收货地址信息
 {
-    '_id': 'xxxxxxx',
+    '_id':'xxx'
     set:{
        设置需要更新的字段即可,如下,可多个字段,不能包含_id
-        time:''
-      user:''
-      price:''
-      product:''
-      colour:''
-      receiveinfo:''
+       name : 'xx',
+       'vip': 'vip类型_id', #通过获取所有vip类型可以获取_id  /user/vip/type/get 
     },
     'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
 }
 '''
-@app.route('/shop/Receiveinfo/update',methods=['GET', 'POST'])
-def receiveinfo_update():
-    if request.method == 'POST':
-        data = request.get_json()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == '_id':
-                data['_id'] = ObjectId(data['_id'])
-            if key == 'token':
-                token = data['token']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-        else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0]
-        try:
-            connection.Receiveinfo.find_and_modify({'_id':data['_id'],'appkey':appkey,'del':0},{'$set':data['set']})
-            order = connection.Receiveinfo.find_one({'_id':data['_id'],'appkey':appkey,'del':0},{'del':0})
-            #ptype = connection.Type.find_one({'_id':product.type,'appkey':appkey,'del':0},{'del':0})
-            order['_id'] = str(order['_id'])
-            #product.type = ptype
-            return MyResult(order).toJson()
-        except Exception as e:
-            return MyException(param.PARAM_FAILURE).toJson()
-            
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
 
-'''
-post 
-{
-    根据id获取收货地址
-    '_id': 'xxxxxxx'
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/shop/Receiveinfo/get/id',methods=['GET', 'POST'])
-def receiveinfo_get_id():
-    if request.method == 'POST':
-        data = request.get_json()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == '_id':
-                data['_id'] = ObjectId(data['_id'])
-            if key == 'token':
-                token = data['token']
-        if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
-        else:
-            resultTooken = tool.ruleToken(token)
-            if resultTooken[0] != 1:
-                return MyException(resultTooken).toJson()
-            else:
-                appkey = token.split('&&')[0]
-        try:
-            #connection.Order.find_and_modify({'_id':data['_id'],'appkey':appkey,'del':0},{'$set':data['set']})
-            order = connection.Receiveinfo.find_one({'_id':data['_id'],'appkey':appkey,'del':0},{'del':0})
-            #ptype = connection.Type.find_one({'_id':product.type,'appkey':appkey,'del':0},{'del':0})
-            order['_id'] = str(order['_id'])
-            #product.type = ptype
-            return MyResult(order).toJson()
-        except Exception as e:
-            return MyException(param.PARAM_FAILURE).toJson()
-            
-    if request.method == 'GET':
-        return param.PLEASE_USE_POST
 
-'''
-post 
-{
-    获取用户收货地址
-    'get':{
-       user:
-       status:
-    }
-    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
-}
-'''
-@app.route('/shop/order/get/user',methods=['GET', 'POST'])
-def order_get_user():
+@app.route('/app/receive/update', methods=['GET', 'POST'])
+def app_receive_update():
     if request.method == 'POST':
         data = request.get_json()
         token = ''
         appkey = ''
-        query = {}
         for key in data:
-            if key == '_id':
-                data['_id'] = ObjectId(data['_id'])
             if key == 'token':
                 token = data['token']
-            if key == 'get':
-                query = data['get']
         if token == '' or not token:
-            return MyException(param.APP_TOKEN_NULL).toJson() 
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
             resultTooken = tool.ruleToken(token)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
                 appkey = token.split('&&')[0]
-                query['appkey'] = appkey
-                query['del'] = 0
         try:
-            #connection.Order.find_and_modify({'_id':data['_id'],'appkey':appkey,'del':0},{'$set':data['set']})
-            orders = connection.Receiveinfo.find(query,{'del':0})
-            olist = []
-            for o in orders:
-            	o['_id'] = str(o['_id'])
-                olist.append(o)
-            #product.type = ptype
-            return MyResult(olist).toJson()
+            user = connection.Receiveinfo.find_one({'appkey': appkey, '_id': ObjectId(data['_id'])})
+            if user:
+                user['del'] = int(user['del'])
+                for key in data['set']:
+                    if data['set'][key] == '':
+                        continue
+                    if key == 'mphone':
+                        user.mphone = data['set']['mphone']
+                    if key == 'phone':
+                        user.phone = data['set']['phone']
+                    if key == 'province':
+                        user.province = data['set']['province']
+                    if key == 'city':
+                        user.city = data['set']['city']
+                    if key == 'area':
+                        user.area = data['set']['area']
+                    if key == 'address':
+                        user.address = data['set']['address']
+                    if key == 'default':
+                        user.default = data['set']['default']
+                    if key == 'del':
+                        user['del'] = data['set']['del']
+                user.save()
+                if(user.default == 1):
+                    connection.Receiveinfo.find_and_modify({'userid':user.userid,'del':0,'_id':{'$ne':user['_id']}},{'$set':{'default':0}})
+                user['_id'] = str(user['_id'])
+                return MyResult(user).toJson()
+            else:
+                return MyException(param.ARTICLE_NULL).toJson()
         except Exception as e:
+            print e
             return MyException(param.PARAM_FAILURE).toJson()
-            
+
     if request.method == 'GET':
         return param.PLEASE_USE_POST

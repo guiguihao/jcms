@@ -31,3 +31,5 @@ from yunapp import Article
 from yunapp import ImgManage
 from yunapp import ShopReturnInfo
 from yunapp import ShopSaleCode
+from yunapp import Comment
+from yunapp import ReceiveInfo

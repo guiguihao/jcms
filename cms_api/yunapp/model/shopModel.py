@@ -168,12 +168,15 @@ class Receiveinfo(Document):
    __collection__ = 'receive'
    __database__ = 'shop'
    structure = {
+        'appkey': unicode,  # appkey
         'userid': unicode,         #用户
         'mphone':unicode,          #手机号码
         'phone':unicode,           #电话
-        'area':unicode,            #区域 省市区
+        'province':unicode,        #省
+        'city':unicode,             #市
+        'area':unicode,            #区域
         'address': unicode,        #详细地址
-        'sort':int,                #排序
+        'default':int,                #1选择
         'del': int,#0 存在 1删除
     }
    validators = {
@@ -182,11 +185,14 @@ class Receiveinfo(Document):
         'phone': max_length(200),
         'area': max_length(200),
         'address': max_length(200),
+        'province': max_length(200),
+        'city': max_length(200),
     }
    default_values = {
         'del': 0,
+        'default':0
     }
-   required = ['time','user','price','product','receiveinfo','status']
+   required = ['userid','phone','address']
    use_dot_notation = True
 
 #退货信息

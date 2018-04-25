@@ -13,7 +13,6 @@
          <template>
            <el-table
              :data="tableData2"
-             style="width: 100%"
              >
              <el-table-column
                prop="code"
@@ -137,27 +136,6 @@
            </el-table>
       </el-dialog>
 
-
-     <!-- 修改促销价格 -->
-      <el-dialog :title=title :visible.sync="dialogFormVisible3">
-        <el-form :model="form">
-          <el-form-item label="产品名称" :label-width="formLabelWidth">
-            <el-input v-model="form.title" auto-complete="off" :disabled="true" style="width: 300px;"></el-input>
-          </el-form-item>
-          <el-form-item label="产品原价" :label-width="formLabelWidth">
-            <el-input v-model="form.price" auto-complete="off"  :disabled="true" style="width: 300px;"></el-input>
-          </el-form-item>
-          <el-form-item label="促销价格" >
-                <el-input  v-model.number="form.salePrice" style="width: 220px;"></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogFormVisible3 = false">取 消</el-button>
-          <el-button type="primary" @click="submitSale">确 定</el-button>
-        </div>
-      </el-dialog>
-
-
      <!-- 选择参与活动的产品 -->
       <el-dialog title='选择参与的产品' :visible.sync="dialogFormVisible2">
 
@@ -181,6 +159,15 @@
                format
                width="160">
              </el-table-column>
+             <el-table-column
+                   width="130"
+                   label="状态"
+                   >
+                   <template slot-scope="scope">
+                     <el-button v-if="scope.row.status == 9" type="text" size="small" style='color: #F56C6C'>已参加优惠,选择无效...</el-button>
+                     <el-button v-if="scope.row.status != 9" type="text" size="small" style='color: #67C23A' >可参加</el-button>
+                   </template>
+              </el-table-column>
               <el-table-column
                     type="selection"
                     width="55">
@@ -349,6 +336,19 @@
           if(res && res.data && res.data.code && res.data.code == 1) {
               self.products = res.data.data.data;
               self.producttotal = res.data.data.count;
+                self.products.forEach(row => {
+
+                 for (let k in self.tableData2) {
+                       let saledic = this.tableData2[k];
+                       for(let i in saledic.products){
+                          let dic = saledic.products[i];
+                          if (row._id === dic._id) {
+                            row.status = 9; //已参加活动
+                          }
+                       }
+                    }
+               
+               });
              console.log(JSON.stringify(res.data.data));  
           } else {
             self.$message(res.data.msg);
