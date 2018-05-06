@@ -1,5 +1,7 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
+from yunapp import abort,session,config
+from yunapp.model.userModel import *
 import hashlib
 import os
 import time
@@ -9,30 +11,45 @@ import pytz
 from datetime import datetime
 
 
+def useSession(appkey):
+    appinfo = connection.AppInfo.find_one({'appkey': appkey})
+    if appinfo and appinfo.session == 1:
+        if config.SESSION_KEY in session:
+            if session[config.SESSION_KEY]:
+                pass
+            else:
+                return abort(401)
+        else:
+            return abort(401)
+    if not appinfo:
+        return abort(401)
+
 def md5(str):
     m = hashlib.md5()   
     m.update(str)
     return m.hexdigest()
 
 def randomString(n):
-	return ''.join(map(lambda xx:(hex(ord(xx))[2:]),os.urandom(n)))[0:16]
+    return ''.join(map(lambda xx:(hex(ord(xx))[2:]),os.urandom(n)))[0:16]
 
 
-def ruleToken(token):
+def ruleToken(token,issession):
         tokenParams = token.split('&&')
         user = connection.APP_admin.find_one({"appkey":tokenParams[0],"superadmin":1})
+        if issession:
+            useSession(tokenParams[0])
         if not user:
             return param.APP_TOKEN_ERROR
-    	timeStamp = time.time()
+        timeStamp = time.time()
         tktime = float(tokenParams[1])
         tkmd5 = tokenParams[2]
         if timeStamp-tktime <= 9000000 and timeStamp-tktime >= -9000000:
-        	if tkmd5 == md5(user.appsecret+'&&'+tokenParams[1]):
-        		return param.SUCCEED
-        	else:
+            if tkmd5 == md5(user.appsecret+'&&'+tokenParams[1]):
+                return param.SUCCEED
+            else:
                   return param.APP_TOKEN_RULE_ERROR
-        else: 
-        	return param.APP_TOKEN_TIME_ERROR
+        else:
+            return param.APP_TOKEN_TIME_ERROR
 
 def ruleToken2(token,pw,md5key):
         timeStamp = time.time()

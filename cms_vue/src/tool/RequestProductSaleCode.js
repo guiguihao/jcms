@@ -10,11 +10,9 @@ var RequestProductSaleCode = {
             url = '/app/productSaleCode/list';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
             page:currentPage,
             pageSize:pagesize,
-            token:myToken,
             filter:filter
           }
           let p = new Promise(function(resolve, reject){        //做一些异步操作
@@ -37,9 +35,7 @@ var RequestProductSaleCode = {
             url = '/app/productSaleCode/add';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
-            token:myToken,
           }
           for (let k in paramsDic){
                params[k] = paramsDic[k];
@@ -65,11 +61,9 @@ var RequestProductSaleCode = {
             url = '/app/productSaleCode/update';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
             _id:paramsDic._id,
             set:{},
-            token:myToken
           }
           for (let k in paramsDic){
             if (k != '_id') {
@@ -97,10 +91,8 @@ var RequestProductSaleCode = {
             url = '/app/productSaleCode/products/add';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
             _id:paramsDic._id,
-            token:myToken
           }
           for (let k in paramsDic){
                params[k] = paramsDic[k];
@@ -127,10 +119,8 @@ var RequestProductSaleCode = {
             url = '/app/productSaleCode/products/del';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
             _id:paramsDic._id,
-            token:myToken
           }
           for (let k in paramsDic){
                params[k] = paramsDic[k];

@@ -104,6 +104,7 @@ class Order(Document):
             '_id':unicode,
             'title':unicode,        #产品名称
             'imgs':[],              #产品图片
+            'costprice': OR(float, int),  # 成本单价
             'price': OR(float,int),  # 产品单价
             'saleprice': OR(float, int),  # 产品促销价
             'colour': unicode,  # 颜色 大小
@@ -112,10 +113,12 @@ class Order(Document):
         }],
         'date': OR(unicode, datetime.datetime),
         'receiveinfo':{
-            'name':unicode,
-            'phone':unicode,
-            'address':unicode,
-            'code':unicode,   #邮编
+            'mphone': unicode,  # 手机号码
+            'phone': unicode,  # 电话
+            'province': unicode,  # 省
+            'city': unicode,  # 市
+            'area': unicode,  # 区域
+            'address': unicode,  # 详细地址
             'remake': unicode,  # 备注
         },      #收货信息
         'status':IS(0,1,2,3,4),               #0 待付款 1已付款 2,已发货  3.交易完成 4关闭交易
@@ -138,7 +141,7 @@ class Order(Document):
         },
         'remake': unicode,  # 备注
         'appkey':unicode,
-        'reserved_1':unicode,    #预留字段1 
+        'reserved_1':unicode,    #预留字段1
         'reserved_2':unicode,    #预留字段1 
         'reserved_3':unicode,    #预留字段1 
         'reserved_4':unicode,    #预留字段1 
@@ -249,6 +252,26 @@ class saleCode(Document):
            'salerange':0,
            'saleprice':0,
            'del': 0
+       }
+       required = ['appkey']
+       use_dot_notation = True
+
+   #分销
+@connection.register
+class Fenxiao(Document):
+       __collection__ = 'fenxiao'
+       __database__ = 'shop'
+       structure = {
+           'appkey': unicode,  # appkey
+           'status':int,       #0关闭 1开启
+           'fx1': OR(float, int), #1级分销
+           'fx2': OR(float, int),  # 1级分销
+           'fx3': OR(float, int),  # 1级分销
+       }
+       validators = {
+           'appkey': max_length(200),
+       }
+       default_values = {
        }
        required = ['appkey']
        use_dot_notation = True

@@ -18,30 +18,28 @@ from bson.objectid import ObjectId
 @app.route('/app/admin/shopreturn/get', methods=['GET', 'POST'])
 def shopreturn_get():
     if request.method == 'POST':
-        data = request.get_json()
-        appInfo = connection.ReturnGoodsinfo()
-        token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
-                # del data['token']
-    if token == '' or not token:
-        return MyException(param.APP_TOKEN_NULL).toJson()
-    else:
-        resultTooken = tool.ruleToken(token)
-        appkey = token.split('&&')[0]
-        if resultTooken[0] != 1:
-            return MyException(resultTooken).toJson()
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            appInfo.appkey = appkey
-    try:
-        fdApp = connection.ReturnGoodsinfo.find_one({'appkey': appkey})
-        if fdApp:
-            fdApp['_id'] = str(fdApp['_id'])
-        return MyResult(fdApp).toJson()
-    except Exception as e:
-        return MyException(param.PARAM_FAILURE).toJson()
+            resultTooken = tool.ruleToken(token,True)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+        try:
+            fdApp = connection.ReturnGoodsinfo.find_one({'appkey': appkey})
+            if fdApp:
+                fdApp['_id'] = str(fdApp['_id'])
+            return MyResult(fdApp).toJson()
+        except Exception as e:
+            return MyException(param.PARAM_FAILURE).toJson()
 
     if request.method == 'GET':
         return param.PLEASE_USE_POST
@@ -59,36 +57,36 @@ def shopreturn_get():
 @app.route('/app/admin/shopreturn/update', methods=['GET', 'POST'])
 def shopreturn_update():
     if request.method == 'POST':
+        appkey = ''
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
         data = request.get_json()
         appInfo = connection.ReturnGoodsinfo()
-        token = ''
-        appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
-                # del data['token']
-    if token == '' or not token:
-        return MyException(param.APP_TOKEN_NULL).toJson()
-    else:
-        resultTooken = tool.ruleToken(token)
-        appkey = token.split('&&')[0]
-        if resultTooken[0] != 1:
-            return MyException(resultTooken).toJson()
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            appInfo.appkey = appkey
-    try:
-        fdApp = connection.ReturnGoodsinfo.find_one({'appkey': appkey})
-        if fdApp:
-            parse(fdApp, data)
-            print fdApp
-            fdApp.save()
-        else:
-            parse(appInfo, data)
-            appInfo.save()
-        return MySucceedResult().toJson()
-    except Exception as e:
-        print e
-        return MyException(param.PARAM_FAILURE).toJson()
+            resultTooken = tool.ruleToken(token,True)
+            appkey = token.split('&&')[0]
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appInfo.appkey = appkey
+        try:
+            fdApp = connection.ReturnGoodsinfo.find_one({'appkey': appkey})
+            if fdApp:
+                parse(fdApp, data)
+                print fdApp
+                fdApp.save()
+            else:
+                parse(appInfo, data)
+                appInfo.save()
+            return MySucceedResult().toJson()
+        except Exception as e:
+            print e
+            return MyException(param.PARAM_FAILURE).toJson()
 
     if request.method == 'GET':
         return param.PLEASE_USE_POST

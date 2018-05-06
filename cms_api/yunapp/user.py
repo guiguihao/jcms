@@ -20,15 +20,17 @@ from datetime import datetime
 @app.route('/app/user/list',methods=['GET', 'POST'])
 def get_users():
     if request.method == 'POST':
-        data = request.get_json()
-        user = connection.APP_User()
         appkey = ''
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         pageSize = 50
         page = 1
         filter = ''
         for key in data:
-            if key == 'token':
-                token = data['token']
             if key == 'pageSize':
                 pageSize = data['pageSize']
             if key == 'page':
@@ -38,7 +40,7 @@ def get_users():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -89,10 +91,14 @@ def get_users():
 @app.route('/app/user/add',methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
-        data = request.get_json()
-        user = connection.APP_User()
         appkey = ''
         token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        user = connection.APP_User()
         for key in data:
             if data[key] == '':
                 continue
@@ -114,8 +120,8 @@ def add_user():
                 user.info = data['info']
             if key == 'vip':
                 user.vip = data['vip']
-            if key == 'token':
-                token = data['token']
+            if key == 'referee':
+                user.referee = data['referee']
             if key == 'reserved_1':
                 user.reserved_1 = data['reserved_1']
             if key == 'reserved_2':
@@ -128,7 +134,7 @@ def add_user():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -182,16 +188,17 @@ post  更新用户信息
 @app.route('/app/user/update',methods=['GET', 'POST'])
 def app_user_update():
     if request.method == 'POST':
-        data = request.get_json()
-        token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:

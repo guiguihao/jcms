@@ -133,7 +133,7 @@
 //						self.tableData = res.data.data.data;
 //						self.totalCount = res.data.data.count;
 					   // console.log(JSON.stringify(res.data));
-						self.$message('登录成功');
+						self.$message.success('登录成功');
 						localStorage.setItem('userData',JSON.stringify(res.data.data));
 						self.$router.push('/admin/home');
 					} else if (res.data.code == 205){

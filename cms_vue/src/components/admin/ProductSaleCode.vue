@@ -514,6 +514,7 @@
   .mytable{
 
         margin-top: 40px;
+        width: 100%;
      
   }
   .mypage{

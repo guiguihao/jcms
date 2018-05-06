@@ -2,7 +2,8 @@
  * Created by superman on 17/2/16.
  * http配置
  */
-
+import router from '../router'
+import token from '../tool/token'
 import axios from 'axios'
 // import store from './store/store'
 //import router from './router'
@@ -14,10 +15,10 @@ axios.defaults.timeout = 3000;
 // http request 拦截器
 axios.interceptors.request.use(
     config => {
-        let token = localStorage.getItem('token');
-           if(token){
+        let mtoken = token.getToken();
+           if(mtoken){
             //alert(localStorage.getItem('token'));
-              config.headers.Authorization = token;
+              config.headers.Authorization = mtoken;
            }
            return config;
     },
@@ -28,23 +29,19 @@ axios.interceptors.request.use(
 // http response 拦截器
 axios.interceptors.response.use(
     response => {
-//  	  alert('response');
+ 	
         return response;
     },
     error => {
         if (error.response) {
             switch (error.response.status) {
                 case 401:
-                    // 401 清除token信息并跳转到登录页面
-//                  store.commit(types.LOGOUT);
-//                  router.replace({
-//                      path: 'login',
-//                      query: {redirect: router.currentRoute.fullPath}
-//                  })
+                 router.replace({
+                        path: '/admin/login',
+                    })
             }
-            // alert('error');
         }
-        // console.log(JSON.stringify(error));//console : Error: Request failed with status code 402
+        console.log(JSON.stringify(error));//console : Error: Request failed with status code 402
         return Promise.reject(error.response.data)
 });
 

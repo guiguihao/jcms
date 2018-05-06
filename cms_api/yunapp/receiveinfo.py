@@ -21,15 +21,17 @@ from datetime import datetime
 @app.route('/app/receive/list', methods=['GET', 'POST'])
 def get_receiveinfos():
     if request.method == 'POST':
-        data = request.get_json()
-        user = connection.Receiveinfo()
         appkey = ''
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         pageSize = 50
         page = 1
         filter = ''
         for key in data:
-            if key == 'token':
-                token = data['token']
             if key == 'pageSize':
                 pageSize = data['pageSize']
             if key == 'page':
@@ -39,7 +41,7 @@ def get_receiveinfos():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -88,10 +90,14 @@ def get_receiveinfos():
 @app.route('/app/receive/add', methods=['GET', 'POST'])
 def add_receive():
     if request.method == 'POST':
-        data = request.get_json()
-        user = connection.Receiveinfo()
         appkey = ''
         token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        user = connection.Receiveinfo()
         for key in data:
             if data[key] == '':
                 continue
@@ -111,12 +117,10 @@ def add_receive():
                 user.address = data['address']
             if key == 'default':
                 user.default = data['default']
-            if key == 'token':
-                token = data['token']
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -153,16 +157,17 @@ post  更新收货地址信息
 @app.route('/app/receive/update', methods=['GET', 'POST'])
 def app_receive_update():
     if request.method == 'POST':
-        data = request.get_json()
-        token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:

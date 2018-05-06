@@ -10,11 +10,9 @@ var RequestOrder = {
             url = '/app/order/list';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
             page:currentPage,
             pageSize:pagesize,
-            token:myToken,
             filter:filter
           }
           let p = new Promise(function(resolve, reject){        //做一些异步操作
@@ -37,9 +35,7 @@ var RequestOrder = {
             url = '/app/order/add';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
-            token:myToken,
           }
           for (let k in paramsDic){
                params[k] = paramsDic[k];
@@ -65,11 +61,9 @@ var RequestOrder = {
             url = '/app/order/update';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
             _id:paramsDic._id,
             set:{},
-            token:myToken
           }
           for (let k in paramsDic){
             if (k != '_id') {

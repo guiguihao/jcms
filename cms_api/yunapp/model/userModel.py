@@ -4,7 +4,6 @@ from yunapp import connection,Document
 import datetime
 from mongokit import OR
 
-
 def max_length(length):
     def validate(value):
         if len(value) <= length:
@@ -70,9 +69,10 @@ class APP_User(Document):
         'email': unicode,
         'vip'  :unicode,
         'qq':unicode,
-        'integral':int,    #用户积分点数之类
+        'integral':OR(int,float),    #用户积分点数之类
         'wachat':unicode,
         'nickname':unicode,
+        'referee':unicode,   #我的推荐人
         'appkey':unicode,
         'date':OR(unicode,datetime.datetime),
         'status':int,              #用户状态 1.正常 2.禁用 3.自定义
@@ -144,10 +144,12 @@ class AppInfo(Document):
         'appkey':unicode,
         'domian':unicode, #域名
         'status':int,    #0关闭 1开启
+        'session': int,  # 0关闭 1开启
         'name':unicode,  #应用名称
         'email':unicode,  #开发者邮箱
         'phone':unicode,  #开发者电话
         'beian':unicode,  #备案号
+        'logo': unicode,  # logo
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 
         'reserved_3':unicode,    #预留字段1 

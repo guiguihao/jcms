@@ -26,7 +26,6 @@ def allowed_file(filename):
 @app.route('/app/save/img', methods=['GET', 'POST'])
 def save_img():
     if request.method == 'POST':
-        print '```````````````````'
         token = request.form['token']
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
@@ -50,7 +49,6 @@ def save_img():
 @app.route('/app/save/img2', methods=['GET', 'POST'])
 def save_img2():
     if request.method == 'POST':
-        print '```````````````````'
         token = request.form['token']
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()

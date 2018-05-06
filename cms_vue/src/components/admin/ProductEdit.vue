@@ -49,8 +49,9 @@
             </el-form-item>
             <el-form-item label="主图" >
                <el-upload
+                 :headers="header"
                  class="avatar-uploader"
-                 action="/api/app/save/img2"
+                 action="/imgapi/upload/saveImg.php"
                  :show-file-list="false"
                  :data="imgdata"
                  :on-success="handleAvatarSuccess1"
@@ -60,7 +61,7 @@
                </el-upload>
                <el-upload
                  class="avatar-uploader"
-                 action="/api/app/save/img2"
+                 action="/imgapi/upload/saveImg.php"
                  :show-file-list="false"
                  :data="imgdata"
                  :on-success="handleAvatarSuccess2"
@@ -70,7 +71,7 @@
                </el-upload>
                 <el-upload
                  class="avatar-uploader"
-                 action="/api/app/save/img2"
+                 action="/imgapi/upload/saveImg.php"
                  :show-file-list="false"
                  :data="imgdata"
                  :on-success="handleAvatarSuccess3"
@@ -80,7 +81,7 @@
                </el-upload>
                 <el-upload
                  class="avatar-uploader"
-                 action="/api/app/save/img2"
+                 action="/imgapi/upload/saveImg.php"
                  :show-file-list="false"
                  :data="imgdata"
                  :on-success="handleAvatarSuccess4"
@@ -90,7 +91,7 @@
                </el-upload>
                 <el-upload
                  class="avatar-uploader"
-                 action="/api/app/save/img2"
+                 action="/imgapi/upload/saveImg.php"
                  :show-file-list="false"
                  :data="imgdata"
                  :on-success="handleAvatarSuccess5"
@@ -171,10 +172,10 @@
      methods: {
 
       handleAvatarSuccess1(res, file) {
-        console.log(JSON.stringify(res));
         if (res.code === 1) {
-            this.imageUrl1 = URL.createObjectURL(file.raw);
+            this.imageUrl1 = res.data.url;
             this.ruleForm.imgs[0] = res.data.url;
+            this.$message.success(res.msg);
         }else{
               this.$message.error(res.msg);
         }
@@ -184,6 +185,7 @@
         if (res.code === 1) {
             this.imageUrl2 = URL.createObjectURL(file.raw);
             this.ruleForm.imgs[1] = res.data.url;
+            this.$message.success(res.msg);
         }else{
               this.$message.error(res.msg);
         }
@@ -193,6 +195,7 @@
         if (res.code === 1) {
             this.imageUrl3 = URL.createObjectURL(file.raw);
             this.ruleForm.imgs[2] = res.data.url;
+            this.$message.success(res.msg);
         }else{
               this.$message.error(res.msg);
         }
@@ -202,6 +205,7 @@
         if (res.code === 1) {
             this.imageUrl4 = URL.createObjectURL(file.raw);
             this.ruleForm.imgs[3] = res.data.url;
+            this.$message.success(res.msg);
         }else{
               this.$message.error(res.msg);
         }
@@ -211,6 +215,7 @@
         if (res.code === 1) {
             this.imageUrl5 = URL.createObjectURL(file.raw);
             this.ruleForm.imgs[4] = res.data.url;
+            this.$message.success(res.msg);
         }else{
               this.$message.error(res.msg);
         }
@@ -334,10 +339,14 @@
           
             // 第一步.将图片上传到服务器.
            let self = this;
-           self.$request.img.saveImg($file).then((res)=>{
+           let data = {
+              operation:'add',
+              token:this.$token.getToken(),
+           }
+           self.$request.img2.updateImg2(data,$file).then((res)=>{
             console.log('----xxx--' + JSON.stringify(res.data));
                if(res && res.data && res.data.code && res.data.code == 1) {
-                  self.$message('图片上传成功');
+                  self.$message.success('图片上传成功');
                   this.$refs.md.$imgAddByUrl(pos,res.data.data.url);
                   this.$refs.md.$img2Url(pos,res.data.data.url);
                   this.$refs.md.$imgUpdateByUrl(pos,res.data.data.url);

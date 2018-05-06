@@ -20,15 +20,18 @@ from bson.objectid import ObjectId
 @app.route('/app/admin/list',methods=['GET', 'POST'])
 def get_admins():
     if request.method == 'POST':
+        appkey = ''
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
         data = request.get_json()
         user = connection.APP_admin()
-        appkey = ''
         pageSize = 50
         page = 1
         filter = ''
         for key in data:
-            if key == 'token':
-                token = data['token']
             if key == 'pageSize':
                 pageSize = data['pageSize']
             if key == 'page':
@@ -38,7 +41,7 @@ def get_admins():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -83,9 +86,14 @@ def get_admins():
 @app.route('/app/admin/add',methods=['GET', 'POST'])
 def add_admin():
     if request.method == 'POST':
+        appkey = ''
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
         data = request.get_json()
         user = connection.APP_admin()
-        appkey = ''
         for key in data:
             if key == 'name':
                 user.name = data['name']
@@ -105,8 +113,6 @@ def add_admin():
                 user.info = data['info']
             if key == 'permission':
                 user.permission = data['permission']
-            if key == 'token':
-                token = data['token']
             if key == 'reserved_1':
                 user.reserved_1 = data['reserved_1']
             if key == 'reserved_2':
@@ -119,7 +125,7 @@ def add_admin():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -171,16 +177,17 @@ post  更新管理员
 @app.route('/app/admin/update',methods=['GET', 'POST'])
 def app_update():
     if request.method == 'POST':
-        data = request.get_json()
-        token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -242,10 +249,14 @@ def app_update():
 @app.route('/user/vip/type/add',methods=['GET', 'POST'])
 def user_vip_add():
     if request.method == 'POST':
+        appkey = ''
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
         data = request.get_json()
         userVip = connection.UserVip()
-        token = ''
-        appkey = ''
         for key in data:
             if key == 'level':
                 userVip.level = data['level']
@@ -261,31 +272,28 @@ def user_vip_add():
                 userVip.reserved_1 = data['reserved_3']
             if key == 'reserved_4':
                 userVip.reserved_1 = data['reserved_4']
-            if key == 'token':
-                token = data['token']
-                # del data['token']
-    if token == '' or not token:
-        return MyException(param.APP_TOKEN_NULL).toJson() 
-    else:
-        resultTooken = tool.ruleToken(token)
-        appkey = token.split('&&')[0]
-        if resultTooken[0] != 1:
-            return MyException(resultTooken).toJson()
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            userVip.appkey = appkey
-    try:
-          del data['token']
-          if userVip.level >-1 and userVip.level_name:
-                fvip = connection.UserVip.find_one({'level_name':userVip.level_name,'appkey':appkey})
-                if fvip:
-                    return MyException(param.APP_VIPTYPE_NAME_FAILURE).toJson()
-                else:
-                    userVip.save()
-                    return  MySucceedResult().toJson()
-          else:
-                return MyException(param.PARAM_FAILURE).toJson()
-    except Exception as e:
-          return MyException(param.PARAM_FAILURE).toJson()
+            resultTooken = tool.ruleToken(token,True)
+            appkey = token.split('&&')[0]
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                userVip.appkey = appkey
+        try:
+              del data['token']
+              if userVip.level >-1 and userVip.level_name:
+                    fvip = connection.UserVip.find_one({'level_name':userVip.level_name,'appkey':appkey})
+                    if fvip:
+                        return MyException(param.APP_VIPTYPE_NAME_FAILURE).toJson()
+                    else:
+                        userVip.save()
+                        return  MySucceedResult().toJson()
+              else:
+                    return MyException(param.PARAM_FAILURE).toJson()
+        except Exception as e:
+              return MyException(param.PARAM_FAILURE).toJson()
         
   
     if request.method == 'GET':
@@ -301,30 +309,29 @@ def user_vip_add():
 @app.route('/user/vip/type',methods=['GET', 'POST'])
 def user_vip_get_all_viptype():
     if request.method == 'POST':
-        data = request.get_json()
-        userVip = connection.UserVip()
         token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
-    if token == '' or not token:
-        return MyException(param.APP_TOKEN_NULL).toJson() 
-    else:
-        resultTooken = tool.ruleToken(token)
-        if resultTooken[0] != 1:
-            return MyException(resultTooken).toJson()
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            appkey = token.split('&&')[0]
-    try:
-          allVipType = connection.UserVip.find({'appkey':appkey,'del':0},{'del':0})
-          vips = []
-          for viptype in allVipType:
-              viptype['_id'] = str(viptype['_id'])
-              vips.append(viptype)
-          return MyResult(vips).toJson()
-    except Exception as e:
-          return MyException(param.PARAM_FAILURE).toJson()
+            resultTooken = tool.ruleToken(token,True)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+        try:
+              allVipType = connection.UserVip.find({'appkey':appkey,'del':0},{'del':0})
+              vips = []
+              for viptype in allVipType:
+                  viptype['_id'] = str(viptype['_id'])
+                  vips.append(viptype)
+              return MyResult(vips).toJson()
+        except Exception as e:
+              return MyException(param.PARAM_FAILURE).toJson()
     if request.method == 'GET':
         return param.PLEASE_USE_POST
     
@@ -342,52 +349,53 @@ def user_vip_get_all_viptype():
 @app.route('/user/vip/type/set',methods=['GET', 'POST'])
 def user_vip_set():
     if request.method == 'POST':
-        data = request.get_json()
         token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
-    if token == '' or not token:
-        return MyException(param.APP_TOKEN_NULL).toJson() 
-    else:
-        resultTooken = tool.ruleToken(token)
-        if resultTooken[0] != 1:
-            return MyException(resultTooken).toJson()
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            appkey = token.split('&&')[0]
-    try:   
-            vipId = data['set']['_id']
-            if len(vipId)<0:
-                return MyException(param.PARAM_FAILURE).toJson()
-            user = connection.UserVip.find_one({'_id':ObjectId(vipId)})
-            if user:
-                user['del'] = int(user['del'])
-                for key in data['set']:
-                    if key == 'level':
-                        user.level = data['set']['level']
-                    if key == 'level_name':
-                        user.level_name = data['set']['level_name']
-                    if key == 'level_dec':
-                        user.level_dec = data['set']['level_dec']
-                    if key == 'reserved_1':
-                        user.reserved_1 = data['set']['reserved_1']
-                    if key == 'reserved_2':
-                        user.reserved_2 = data['set']['reserved_2']
-                    if key == 'reserved_3':
-                        user.reserved_3 = data['set']['reserved_3']
-                    if key == 'reserved_4':
-                        user.reserved_4 = data['set']['reserved_4']
-                    if key == 'del':
-                        user['del'] = data['set']['del']    
-                user.save()
-                # connection.APP_admin.find_and_modify({'appkey':appkey,'del':0},{'$set':data['set']})
-                # user = connection.APP_admin.find_one({'appkey':appkey,'del':0},{'del':0,'appsecret':0})
-                user['_id'] = str(user['_id'])
-                return MyResult(user).toJson()
+            resultTooken = tool.ruleToken(token,True)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
             else:
-                MyException(param.USER_VIP_FAILURE).toJson()
-    except Exception as e:
-          return MyException(param.PARAM_FAILURE).toJson()
+                appkey = token.split('&&')[0]
+        try:
+                vipId = data['set']['_id']
+                if len(vipId)<0:
+                    return MyException(param.PARAM_FAILURE).toJson()
+                user = connection.UserVip.find_one({'_id':ObjectId(vipId)})
+                if user:
+                    user['del'] = int(user['del'])
+                    for key in data['set']:
+                        if key == 'level':
+                            user.level = data['set']['level']
+                        if key == 'level_name':
+                            user.level_name = data['set']['level_name']
+                        if key == 'level_dec':
+                            user.level_dec = data['set']['level_dec']
+                        if key == 'reserved_1':
+                            user.reserved_1 = data['set']['reserved_1']
+                        if key == 'reserved_2':
+                            user.reserved_2 = data['set']['reserved_2']
+                        if key == 'reserved_3':
+                            user.reserved_3 = data['set']['reserved_3']
+                        if key == 'reserved_4':
+                            user.reserved_4 = data['set']['reserved_4']
+                        if key == 'del':
+                            user['del'] = data['set']['del']
+                    user.save()
+                    # connection.APP_admin.find_and_modify({'appkey':appkey,'del':0},{'$set':data['set']})
+                    # user = connection.APP_admin.find_one({'appkey':appkey,'del':0},{'del':0,'appsecret':0})
+                    user['_id'] = str(user['_id'])
+                    return MyResult(user).toJson()
+                else:
+                    MyException(param.USER_VIP_FAILURE).toJson()
+        except Exception as e:
+              return MyException(param.PARAM_FAILURE).toJson()
     if request.method == 'GET':
         return param.PLEASE_USE_POST

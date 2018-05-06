@@ -10,10 +10,8 @@ var RequestType = {
             url = '/app/type/list';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
             type:type,
-            token:myToken
           }
           let p = new Promise(function(resolve, reject){        //做一些异步操作
             axios.post(url, params).then((res) => {
@@ -35,10 +33,8 @@ var RequestType = {
             url = '/app/type/add';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
             type:type,
-            token:myToken,
           }
           for (let k in paramsDic){
                params[k] = paramsDic[k];
@@ -63,11 +59,9 @@ var RequestType = {
             url = '/app/type/update';
           }
           //myTest();
-          let myToken = token.getToken();
           let params = {
             _id:paramsDic._id,
             set:{},
-            token:myToken
           }
           for (let k in paramsDic){
             if (k != '_id') {

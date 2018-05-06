@@ -1,6 +1,8 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
 PLEASE_USE_POST = '请使用post请求'
+PLEASE_USE_GET = '请使用GET请求'
+
 
 SUCCEED = (1,'成功')
 PARAM_FAILURE = (2,'参数错误')
@@ -40,3 +42,5 @@ ORDER_REFUND_PRICE_GT_ERROR = (606,'退款金额不可大于实际支付金额')
 ORDER_REFUND_STATUS_ERROR1 = (607,'退款完成不可关闭退款')
 ORDER_SALE_NULL = (701,'此优惠卷id不存在')
 FILE_DEl_FAILURE = (901,'文件删除失败')
+FENXIAO_FENCHENG_ERROR1 = (801,'三级分销分成比例总和不能大于1')
+PICTURE_NULL = (950,'此图片不存在')

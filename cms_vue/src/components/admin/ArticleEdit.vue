@@ -221,7 +221,11 @@
           
             // 第一步.将图片上传到服务器.
            let self = this;
-           self.$request.img.saveImg($file).then((res)=>{
+           let data = {
+              operation:'add',
+              token:this.$token.getToken(),
+           }
+           self.$request.img2.updateImg2(data,$file).then((res)=>{
             console.log('----xxx--' + JSON.stringify(res.data));
                if(res && res.data && res.data.code && res.data.code == 1) {
                   
@@ -229,7 +233,7 @@
                   this.$refs.md.$img2Url(pos,res.data.data.url);
                   this.$refs.md.$imgUpdateByUrl(pos,res.data.data.url);
                   this.$refs.md.$refs.toolbar_left.$imgDelByFilename(pos);
-                  self.$message('图片上传成功');
+                  self.$message.success('图片上传成功');
                } else {
                  self.$message(res.data.msg);
                }
@@ -311,9 +315,9 @@
                 if(res && res.data && res.data.code && res.data.code == 1) {
                    // self.requestData();
                    // console.log(JSON.stringify(self.type));  
-                   self.$message('更新文章成功');
+                   self.$message.success('更新文章成功');
                 } else {
-                  self.$message(res.data.msg);
+                  self.$message.error(res.data.msg);
                 }
              }).catch(function(error){
               self.$message('请求异常');

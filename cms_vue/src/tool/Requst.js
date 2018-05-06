@@ -8,6 +8,9 @@ import RequstImg from './RequstImg'
 import RequstReturnGoods from './RequstReturnGoods'
 import RequestOrder from './RequestOrder'
 import RequestComment from './RequestComment'
+import RequestSiteinfo from './RequestSiteinfo'
+import RequestFenXiao from './RequestFenXiao'
+import RequestImg2 from './RequestImg2'
 
 var Request = {
 	type:RequestType,
@@ -20,6 +23,9 @@ var Request = {
 	ProductSaleCode:RequestProductSaleCode,
 	order:RequestOrder,
 	comment:RequestComment,
+	siteInfo:RequestSiteinfo,
+	fenxiao:RequestFenXiao,
+	img2:RequestImg2,
 };
 
 export default Request

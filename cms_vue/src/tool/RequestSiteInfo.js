@@ -1,13 +1,13 @@
 import token from './token'
 import axios from '../http/http'
 
-var RequstReturnGoods = {
-   getReturnGoods: function(){
+var RequestSiteinfo = {
+   getSiteinfo: function(){
           let url = '';
           if(process.env.NODE_ENV === 'development') { //TEST
-            url = '/api/app/admin/shopreturn/get';
+            url = '/api/app/admin/info/get';
           } else {
-            url = '/app/admin/shopreturn/get';
+            url = '/app/admin/info/get';
           }
           //myTest();
           let params = {
@@ -24,17 +24,21 @@ var RequstReturnGoods = {
           return p;
    },
 
-   addUpReturnGoods: function(paramsDic){
+   updateSiteinfo: function(paramsDic){
           let url = '';
           if(process.env.NODE_ENV === 'development') { //TEST
-            url = '/api/app/admin/shopreturn/update';
+            url = '/api/app/admin/info/update';
           } else {
-            url = '/app/admin/shopreturn/update';
+            url = '/app/admin/info/update';
           }
           //myTest();
           let params = {
-            set:paramsDic,
+            set:{},
           }
+          for (let k in paramsDic){
+             params.set[k] = paramsDic[k];
+          }
+          console.log(JSON.stringify(params)); 
           let p = new Promise(function(resolve, reject){        //做一些异步操作
             axios.post(url, params).then((res) => {
              // console.log(JSON.stringify(res.data)); 
@@ -49,4 +53,4 @@ var RequstReturnGoods = {
 
 }
 
-export default RequstReturnGoods
+export default RequestSiteinfo

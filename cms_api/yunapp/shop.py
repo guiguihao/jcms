@@ -29,9 +29,13 @@ def getSubTypes(appkey,parentId,types):
 @app.route('/app/product/list', methods=['GET', 'POST'])
 def get_products():
     if request.method == 'POST':
-        data = request.get_json()
-        user = connection.Product()
         appkey = ''
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         pageSize = 50
         page = 1
         filter = ''
@@ -47,7 +51,7 @@ def get_products():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -128,10 +132,14 @@ def get_products():
 @app.route('/app/product/add', methods=['GET', 'POST'])
 def add_product():
     if request.method == 'POST':
-        data = request.get_json()
-        user = connection.Product()
         appkey = ''
         token = ''
+        try:
+            token = request.headers['Authorization']
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        user = connection.Product()
         for key in data:
             if data[key] == '':
                 continue
@@ -165,8 +173,6 @@ def add_product():
                 user.author = data['author']
             if key == 'status':
                 user.status = data['status']
-            if key == 'token':
-                token = data['token']
             if key == 'reserved_1':
                 user.reserved_1 = data['reserved_1']
             if key == 'reserved_2':
@@ -179,7 +185,7 @@ def add_product():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -225,16 +231,17 @@ post  更新用户信息
 @app.route('/app/product/update', methods=['GET', 'POST'])
 def app_product_update():
     if request.method == 'POST':
-        data = request.get_json()
-        token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
+        token = ''
+        try:
+            token = request.headers['Authorization']
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:

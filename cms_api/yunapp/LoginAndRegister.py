@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
-from yunapp import app,result,connection,request,tool,config,sms
+from yunapp import app,result,connection,request,tool,config,sms,session
 from yunapp.model.shopModel import *
 from yunapp.model.userModel import *
 from yunapp.result import *
@@ -137,10 +137,14 @@ def app_active(userid):
 @app.route('/admin/login',methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
-        data = request.get_json()
-        user = connection.APP_admin()
         token = ''
         appkey = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        user = connection.APP_admin()
         try:
             for key in data:
                 if key == 'name':
@@ -155,14 +159,12 @@ def admin_login():
                     user.qq = data['qq']
                 if key == 'wachat':
                     user.wachat = data['wachat']
-                if key == 'token':
-                    token = data['token']
         except Exception, e:
             return MyException(param.PARAM_FAILURE).toJson() 
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,False)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -184,11 +186,44 @@ def admin_login():
                 # user['_id'] = str(user['_id'])
                 # userVip = connection.UserVip.find_one({'appkey':appkey,'del':0},({'del':-1})
                 # myuser.vip = userVip
+                session[config.SESSION_KEY] = appkey
                 return  MyResult(myuser).toJson()
             else:
                 return  MyException(param.LONGIN_FAILURE).toJson()
         else:
             return      MyException(param.PARAM_FAILURE).toJson()
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
+
+'''
+退出
+{
+    'name':'xxx',
+    'password':'xxxxx',  #md5(密码)
+    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
+    { "_id" : ObjectId("5aa0e1ba4683e6051152f780"), "name" : "admin", "password" : "7fef6171469e80d32c0559f88b377245", "appkey" : "5aa0e1ba4683e6051152f780", "appsecret" : "jjjjddjjdjd", "del" : 0 }
+}
+'''
+@app.route('/admin/logout',methods=['GET', 'POST'])
+def admin_logout():
+    if request.method == 'POST':
+        token = ''
+        appkey = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        else:
+            resultTooken = tool.ruleToken(token,True)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+        # print user
+        session.pop(config.SESSION_KEY, None)
+        return MySucceedResult().toJson()
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 
@@ -224,25 +259,25 @@ def sendmial():
                     tokenMd5 = tokenParams[1]
                     timestamp = tokenParams[0]
                 if key == 'emial':
-                	emial = data['emial']
+                    emial = data['emial']
                 if key == 'emialPassword':
-                	emialPassword = data['emialPassword']
+                    emialPassword = data['emialPassword']
                 if key == 'content':
-                	content = data['content']
+                    content = data['content']
                 if key == 'toemail':
-                	toemail = data['toemail']
+                    toemail = data['toemail']
                 if key == 'title':
-                	title = data['title']
+                    title = data['title']
         except Exception as e:
             pass
-    if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
-            return MyException(param.APP_TOKEN_ERROR).toJson()
-    else:
-       result = sms.sendfuc(title,content,emial,emialPassword,toemail)
-       if result == 1:
-       	  return MySucceedResult().toJson()
-       else:
-          return MyException(param.APP_send_email_FAILURE).toJson()
+        if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
+                return MyException(param.APP_TOKEN_ERROR).toJson()
+        else:
+           result = sms.sendfuc(title,content,emial,emialPassword,toemail)
+           if result == 1:
+              return MySucceedResult().toJson()
+           else:
+              return MyException(param.APP_send_email_FAILURE).toJson()
     if request.method == 'GET':
         return param.PLEASE_USE_POST
 
@@ -272,24 +307,24 @@ def sendmial_activate():
                     tokenMd5 = tokenParams[1]
                     timestamp = tokenParams[0]
                 if key == 'toemail':
-                	toemail = data['toemail']
+                    toemail = data['toemail']
         except Exception as e:
             pass
-    if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
-            return MyException(param.APP_TOKEN_ERROR).toJson()
-    else:
-        try:
-            fnuser = connection.APP_admin.find_one({'email':toemail,'del':0})
-            activeUrl = "%s/app/activate/%s" % (config.DOMAIN,str(fnuser['_id'])) 
-            content += "<p><a href='%s'>点击激活</a></p>" % (activeUrl) 
-            content += "<p></p><p>%s</p>" % (activeUrl) 
-            result = sms.sendfuc('来自云api的激活邮件',content,'obghpj@163.com','jlmv38599',toemail)
-            if result == 1:
-                  return MySucceedResult().toJson()
-            else:
-               return MyException(param.APP_send_email_FAILURE).toJson()
-        except Exception, e:
-            return MyException(param.PARAM_FAILURE).toJson()
+        if tokenMd5 != tool.md5(timestamp + '&&' + config.DEVELOPER_APPKEY):
+                return MyException(param.APP_TOKEN_ERROR).toJson()
+        else:
+            try:
+                fnuser = connection.APP_admin.find_one({'email':toemail,'del':0})
+                activeUrl = "%s/app/activate/%s" % (config.DOMAIN,str(fnuser['_id']))
+                content += "<p><a href='%s'>点击激活</a></p>" % (activeUrl)
+                content += "<p></p><p>%s</p>" % (activeUrl)
+                result = sms.sendfuc('来自云api的激活邮件',content,'obghpj@163.com','jlmv38599',toemail)
+                if result == 1:
+                      return MySucceedResult().toJson()
+                else:
+                   return MyException(param.APP_send_email_FAILURE).toJson()
+            except Exception, e:
+                return MyException(param.PARAM_FAILURE).toJson()
        
     if request.method == 'GET':
         return param.PLEASE_USE_POST

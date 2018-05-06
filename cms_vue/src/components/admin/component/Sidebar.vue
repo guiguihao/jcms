@@ -22,7 +22,7 @@
 				items: [
 					//add
 					{
-						icon: 'el-icon-menu',
+						icon: 'el-icon-tickets',
 						index: '1',
 						title: '文章模块',
 						permission:0,//1 显示 0不显示
@@ -38,7 +38,7 @@
 						},]
 					},
 					{
-						icon: 'el-icon-menu',
+						icon: 'el-icon-goods',
 						index: '2',
 						title: '产品模块',
 						permission:0,//权限信息
@@ -61,6 +61,9 @@
 							index: '/admin/Product/ProductSaleCode',
 							title: '优惠码',
 						},{
+							index: '/admin/Product/FenXiao',
+							title: '分销设置',
+						},{
 							index: '/admin/Product/home',
 							title: '支付插件',
 						},{
@@ -69,7 +72,7 @@
 						}]
 					},
 					{
-						icon: 'el-icon-menu',
+						icon: 'el-icon-news',
 						index: '3',
 						title: '用户模块',
 						permission:0,//1 显示 0不显示
@@ -82,7 +85,7 @@
 						}]
 					},
 					{
-						icon: 'el-icon-menu',
+						icon: 'el-icon-edit',
 						index: '4',
 						title: '评论管理',
 						permission:0,//1 显示 0不显示
@@ -91,9 +94,23 @@
 							title: '评论管理',
 						}]
 					},
+                    {
+                    	icon: 'el-icon-upload',
+                    	index: '5',
+                    	title: '图片/资源管理',
+                    	permission:0,//1 显示 0不显示
+                    	subs: [{
+                    		index: '/admin/img',
+                    		title: '图片空间',
+                    	},{
+                    		index: '/admin/rsc',
+                    		title: '资源管理',
+                    	}]
+                    },
+
 					{
-						icon: 'el-icon-menu',
-						index: '4',
+						icon: 'el-icon-setting',
+						index: '6',
 						title: '系统设置',
 						permission:0,//1 显示 0不显示
 						subs: [{

@@ -2,6 +2,7 @@
 # -*-coding:utf-8 -*-
 from yunapp import app, result, connection, request, tool, config, sms
 from yunapp.model.shopModel import *
+from yunapp.model.userModel import *
 from yunapp.result import *
 from yunapp import param
 from bson.objectid import ObjectId
@@ -21,14 +22,17 @@ from datetime import datetime
 @app.route('/app/order/list', methods=['GET', 'POST'])
 def get_orders():
     if request.method == 'POST':
-        data = request.get_json()
         appkey = ''
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         pageSize = 50
         page = 1
         filter = ''
         for key in data:
-            if key == 'token':
-                token = data['token']
             if key == 'pageSize':
                 pageSize = data['pageSize']
             if key == 'page':
@@ -38,7 +42,7 @@ def get_orders():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -97,10 +101,14 @@ def get_orders():
 @app.route('/app/order/add', methods=['GET', 'POST'])
 def add_order():
     if request.method == 'POST':
-        data = request.get_json()
-        user = connection.Order()
         appkey = ''
         token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        user = connection.Order()
         for key in data:
             if data[key] == '':
                 continue
@@ -150,8 +158,6 @@ def add_order():
                         user.express['code'] = data['express']['code']
             if key == 'status':
                 user.status = data['status']
-            if key == 'token':
-                token = data['token']
             if key == 'remake':
                 user.remake = data['remake']
             if key == 'reserved_1':
@@ -166,7 +172,7 @@ def add_order():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -210,16 +216,18 @@ post  更新用户信息
 @app.route('/app/order/update', methods=['GET', 'POST'])
 def app_order_update():
     if request.method == 'POST':
-        data = request.get_json()
-        token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        fxIndex = 0
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -254,6 +262,8 @@ def app_order_update():
                                 user.receiveinfo['remake'] = data['set']['receiveinfo']['remake']
                     if key == 'status':
                         user.status = data['set']['status']
+                        if user.status == 3:
+                            fxIndex = 1
                     if key == 'express':
                         for subkey in data['set']['express']:
                              if subkey == 'name':
@@ -298,9 +308,12 @@ def app_order_update():
                         user.reserved_4 = data['set']['reserved_4']
                     if key == 'del':
                         user['del'] = data['set']['del']
-                user.save()
+                        user.save()
                 user['_id'] = str(user['_id'])
                 user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                #交易完成 计算分销所得
+                if fxIndex == 1:
+                    jsfx(appkey,user)
                 return MyResult(user).toJson()
             else:
                 return MyException(param.ARTICLE_NULL).toJson()
@@ -310,3 +323,37 @@ def app_order_update():
 
     if request.method == 'GET':
         return param.PLEASE_USE_POST
+
+#计算分销所得
+#togetherProfit 总利润
+def jsfx(appkey,order):
+    if order.user:
+        #计算订单总利润
+        togetherProfit = 0  # 总利润
+        togetherCost = 0    #总成本
+        for product in order.product:
+            togetherCost += product['costprice']
+        togetherProfit = order.price - togetherCost
+        if togetherProfit<= 0:
+            return
+        my = connection.APP_User.find_one({"_id": ObjectId(order.user)})
+        #获取分销设置
+        fxset = connection.Fenxiao.find_one({"appkey": appkey})
+        # 获取一级分销
+        if my.referee and fxset.status == 1:
+            fx1 = connection.APP_User.find_one({"_id": ObjectId(my.referee)})
+            profit = togetherProfit * fxset.fx1
+            fx1.integral = profit
+            fx1.save()
+            # 获取二级分销
+            if fx1.referee:
+                fx2 = connection.APP_User.find_one({"_id": ObjectId(fx1.referee)})
+                profit = togetherProfit * fxset.fx2
+                fx2.integral = profit
+                fx2.save()
+                # 获取三级分销
+                if fx2.referee:
+                    fx3 = connection.APP_User.find_one({"_id": ObjectId(fx2.referee)})
+                    profit = togetherProfit * fxset.fx3
+                    fx3.integral = profit
+                    fx3.save()

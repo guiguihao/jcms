@@ -45,47 +45,57 @@ const router = new Router({
       children:[
                 {
                     path: '/',
-                       component: resolve => require(['../components/admin/ArticleList.vue'], resolve),
+                    meta: {
+                         title: '网站信息管理',
+                         requireAuth: true
+                    },
+                       component: resolve => require(['../components/admin/SiteInfo.vue'], resolve),
                 },{
                     path: '/admin/Article/ArticleList',
                     name:'ArticleList',
                     meta: {
-                         title: '文章列表'
+                         title: '文章列表',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ArticleList.vue'], resolve),
                 },{
                     path: '/admin/Article/ArticleEdit/:id',
                     name:'ArticleEdit',
                     meta: {
-                         title: '编辑文章'
+                         title: '编辑文章',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ArticleEdit.vue'], resolve),
                 },{
                     path: '/admin/Article/ArticleType',
                     name:'ArticleType',
                     meta: {
-                         title: '类别管理'
+                         title: '类别管理',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ArticleType.vue'], resolve),
                 },{
                     path: '/admin/Article/ArticleRcmType',
                     name:'ArticleRcmType',
                     meta: {
-                         title: '推荐类别管理'
+                         title: '推荐类别管理',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ArticleRcmType.vue'], resolve),
                 },{
                     path: '/admin/Product/ProductList',
                     name:'ProductList',
                     meta: {
-                         title: '产品列表'
+                         title: '产品列表',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ProductList.vue'], resolve),
                 },{
                     path: '/admin/Product/ProductEdit/:id',
                     name:'ProductEdit',
                     meta: {
-                         title: '编辑产品'
+                         title: '编辑产品',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ProductEdit.vue'], resolve),
                 },
@@ -93,7 +103,8 @@ const router = new Router({
                     path: '/admin/Product/ProductSales',
                     name:'ProductSales',
                     meta: {
-                         title: '促销活动管理'
+                         title: '促销活动管理',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ProductSales.vue'], resolve),
                 },
@@ -102,70 +113,104 @@ const router = new Router({
                     path: '/admin/Product/ProductOrderList',
                     name:'ProductOrderList',
                     meta: {
-                         title: '订单管理'
+                         title: '订单管理',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ProductOrderList.vue'], resolve),
                 },{
                     path: '/admin/Product/ProductType',
                     name:'ProductType',
                     meta: {
-                         title: '产品类别'
+                         title: '产品类别',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ProductType.vue'], resolve),
                 },{
                     path: '/admin/Product/ProductRcmType',
                     name:'ProductRcmType',
                     meta: {
-                         title: '产品推荐类别管理'
+                         title: '产品推荐类别管理',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ProductRcmType.vue'], resolve),
                 },{
                     path: '/admin/Product/ProductSaleCode',
                     name:'ProductSaleCode',
                     meta: {
-                         title: '产品促销码'
+                         title: '产品促销码',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ProductSaleCode.vue'], resolve),
+                },{
+                    path: '/admin/Product/FenXiao',
+                    name:'ProductFenxiao',
+                    meta: {
+                         title: '分销设置',
+                         requireAuth: true
+                    },
+                       component: resolve => require(['../components/admin/ProductFenXiao.vue'], resolve),
                 },{
                     path: '/admin/Product/ProductReturnGoods',
                     name:'ProductReturnGoods',
                     meta: {
-                         title: '退货信息'
+                         title: '退货信息',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/ProductReturnGoods.vue'], resolve),
                 },{
                     path: '/admin/user/UserList',
                     name:'UserList',
                     meta: {
-                         title: '用户列表'
+                         title: '用户列表',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/UserList.vue'], resolve),
                 },{
                     path: '/admin/user/UserType',
                     name:'UserType',
                     meta: {
-                         title: '用户类型管理'
+                         title: '用户类型管理',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/UserType.vue'], resolve),
                 },{
                     path: '/admin/comment',
                     name:'comment',
                     meta: {
-                         title: '评论管理'
+                         title: '评论管理',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/Comment.vue'], resolve),
+                },{
+                    path: '/admin/img',
+                    name:'img',
+                    meta: {
+                         title: '图片/资源管理',
+                         requireAuth: true
+                    },
+                       component: resolve => require(['../components/admin/Img.vue'], resolve),
+                },{
+                    path: '/admin/rsc',
+                    name:'rsc',
+                    meta: {
+                         title: '图片/资源管理',
+                         requireAuth: true
+                    },
+                       component: resolve => require(['../components/admin/Rsc.vue'], resolve),
                 },{
                     path: '/admin/SiteInfo',
                     name:'SiteInfo',
                     meta: {
-                         title: '网站信息管理'
+                         title: '网站信息管理',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/SiteInfo.vue'], resolve),
                 },{
                     path: '/admin/AdminList',
                     name:'AdminList',
                     meta: {
-                         title: '管理员列表'
+                         title: '管理员列表',
+                         requireAuth: true
                     },
                        component: resolve => require(['../components/admin/AdminList.vue'], resolve),
                 },
@@ -202,70 +247,24 @@ const router = new Router({
   ]
 });
 
-router.beforeEach((to, from, next) => {
-    /*if (to.meta.requireAuth) {  // 判断该路由是否需要登录权限
-        if (store.state.token) {  // 通过vuex state获取当前的token是否存在
-            next();
-        }
-        else {
-            next({
-                path: '/login',
-                query: {redirect: to.fullPath}  // 将跳转的路由path作为参数，登录成功后跳转到该路由
-            })
-        }
-    }
-    else {
-        next();
-    }*/
- //    next();
-//    alert();
-            // alert(JSON.stringify(to.path))
-            if (to.meta.title) {
+// router.beforeEach((to, from, next) => {
+//     if (to.meta.title) {
+//        document.title = to.meta.title;
+//     }
+//     if (to.meta.requireAuth) {  // 判断该路由是否需要登录权限
+//         if (localStorage.getItem('appkey')) {  // 通过vuex state获取当前的token是否存在
+//             next();
+//         }
+//         else {
+//             next({
+//                 name: 'login',
+//             })
+//         }
+//     }
+//     else {
+//         next();
+//     }
 
-                document.title = to.meta.title;
-             }
-      if (to.path.indexOf('/home/')>-1) {
-          let token = localStorage.getItem('token1');
-             
-            if(token){
-            // alert(localStorage.getItem('token'));
-//            config.headers.Authorization = token;
-             next();
-           }else{
-            // alert(localStorage.getItem('token'));
-              if (to.meta.ignore ) {
-                next();
-                
-              }else{
-                next({
-                        name: 'login',
-                })
-              }
-           }
-      }
-
-      else if (to.path.indexOf('/app/')>-1) {
-          let token = localStorage.getItem('apptoken');
-            if(token){
-              next();
-           }else{
-              if (to.meta.ignore ) {
-                next();
-                
-              }else{
-                next({
-                        name: 'applogin',
-                })
-              }
-           }
-      }else{
-
-        next();
-      }
-
-
-			
-
-})
+// })
 
 export default router;

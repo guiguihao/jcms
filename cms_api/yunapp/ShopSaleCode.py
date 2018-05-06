@@ -21,15 +21,18 @@ import time
 @app.route('/app/productSaleCode/list', methods=['GET', 'POST'])
 def get_products_sale_code():
     if request.method == 'POST':
+        appkey = ''
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
         data = request.get_json()
         user = connection.saleCode()
-        appkey = ''
         pageSize = 50
         page = 1
         filter = ''
         for key in data:
-            if key == 'token':
-                token = data['token']
             if key == 'pageSize':
                 pageSize = data['pageSize']
             if key == 'page':
@@ -39,7 +42,7 @@ def get_products_sale_code():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -99,10 +102,14 @@ def get_products_sale_code():
 @app.route('/app/productSaleCode/add', methods=['GET', 'POST'])
 def add_product_saleCode():
     if request.method == 'POST':
-        data = request.get_json()
-        user = connection.saleCode()
         appkey = ''
         token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        user = connection.saleCode()
         for key in data:
             if data[key] == '':
                 continue
@@ -118,8 +125,6 @@ def add_product_saleCode():
                 user.products = data['products']
             if key == 'validdate':
                 user.validdate = data['validdate']
-            if key == 'token':
-                token = data['token']
             if key == 'reserved_1':
                 user.reserved_1 = data['reserved_1']
             if key == 'reserved_2':
@@ -132,7 +137,7 @@ def add_product_saleCode():
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -171,16 +176,17 @@ post  更新优惠码信息
 @app.route('/app/productSaleCode/update', methods=['GET', 'POST'])
 def app_product_saleCode_update():
     if request.method == 'POST':
-        data = request.get_json()
-        token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -223,16 +229,17 @@ post  添加优惠产品
 @app.route('/app/productSaleCode/products/add', methods=['GET', 'POST'])
 def app_product_saleCode_product_add():
     if request.method == 'POST':
-        data = request.get_json()
-        token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -274,16 +281,17 @@ post  删除优惠产品
 @app.route('/app/productSaleCode/products/del', methods=['GET', 'POST'])
 def app_product_saleCode_product_del():
     if request.method == 'POST':
-        data = request.get_json()
-        token = ''
         appkey = ''
-        for key in data:
-            if key == 'token':
-                token = data['token']
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
