@@ -87,11 +87,14 @@
 					{
 						icon: 'el-icon-edit',
 						index: '4',
-						title: '评论管理',
+						title: '评论/留言模块',
 						permission:0,//1 显示 0不显示
 						subs: [{
 							index: '/admin/comment',
 							title: '评论管理',
+						},{
+							index: '/admin/message',
+							title: '留言管理',
 						}]
 					},
                     {
@@ -104,7 +107,10 @@
                     		title: '图片空间',
                     	},{
                     		index: '/admin/rsc',
-                    		title: '资源管理',
+                    		title: '其他类型',
+                    	},{
+                    		index: '/admin/adImg',
+                    		title: '广告图片',
                     	}]
                     },
 

@@ -66,6 +66,16 @@ def get_comments():
             for user in fnuser:
                 user['_id'] = str(user['_id'])
                 user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                author = connection.APP_admin.one({'appkey': appkey, '_id':ObjectId(user['userId'])},
+                                                  {'del': 0, 'permission': 0, 'password': 0, 'superadmin': 0, 'vip': 0,
+                                                   'appsecret': 0})
+                if author:
+                    author['_id'] = str(author['_id'])
+                    user['user'] = author
+                author1 = connection.APP_User.one({'appkey': appkey, '_id':ObjectId(user['userId'])}, {'del': 0})
+                if author1:
+                    author1['_id'] = str(author1['_id'])
+                    user['user'] = author
                 admins['data'].append(user)
             admins['count'] = fnuser.count()
             return MyResult(admins).toJson()
@@ -110,10 +120,24 @@ def add_comment():
                 user.content = data['content']
             if key == 'imgs':
                 user.imgs = data['imgs']
+            if key == 'type':
+                user.type = data['type']
+            if key == 'userId':
+                user.userId = data['userId']
+            if key == 'answer':
+                user.answer = data['answer']
+            if key == 'reserved_1':
+                user.reserved_1 = data['reserved_1']
+            if key == 'reserved_2':
+                user.reserved_2 = data['reserved_2']
+            if key == 'reserved_3':
+                user.reserved_3 = data['reserved_3']
+            if key == 'reserved_4':
+                user.reserved_4 = data['reserved_4']
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
@@ -183,6 +207,20 @@ def app_comment_update():
                         user.imgs = data['set']['imgs']
                     if key == 'del':
                         user['del'] = data['set']['del']
+                    if key == 'type':
+                        user.type = data['set']['type']
+                    if key == 'userId':
+                        user.userId = data['set']['userId']
+                    if key == 'answer':
+                        user.answer = data['set']['answer']
+                    if key == 'reserved_1':
+                        user.reserved_1 = data['set']['reserved_1']
+                    if key == 'reserved_2':
+                        user.reserved_2 = data['set']['reserved_2']
+                    if key == 'reserved_3':
+                        user.reserved_3 = data['set']['reserved_3']
+                    if key == 'reserved_4':
+                        user.reserved_4 = data['set']['reserved_4']
                 user.save()
                 user['_id'] = str(user['_id'])
                 user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')

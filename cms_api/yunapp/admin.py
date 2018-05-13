@@ -109,6 +109,8 @@ def add_admin():
                 user.wachat = data['wachat']
             if key == 'nickname':
                 user.nickname = data['nickname']
+            if key == 'icon':
+                user.icon = data['icon']
             if key == 'info':
                 user.info = data['info']
             if key == 'permission':
@@ -209,6 +211,8 @@ def app_update():
                     user.wachat = data['set']['wachat']
                 if key == 'nickname':
                     user.nickname = data['set']['nickname']
+                if key == 'icon':
+                    user.icon = data['set']['icon']
                 if key == 'appsecret':
                     user.appsecret = data['set']['appsecret']   
                 if key == 'reserved_1':

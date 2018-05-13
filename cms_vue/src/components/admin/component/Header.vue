@@ -1,7 +1,7 @@
 <template>
 	<div class="header">
 		<div class="user-info" style="border-radius: 0;float: left;padding-right: 0px;padding-left: 40px;">
-				<img class="el-dropdown-link" :src="app.logo" style="width: 178px;height: 68px; text-align: left;padding-left: 0px;">
+				<img class="el-dropdown-link" :src="app.domian + '/upload/' + app.logo" style="width: 178px;height: 68px; text-align: left;padding-left: 0px;">
 				</div>
 
 		<div class="logo" style=" width: 60%;text-align: left;">
@@ -99,6 +99,7 @@
 			    if(res && res.data && res.data.code && res.data.code == 1) {
 			      if (res.data.data) {
 			        this.app = res.data.data;
+			        localStorage.setItem('app',JSON.stringify(res.data.data));
 			       }
 			     } else {
 			      self.$message(res.data.msg);

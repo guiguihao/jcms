@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #-*-coding:utf-8 -*-
-from yunapp import app,result,connection,request,tool,config,sms
+from yunapp import app,result,connection,request,tool,config,sms,session
 from yunapp.model.userModel import *
 from yunapp.result import *
 from yunapp import param
@@ -112,6 +112,8 @@ def add_user():
                 user.email = data['email']
             if key == 'qq':
                 user.qq = data['qq']
+            if key == 'icon':
+                user.icon = data['icon']
             if key == 'wachat':
                 user.wachat = data['wachat']
             if key == 'nickname':
@@ -222,6 +224,8 @@ def app_user_update():
                         user.email = data['set']['email']
                     if key == 'qq':
                         user.qq = data['set']['qq']
+                    if key == 'icon':
+                        user.icon = data['set']['icon']
                     if key == 'wachat':
                         user.wachat = data['set']['wachat']
                     if key == 'vip':
@@ -251,5 +255,106 @@ def app_user_update():
             print e
             return MyException(param.PARAM_FAILURE).toJson()
             
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
+
+
+'''
+支持用户名 手机号码  邮箱登陆
+{
+    'name':'xxx',
+    'password':'xxxxx',  #md5(密码)
+    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
+    { "_id" : ObjectId("5aa0e1ba4683e6051152f780"), "name" : "admin", "password" : "7fef6171469e80d32c0559f88b377245", "appkey" : "5aa0e1ba4683e6051152f780", "appsecret" : "jjjjddjjdjd", "del" : 0 }
+}
+'''
+@app.route('/app/user/login',methods=['GET', 'POST'])
+def user_login():
+    if request.method == 'POST':
+        token = ''
+        appkey = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        user = connection.APP_User()
+        try:
+            for key in data:
+                if key == 'name':
+                    user.name = data['name']
+                if key == 'password':
+                    user.password = data['password']
+                if key == 'phone':
+                    user.phone = data['phone']
+                if key == 'email':
+                    user.email = data['email']
+                if key == 'qq':
+                    user.qq = data['qq']
+                if key == 'wachat':
+                    user.wachat = data['wachat']
+        except Exception, e:
+            return MyException(param.PARAM_FAILURE).toJson()
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        else:
+            resultTooken = tool.ruleToken(token,False)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+        # print user
+        if (user.name or user.phone or user.email or user.qq or user.wachat) and user.password:
+            myuser = ''
+            if user.name:
+                 myuser = connection.APP_User.find_one({'appkey':appkey,'name':user.name,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+            if user.phone:
+                 myuser = connection.APP_User.find_one({'appkey':appkey,'phone':user.phone,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+            if user.email:
+                 myuser = connection.APP_User.find_one({'appkey':appkey,'email':user.email,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+            if myuser and myuser['password'] == user['password']:
+                myuser['_id'] = str(myuser['_id'])
+                myuser.pop('password')
+                # user['_id'] = str(user['_id'])
+                # userVip = connection.UserVip.find_one({'appkey':appkey,'del':0},({'del':-1})
+                # myuser.vip = userVip
+                session[config.SESSION_KEY] = appkey
+                return  MyResult(myuser).toJson()
+            else:
+                return  MyException(param.LONGIN_FAILURE).toJson()
+        else:
+            return      MyException(param.PARAM_FAILURE).toJson()
+    if request.method == 'GET':
+        return param.PLEASE_USE_POST
+
+'''
+退出
+{
+    'name':'xxx',
+    'password':'xxxxx',  #md5(密码)
+    'token':'appkey&&timestamp&&md5(appsecret&&timestamp)'
+    { "_id" : ObjectId("5aa0e1ba4683e6051152f780"), "name" : "admin", "password" : "7fef6171469e80d32c0559f88b377245", "appkey" : "5aa0e1ba4683e6051152f780", "appsecret" : "jjjjddjjdjd", "del" : 0 }
+}
+'''
+@app.route('/app/user/logout',methods=['GET', 'POST'])
+def user_logout():
+    if request.method == 'POST':
+        token = ''
+        appkey = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        if token == '' or not token:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        else:
+            resultTooken = tool.ruleToken(token,True)
+            if resultTooken[0] != 1:
+                return MyException(resultTooken).toJson()
+            else:
+                appkey = token.split('&&')[0]
+        # print user
+        session.pop(config.SESSION_KEY, None)
+        return MySucceedResult().toJson()
     if request.method == 'GET':
         return param.PLEASE_USE_POST

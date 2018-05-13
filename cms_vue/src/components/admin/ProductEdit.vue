@@ -49,9 +49,8 @@
             </el-form-item>
             <el-form-item label="主图" >
                <el-upload
-                 :headers="header"
                  class="avatar-uploader"
-                 action="/imgapi/upload/saveImg.php"
+                  :action='siteInfo.reserved_1 + "/upload/saveImg.php"'
                  :show-file-list="false"
                  :data="imgdata"
                  :on-success="handleAvatarSuccess1"
@@ -61,7 +60,7 @@
                </el-upload>
                <el-upload
                  class="avatar-uploader"
-                 action="/imgapi/upload/saveImg.php"
+                 :action='siteInfo.reserved_1 + "/upload/saveImg.php"'
                  :show-file-list="false"
                  :data="imgdata"
                  :on-success="handleAvatarSuccess2"
@@ -71,7 +70,7 @@
                </el-upload>
                 <el-upload
                  class="avatar-uploader"
-                 action="/imgapi/upload/saveImg.php"
+                 :action='siteInfo.reserved_1 + "/upload/saveImg.php"'
                  :show-file-list="false"
                  :data="imgdata"
                  :on-success="handleAvatarSuccess3"
@@ -81,7 +80,7 @@
                </el-upload>
                 <el-upload
                  class="avatar-uploader"
-                 action="/imgapi/upload/saveImg.php"
+                 :action='siteInfo.reserved_1 + "/upload/saveImg.php"'
                  :show-file-list="false"
                  :data="imgdata"
                  :on-success="handleAvatarSuccess4"
@@ -91,7 +90,7 @@
                </el-upload>
                 <el-upload
                  class="avatar-uploader"
-                 action="/imgapi/upload/saveImg.php"
+                 :action='siteInfo.reserved_1 + "/upload/saveImg.php"'
                  :show-file-list="false"
                  :data="imgdata"
                  :on-success="handleAvatarSuccess5"
@@ -121,6 +120,7 @@
   
     data() {
       return {
+        siteInfo:{},
         imgdata:{token:this.$token.getToken()}, 
         imageUrl1: '',
         imageUrl2: '',
@@ -174,7 +174,7 @@
       handleAvatarSuccess1(res, file) {
         if (res.code === 1) {
             this.imageUrl1 = res.data.url;
-            this.ruleForm.imgs[0] = res.data.url;
+            this.ruleForm.imgs[0] = res.data.ourl;
             this.$message.success(res.msg);
         }else{
               this.$message.error(res.msg);
@@ -184,7 +184,7 @@
         console.log(JSON.stringify(res));
         if (res.code === 1) {
             this.imageUrl2 = URL.createObjectURL(file.raw);
-            this.ruleForm.imgs[1] = res.data.url;
+            this.ruleForm.imgs[1] = res.data.ourl;
             this.$message.success(res.msg);
         }else{
               this.$message.error(res.msg);
@@ -194,7 +194,7 @@
         console.log(JSON.stringify(res));
         if (res.code === 1) {
             this.imageUrl3 = URL.createObjectURL(file.raw);
-            this.ruleForm.imgs[2] = res.data.url;
+            this.ruleForm.imgs[2] = res.data.ourl;
             this.$message.success(res.msg);
         }else{
               this.$message.error(res.msg);
@@ -204,7 +204,7 @@
         console.log(JSON.stringify(res));
         if (res.code === 1) {
             this.imageUrl4 = URL.createObjectURL(file.raw);
-            this.ruleForm.imgs[3] = res.data.url;
+            this.ruleForm.imgs[3] = res.data.ourl;
             this.$message.success(res.msg);
         }else{
               this.$message.error(res.msg);
@@ -214,7 +214,7 @@
         console.log(JSON.stringify(res));
         if (res.code === 1) {
             this.imageUrl5 = URL.createObjectURL(file.raw);
-            this.ruleForm.imgs[4] = res.data.url;
+            this.ruleForm.imgs[4] = res.data.ourl;
             this.$message.success(res.msg);
         }else{
               this.$message.error(res.msg);
@@ -322,13 +322,13 @@
          data.author = this.authorID;
          self.$request.product.addProduct(data).then((res)=>{
              if(res && res.data && res.data.code && res.data.code == 1) {
-                self.$message('添加产品成功');
+                self.$message.success('添加产品成功');
                 this.$router.push('/admin/Product/ProductList');
              } else {
-               self.$message(res.data.msg);
+               self.$message.error(res.data.msg);
              }
           }).catch(function(error){
-            self.$message('请求异常');
+            self.$message.error('请求异常');
             console.log('--添加产品--error--' + JSON.stringify(error));
           });
          
@@ -378,6 +378,7 @@
         }, 
 
        $htmlvalue(val,render){
+           console.log('======' + render);
           this.ruleForm.describe_html = render;
        },
 
@@ -464,11 +465,11 @@
               if(self.ruleForm.imgs){
 
                 setTimeout(function(){
-                    self.imageUrl1 = self.ruleForm.imgs[0];
-                    self.imageUrl2 = self.ruleForm.imgs[1];
-                    self.imageUrl3 = self.ruleForm.imgs[2];
-                    self.imageUrl4 = self.ruleForm.imgs[3];
-                    self.imageUrl5 = self.ruleForm.imgs[4];
+                    self.imageUrl1 =self.siteInfo.reserved_1 +'/upload/'+ self.ruleForm.imgs[0];
+                    self.imageUrl2 = self.siteInfo.reserved_1 +'/upload/'+ self.ruleForm.imgs[1];
+                    self.imageUrl3 = self.siteInfo.reserved_1 +'/upload/'+ self.ruleForm.imgs[2];
+                    self.imageUrl4 = self.siteInfo.reserved_1 +'/upload/'+ self.ruleForm.imgs[3];
+                    self.imageUrl5 = self.siteInfo.reserved_1 +'/upload/'+ self.ruleForm.imgs[4];
                 },1000);
                   
               }
@@ -505,6 +506,7 @@
     },
 
     created(){
+      this.siteInfo =  this.$orther.getSiteInfo();
       this.id = this.$route.params.id;
       if (this.id === '0') {
         this.nav_title = '添加产品';

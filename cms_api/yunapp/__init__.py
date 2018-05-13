@@ -36,3 +36,4 @@ from yunapp import ReceiveInfo
 from yunapp import ShopFenXiao
 from yunapp import token
 from yunapp import ImgManage2
+from yunapp import Ads

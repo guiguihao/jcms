@@ -1,5 +1,6 @@
 import token from './token'
 import axios from '../http/http'
+import Orther from './orther'
 
 var RequestImg2 = {
    getImg2tList: function(currentPage,pagesize,filter){
@@ -27,10 +28,15 @@ var RequestImg2 = {
           return p;
    },
 
+   //更新描述 
+
+
+   //更新或添加图片
    updateImg2: function(paramsDic,file){
           let url = '';
+          let siteInfo =  Orther.getSiteInfo();
           if(process.env.NODE_ENV === 'development') { //TEST
-            url = '/imgapi/upload/saveImg.php';
+            url = siteInfo.reserved_1 + '/upload/saveImg.php';
           } else {
             url = '/upload/saveImg.php';
           }
@@ -46,7 +52,6 @@ var RequestImg2 = {
             axios.post(url, param,{
               headers: {
                             'Content-Type': 'multipart/form-data',
-                            'Accept': '*/*'
                       }
             }).then((res) => {
              // console.log(JSON.stringify(res.data)); 

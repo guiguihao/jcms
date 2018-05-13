@@ -25,6 +25,7 @@ class Img2(Document):
    __database__ = 'img'
    structure = {
         'url': unicode,           #路径
+        'type': IS(u'AD',u'RSC',u'OTHER'),  # ad 广告 rsc 资源  other
         'size':OR(int,float,unicode),              #大小
         'pf': unicode,       #后缀
         'name': unicode,  # 后缀
@@ -42,6 +43,31 @@ class Img2(Document):
    }
    default_values = {
         'del': 0,
+        'type': 'RSC',
         'date': datetime.datetime.now(),
    }
    use_dot_notation = True
+
+   @connection.register
+   class Ad_imgs(Document):
+       __collection__ = 'col'
+       __database__ = 'ads'
+       structure = {
+           'des': unicode,  # 描述
+           'imgs': [{
+               'url':unicode,
+               'tolink':unicode
+           }],
+           'appkey': unicode,
+           'date': OR(unicode, datetime.datetime),
+           'del': int,  # 0 存在 1删除
+       }
+       required = ['appkey']
+       validators = {
+
+       }
+       default_values = {
+           'del': 0,
+           'date': datetime.datetime.now(),
+       }
+       use_dot_notation = True

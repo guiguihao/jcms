@@ -2,7 +2,7 @@
 	<div>
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 	          <el-breadcrumb-item :to="{ path: '/admin' }">首页</el-breadcrumb-item>
-	          <el-breadcrumb-item>评论管理</el-breadcrumb-item>
+	          <el-breadcrumb-item>留言管理</el-breadcrumb-item>
 	    </el-breadcrumb>
 
 	    <div class ="mytable">
@@ -28,15 +28,10 @@
 	             width="360">
 	           </el-table-column>
              <el-table-column
-                   width="260"
-                   label="图片"
-                   >
-                   <template slot-scope="scope">
-                        <span v-for = "itm in scope.row.imgs">
-                           <img :src='siteInfo.reserved_1 + "/upload/" + itm' width="50" height="50"  style="float: left; margin-right: 15px">
-                        </span>
-                   </template>
-              </el-table-column>
+               prop="answer"
+               label="回复"
+               width="360">
+             </el-table-column>
 	           <el-table-column
 	             prop="date"
 	             width="160"
@@ -76,10 +71,10 @@
              <el-form-item label="内容">
               <el-input v-model="form.content" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" auto-complete="off" style="width: 300px;"></el-input>
             </el-form-item>
-            <el-form-item label="图片">
+           <!--  <el-form-item label="图片">
               <el-upload
                 class="upload-demo"
-                :action='siteInfo.reserved_1 + "/upload/saveImg.php"'
+                action="/imgapi/upload/saveImg.php"
                 :on-preview="handlePreview"
                 :on-remove="handleRemove"
                 :on-success = "handlerSuccess"
@@ -93,7 +88,7 @@
             </el-form-item>
             <el-form-item label="评分" >
               <el-input v-model.number="form.level" auto-complete="off" style="width: 80px;"></el-input>
-            </el-form-item>
+            </el-form-item> -->
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -106,7 +101,7 @@
         <el-dialog title='回复' :visible.sync="dialogFormVisible1">
           <el-form :model="form"  ref="form" label-width="80px">
              <el-form-item label="内容">
-              <el-input v-model="form.content" :disabled=true type="textarea" :autosize="{ minRows: 2, maxRows: 6}" auto-complete="off" style="width: 300px;"></el-input>
+              <el-input v-model="form.content" :disabled=true  type="textarea" :autosize="{ minRows: 2, maxRows: 6}" auto-complete="off" style="width: 300px;"></el-input>
             </el-form-item>
             <el-form-item label="回复">
               <el-input v-model="form.answer" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" auto-complete="off" style="width: 300px;"></el-input>
@@ -141,7 +136,7 @@
   		
   	},
   	created(){
-      this.siteInfo =  this.$orther.getSiteInfo();
+
       this.requestData();
      
 
@@ -206,8 +201,7 @@
         this.form.imgs = [];
         for (let index in this.fileList2) {
            let url = this.fileList2[index].url;
-           let newUrl = url.replace(this.siteInfo.reserved_1 + '/upload/' ,'')
-           this.form.imgs.push(newUrl);
+           this.form.imgs.push(url);
         }
         if (this.isAdd) {
           this.addCommnt(this.form);
@@ -224,8 +218,7 @@
         this.dialogFormVisible = true;
         for (let key in data.imgs) {
            let imgUrl =  data.imgs[key];
-           let newurl = this.siteInfo.reserved_1 + '/upload/' + imgUrl;
-           this.fileList2.push({'url':newurl});
+           this.fileList2.push({'url':imgUrl});
         }
         this.isAdd = false;
 
@@ -243,7 +236,7 @@
       addClick(){
          this.dialogFormVisible = true;
          this.fileList2=[];
-         this.form = {type:1};
+         this.form = {type:0};
          this.title='添加评论';
          this.isAdd = true;
 
@@ -291,9 +284,9 @@
       requestData(data) {
         let self = this;
         if (data) {
-          data.type = 1;
+          data.type = 0;
         }else{
-          data = {type:1}
+          data = {type:0}
         };
         self.$request.comment.getCommenttList(self.currentPage,self.pagesize,data).then((res)=>{
          	if(res && res.data && res.data.code && res.data.code == 1) {
@@ -348,7 +341,6 @@
     },
     data() {
       return {
-        siteInfo:{},
         imgdata:{token:this.$token.getToken(),operation:'add',path:''}, 
         fileList2:[],
         title:'',

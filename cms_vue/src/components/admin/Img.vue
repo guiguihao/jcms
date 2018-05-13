@@ -22,7 +22,7 @@
 	             label="图片"
 	             width="160">
                  <template slot-scope="scope">
-                       <img :src=scope.row.ourl width="100" height="100"  style="float: left; margin-right: 15px">
+                       <img :src='siteInfo.reserved_1 + "/upload/" + scope.row.url' width="100" height="100"  style="float: left; margin-right: 15px">
                  </template>
 	           </el-table-column>
 	           <el-table-column
@@ -38,9 +38,11 @@
                   
               </el-table-column>
               <el-table-column
-               prop="ourl"
                label="url"
                width="360">
+               <template slot-scope="scope">
+                      {{siteInfo.reserved_1 + "/upload/" + scope.row.url}}
+                </template>
              </el-table-column>
 	           <el-table-column
 	             prop="date"
@@ -76,7 +78,7 @@
            <el-upload
              class="upload-demo"
              drag
-             action="/imgapi/upload/saveImg.php"
+             :action='siteInfo.reserved_1 + "/upload/saveImg.php"'
              :data="imgdata"
              :on-success="handleAvatarSuccess1"
              :before-upload="beforeAvatarUpload"
@@ -106,7 +108,7 @@
   		
   	},
   	created(){
-
+     this.siteInfo =  this.$orther.getSiteInfo();
      this.initdata();
   	},
     methods: {
@@ -214,6 +216,7 @@
     },
     data() {
       return {
+        siteInfo:{},
         imgdata:{token:this.$token.getToken(),operation:'update',path:''}, 
         title:'',
         pf:'',

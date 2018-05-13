@@ -25,6 +25,7 @@ class APP_admin(Document):
         'qq':unicode,    
         'wachat':unicode,
         'nickname':unicode,
+        'icon': unicode,
         'appkey':unicode,
         'appsecret':unicode,
         'superadmin':int,        #0不是超级管理员 1超级管理员
@@ -48,6 +49,7 @@ class APP_admin(Document):
         'reserved_2': max_length(120),
         'reserved_3': max_length(120),
         'reserved_4': max_length(120),
+        'icon': max_length(120),
     }
    default_values = {
         'del': 0,
@@ -71,6 +73,7 @@ class APP_User(Document):
         'qq':unicode,
         'integral':OR(int,float),    #用户积分点数之类
         'wachat':unicode,
+        'icon': unicode,
         'nickname':unicode,
         'referee':unicode,   #我的推荐人
         'appkey':unicode,
@@ -90,6 +93,7 @@ class APP_User(Document):
         'qq': max_length(120),
         'wachat': max_length(120),
         'nickname': max_length(120),
+        'icon': max_length(120),
         'reserved_1': max_length(120),
         'reserved_2': max_length(120),
         'reserved_3': max_length(120),
@@ -150,7 +154,7 @@ class AppInfo(Document):
         'phone':unicode,  #开发者电话
         'beian':unicode,  #备案号
         'logo': unicode,  # logo
-        'reserved_1':unicode,    #预留字段1 
+        'reserved_1':unicode,    #预留字段1   图片空间地址
         'reserved_2':unicode,    #预留字段1 
         'reserved_3':unicode,    #预留字段1 
         'reserved_4':unicode,    #预留字段1 
@@ -158,7 +162,7 @@ class AppInfo(Document):
    validators = {
     }
    default_values = {
-
+      'reserved_1':u'http://img.0566jh.com'
     }
    use_dot_notation = True
 

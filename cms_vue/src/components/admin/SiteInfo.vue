@@ -14,10 +14,14 @@
       <el-form-item label="网址" style="width: 280px">
         <el-input v-model="form.domian"></el-input>
       </el-form-item>
+      <el-form-item label="图片空间地址" style="width: 360px">
+        <el-input v-model="form.reserved_1"></el-input>
+        <el-button type="text">默认共享图片地址:http://img.0566jh.com 私有图片空间地址设置教程,注:必须以http://开头</el-button>
+      </el-form-item>
       <el-form-item label="Logo" style="width: 280px">
          <el-upload
            class="avatar-uploader"
-           action="/imgapi/upload/saveImg.php"
+           :action='form.reserved_1 + "/upload/saveImg.php"'
            :show-file-list="false"
            :data="imgdata"
            :on-success="handleAvatarSuccess"
@@ -67,7 +71,7 @@
         if (res.code == 1) {
            this.$message.success(res.msg);
            this.imageUrl = res.data.url;
-           this.form.logo =  res.data.url;
+           this.form.logo =  res.data.ourl;
          }else{
            this.$message.error(res.msg);
          }
@@ -104,6 +108,9 @@
         }else{
           self.form.session = 0;
         }
+        if (self.form.domian.indexOf('http')!=0) {
+          self.form.domian = 'http://' + self.form.domian;
+        }
 
         self.$request.siteInfo.updateSiteinfo(self.form).then((res)=>{
           if(res && res.data && res.data.code && res.data.code == 1) {
@@ -135,7 +142,7 @@
            }else{
              self.radio4='关闭';
            }
-           this.imageUrl = res.data.data.logo;
+           this.imageUrl = self.form.reserved_1 + '/upload/' + res.data.data.logo;
              console.log(JSON.stringify(res.data));
            }
          } else {

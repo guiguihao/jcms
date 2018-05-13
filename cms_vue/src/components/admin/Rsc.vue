@@ -39,9 +39,11 @@
 	           </el-table-column>
             
               <el-table-column
-               prop="ourl"
                label="url"
                width="360">
+               <template slot-scope="scope">
+                      {{siteInfo.reserved_1 + "/upload/" + scope.row.url}}
+                </template>
              </el-table-column>
 	           <el-table-column
 	             prop="date"
@@ -77,7 +79,7 @@
            <el-upload
              class="upload-demo"
              drag
-             action="/imgapi/upload/saveImg.php"
+             :action='siteInfo.reserved_1 + "/upload/saveImg.php"'
              :data="imgdata"
              :on-success="handleAvatarSuccess1"
              :before-upload="beforeAvatarUpload"
@@ -107,7 +109,7 @@
   		
   	},
   	created(){
-
+      this.siteInfo =  this.$orther.getSiteInfo();
      this.initdata();
   	},
     methods: {
@@ -204,6 +206,7 @@
     },
     data() {
       return {
+        siteInfo:{},
         imgdata:{token:this.$token.getToken(),operation:'update',path:''}, 
         title:'',
         pf:'',

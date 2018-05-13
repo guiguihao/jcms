@@ -182,6 +182,14 @@ const router = new Router({
                     },
                        component: resolve => require(['../components/admin/Comment.vue'], resolve),
                 },{
+                    path: '/admin/message',
+                    name:'message',
+                    meta: {
+                         title: '留言管理',
+                         requireAuth: true
+                    },
+                       component: resolve => require(['../components/admin/Message.vue'], resolve),
+                },{
                     path: '/admin/img',
                     name:'img',
                     meta: {
@@ -197,6 +205,14 @@ const router = new Router({
                          requireAuth: true
                     },
                        component: resolve => require(['../components/admin/Rsc.vue'], resolve),
+                },{
+                    path: '/admin/adImg',
+                    name:'rsc',
+                    meta: {
+                         title: '广告图片/资源管理',
+                         requireAuth: true
+                    },
+                       component: resolve => require(['../components/admin/AdImg.vue'], resolve),
                 },{
                     path: '/admin/SiteInfo',
                     name:'SiteInfo',
@@ -247,24 +263,25 @@ const router = new Router({
   ]
 });
 
-// router.beforeEach((to, from, next) => {
-//     if (to.meta.title) {
-//        document.title = to.meta.title;
-//     }
-//     if (to.meta.requireAuth) {  // 判断该路由是否需要登录权限
-//         if (localStorage.getItem('appkey')) {  // 通过vuex state获取当前的token是否存在
-//             next();
-//         }
-//         else {
-//             next({
-//                 name: 'login',
-//             })
-//         }
-//     }
-//     else {
-//         next();
-//     }
+router.beforeEach((to, from, next) => {
+    if (to.meta.title) {
+       document.title = to.meta.title;
+    }
+     next();
+    // if (to.meta.requireAuth) {  // 判断该路由是否需要登录权限
+    //     if (localStorage.getItem('appkey')) {  // 通过vuex state获取当前的token是否存在
+    //         next();
+    //     }
+    //     else {
+    //         next({
+    //             name: 'login',
+    //         })
+    //     }
+    // }
+    // else {
+    //     next();
+    // }
 
-// })
+})
 
 export default router;

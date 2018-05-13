@@ -47,7 +47,7 @@
 	             label="标题"
 	             width="360">
                <template slot-scope="scope">
-                                      <img :src=scope.row.imgs[0] width="50" height="50"  style="float: left; margin-right: 15px">
+                                      <img :src="siteInfo.reserved_1 +'/upload/' + scope.row.imgs[0]" width="50" height="50"  style="float: left; margin-right: 15px">
                                      <el-button type="text" style="color: #606266">{{scope.row.title }}</el-button>
                  </template>
 	           </el-table-column>
@@ -154,7 +154,7 @@
   		
   	},
   	created(){
-
+      this.siteInfo =  this.$orther.getSiteInfo();
       this.requestData();
       this.requestUserType();
       this.requestRecommendType();
@@ -255,6 +255,7 @@
     },
     data() {
       return {
+        siteInfo:{},
         status:-1,
         recommends:[],
         recommend:'',

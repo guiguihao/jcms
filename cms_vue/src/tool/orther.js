@@ -24,6 +24,15 @@ var orther = {
        var date = new Date(Date.parse(UTCDateString)); 
        return date.format("yyyy-MM-dd hh:mm:ss");
     },
+
+    getSiteInfo: function(){
+		var app = localStorage.getItem('app');
+	    var app1 = JSON.parse(app);
+	    return app1;
+    }
    
 }
+
+
 export default orther
+

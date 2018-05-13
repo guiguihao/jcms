@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 from datetime import datetime
 
 '''
-获取图片列表
+获取广告列表
 {
     'pageSize': 10,
     'page':1
@@ -18,8 +18,8 @@ from datetime import datetime
 '''
 
 
-@app.route('/app/img2/list', methods=['GET', 'POST'])
-def get_img2s():
+@app.route('/app/ads/list', methods=['GET', 'POST'])
+def get_ads():
     if request.method == 'POST':
         appkey = ''
         token = ''
@@ -28,7 +28,6 @@ def get_img2s():
         except:
             return MyException(param.APP_TOKEN_NULL).toJson()
         data = request.get_json()
-        user = connection.Img2()
         pageSize = 50
         page = 1
         filter = ''
@@ -62,13 +61,11 @@ def get_img2s():
                     params[k] = filter[k]
                     if k == '_id':
                         params[k] = ObjectId(filter[k])
-            fnuser = connection.Img2.find(params, {'del': 0}).limit(pageSize).skip((page - 1) * pageSize).sort(
+            fnuser = connection.Ad_imgs.find(params, {'del': 0}).limit(pageSize).skip((page - 1) * pageSize).sort(
                 [('_id', -1)])
-            fdApp = connection.AppInfo.find_one({'appkey': appkey})
             for user in fnuser:
                 user['_id'] = str(user['_id'])
                 user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
-                user['ourl'] = fdApp.domian  + '/upload/' + user.url
                 admins['data'].append(user)
             admins['count'] = fnuser.count()
             return MyResult(admins).toJson()
@@ -82,7 +79,7 @@ def get_img2s():
 
 
 '''
-添加图片
+添加广告
 {
     'name':'xiaosan', #或phone email
     'password':'11122',
@@ -91,42 +88,42 @@ def get_img2s():
 '''
 
 
-@app.route('/app/img2/add', methods=['GET', 'POST'])
-def add_img2():
+@app.route('/app/ads/add', methods=['GET', 'POST'])
+def add_ad():
     if request.method == 'POST':
-        user = connection.Img2()
-        user.url = request.form['url']
-        user.size = request.form['size']
-        user.pf = request.form['pf']
-        user.userid = request.form['userid']
-        user.name = request.form['name']
-        user.type = request.form['type']
-        token = request.form['token']
         appkey = ''
-        if token == '' or not token:
-            try:
-                token = request.headers[config.AUTHORIZATION]
-            except:
-                return MyException(param.APP_TOKEN_NULL).toJson()
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
+        user = connection.Ad_imgs()
+        for key in data:
+            if data[key] == '':
+                continue
+            if key == 'des':
+                user.des = data['des']
+            if key == 'imgs':
+                user.imgs = data['imgs']
+            if key == 'reserved_1':
+                user.reserved_1 = data['reserved_1']
+            if key == 'reserved_2':
+                user.reserved_2 = data['reserved_2']
+            if key == 'reserved_3':
+                user.reserved_3 = data['reserved_3']
+            if key == 'reserved_4':
+                user.reserved_4 = data['reserved_4']
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token,False)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
                 appkey = token.split('&&')[0]
-        if user.url and user.pf:
+        if user.imgs:
             try:
-                queryImg = connection.Img2.find_one({'url':request.form['url'],'del':0,'appkey':appkey})
-                if queryImg:
-                    queryImg.url = request.form['url']
-                    queryImg.size = request.form['size']
-                    queryImg.pf = request.form['pf']
-                    queryImg.userid = request.form['userid']
-                    queryImg.date = datetime.now()
-                    queryImg.save()
-                    return MySucceedResult().toJson()
                 user.appkey = appkey
                 user.date = datetime.now()
                 user.save()
@@ -142,7 +139,7 @@ def add_img2():
 
 
 '''
-post  更新评论信息
+post  更新广告信息
 {
     '_id':'xxx'
     set:{
@@ -155,30 +152,51 @@ post  更新评论信息
 '''
 
 
-@app.route('/app/img2/del', methods=['GET', 'POST'])
-def app_img2_update():
+@app.route('/app/ads/update', methods=['GET', 'POST'])
+def app_ads_update():
     if request.method == 'POST':
-        url = request.form['url']
-        token = request.form['token']
         appkey = ''
+        token = ''
+        try:
+            token = request.headers[config.AUTHORIZATION]
+        except:
+            return MyException(param.APP_TOKEN_NULL).toJson()
+        data = request.get_json()
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
-            resultTooken = tool.ruleToken(token,False)
+            resultTooken = tool.ruleToken(token,True)
             if resultTooken[0] != 1:
                 return MyException(resultTooken).toJson()
             else:
                 appkey = token.split('&&')[0]
         try:
-            user = connection.Img2.find_one({'appkey': appkey, 'url': url,'del':0})
+            user = connection.Ad_imgs.find_one({'appkey': appkey, '_id': ObjectId(data['_id'])})
             if user:
-                user['del'] = 1
+                user['del'] = int(user['del'])
+                for key in data['set']:
+                    if data['set'][key] == '':
+                        continue
+                    if key == 'des':
+                        user.des = data['set']['des']
+                    if key == 'imgs':
+                        user.imgs = data['set']['imgs']
+                    if key == 'del':
+                        user['del'] = data['set']['del']
+                    if key == 'reserved_1':
+                        user.reserved_1 = data['set']['reserved_1']
+                    if key == 'reserved_2':
+                        user.reserved_2 = data['set']['reserved_2']
+                    if key == 'reserved_3':
+                        user.reserved_3 = data['set']['reserved_3']
+                    if key == 'reserved_4':
+                        user.reserved_4 = data['set']['reserved_4']
                 user.save()
                 user['_id'] = str(user['_id'])
                 user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
                 return MyResult(user).toJson()
             else:
-                return MyException(param.PICTURE_NULL).toJson()
+                return MyException(param.ARTICLE_NULL).toJson()
         except Exception as e:
             print e
             return MyException(param.PARAM_FAILURE).toJson()

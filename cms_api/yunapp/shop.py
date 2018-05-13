@@ -6,6 +6,7 @@ from yunapp.result import *
 from yunapp import param
 from bson.objectid import ObjectId
 from datetime import datetime
+import copy
 
 
 '''
@@ -106,6 +107,17 @@ def get_products():
                     if author1:
                         author1['_id'] = str(author1['_id'])
                         user.author = author1
+                    #查询促销
+                    sale = connection.Sale.find_one({'appkey': appkey, 'products._id':user['_id']}, {'del': 0,'products.imgs':0})
+                    if sale:
+                        sale['_id'] = unicode(sale['_id'])
+                        cpcale = copy.deepcopy(sale)
+                        for p in cpcale['products']:
+                           if p['_id'] == user['_id']:
+                               pass
+                           else:
+                               sale['products'].remove(p)
+                        user['sale'] = sale
                     admins['data'].append(user)
                 admins['count'] = fnuser.count()
                 return MyResult(admins).toJson()
@@ -165,6 +177,8 @@ def add_product():
                 user.imgs = data['imgs']
             if key == 'describe':
                 user.describe = data['describe']
+            if key == 'describe_html':
+                user.describe_html = data['describe_html']
             if key == 'recommend':
                 user.recommend = data['recommend']
             if key == 'buycount':
@@ -273,6 +287,8 @@ def app_product_update():
                         user.imgs = data['set']['imgs']
                     if key == 'describe':
                         user.describe = data['set']['describe']
+                    if key == 'describe_html':
+                        user.describe_html = data['set']['describe_html']
                     if key == 'recommend':
                         user.recommend = data['set']['recommend']
                     if key == 'buycount':

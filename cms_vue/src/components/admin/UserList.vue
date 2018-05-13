@@ -89,6 +89,10 @@
 	          <el-form-item label=" 用户名"  style="width: 280px" prop = "name">
 	            <el-input v-model="form.name" ></el-input>
 	          </el-form-item>
+            <el-form-item label=" 用户头像"  style="width: 280px">
+              <el-input v-model="form.icon" ></el-input>
+              <img :src="form.icon" width="50" height="50"  style="margin-top: 10px">
+            </el-form-item>
 	          <el-form-item label="用户类型" >
 	            <el-select v-model="form.vip" placeholder="请选择类型">
 	            

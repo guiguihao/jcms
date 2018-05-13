@@ -46,6 +46,9 @@
           <el-form-item label="描述" :label-width="formLabelWidth" prop = "dec">
            <el-input v-model="form.dec" auto-complete="off" style="width: 300px;"></el-input>
          </el-form-item>
+         <el-form-item label="icon" :label-width="formLabelWidth" >
+           <el-input v-model="form.reserved_1" auto-complete="off" style="width: 300px;"></el-input>
+         </el-form-item>
          <el-form-item label="级别" :label-width="formLabelWidth" prop = "level">
            <el-input v-model.number="form.level" auto-complete="off" style="width: 80px;"></el-input>
          </el-form-item>
