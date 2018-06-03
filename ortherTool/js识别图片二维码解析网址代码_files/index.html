@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)http://www.17sucai.com/preview/1/2017-09-21/Qrcode/index.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<title>识别二维码</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+		<style type="text/css">
+			body{margin: 0;}
+			.module-content{
+				min-width: 770px;
+				max-width: 1000px;
+				width: 100%;
+				color: #000;
+				margin: 0 auto;
+			}
+			.module-head{
+				text-align: center;
+				font-weight: 500;
+				margin: 0;
+				font-size: 30px;
+				height: 100px;
+				line-height: 100px;
+				color: #000;
+			}
+			.box h3{
+				font-weight: 300;
+				margin: 0;
+				font-size: 20px;
+				height: 60px;
+				line-height: 60px;
+				color: #000;
+			}
+			.url-box{
+				height: 30px;
+				line-height: 30px;
+				font-size: 14px;
+			}
+			#file{
+				position: absolute;
+				width: 120px;
+				height: 120px;
+				opacity: 0;
+				top: 0;
+				left: 0;
+				overflow: hidden;
+				z-index: 10;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="module-content">
+			<!--解析二维码-->
+			<h1 class="module-head">解析二维码</h1>
+			<div class="box">
+				<h3>长按二维码解析</h3>
+				<img onclick="getUrl(this,&#39;img-url&#39;)" src="http://codepay.fateqq.com:52888/qr/15679/1/39/01_0.png">
+				<p class="url-box" id="urlBox"></p>
+			</div>
+			<div class="box">
+				<h3>上传二维码解析</h3>
+				<div style="position: relative;">
+					<img style="width: 120px;height: 120px;" src="./tu.png">
+					<input type="file" onchange="getUrl(this,&#39;file-url&#39;)" name="" id="file" value="">
+					<p class="url-box" id="urlBox"></p>
+				</div>
+			</div>
+		</div>
+		<script src="./llqrcode.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./analyticCode.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			function getUrl(e,param){
+				console.log(param); //Window
+				analyticCode.getUrl(param,e,function(url1,url2){
+					e.nextElementSibling.innerHTML = url1;
+					e.previousElementSibling.src = url2;
+				});
+			}
+		</script>
+	
+
+</body></html>
