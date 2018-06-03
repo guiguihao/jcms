@@ -64,18 +64,19 @@ def app_register():
         if (user.name or user.phone or user.email) and user.password:
             try:
                 try:
-                    fnuser = connection.APP_admin.find_one({'name':user.name,'del':0})
-                    if fnuser: 
-                        if fnuser.name: return MyException(param.USER_NAME_FAILURE).toJson()
-                    
-                    feuser = connection.APP_admin.find_one({'email':user.email,'del':0})
-                    if feuser: 
-                        if feuser.email: return MyException(param.USER_EMAIL_FAILURE).toJson()
-
-                    fpuser = connection.APP_admin.find_one({'phone':user.phone,'del':0})
-                    #print fpuser
-                    if fpuser:
-                        if fpuser.phone: return MyException(param.USER_PHONE_FAILURE).toJson()
+                    if user.name:
+                        fnuser = connection.APP_admin.find_one({'name':user.name,'del':0})
+                        if fnuser:
+                            if fnuser.name: return MyException(param.USER_NAME_FAILURE).toJson()
+                    if user.email:
+                        feuser = connection.APP_admin.find_one({'email':user.email,'del':0})
+                        if feuser:
+                            if feuser.email: return MyException(param.USER_EMAIL_FAILURE).toJson()
+                    if user.phone:
+                        fpuser = connection.APP_admin.find_one({'phone':user.phone,'del':0})
+                        #print fpuser
+                        if fpuser:
+                            if fpuser.phone: return MyException(param.USER_PHONE_FAILURE).toJson()
                 except Exception, e:
                     pass
                 user.password = unicode(tool.md5(user.password))
@@ -92,10 +93,10 @@ def app_register():
                 appinfo.status = 1
                 appinfo.save()
 
-                userVip = connection.UserVip.find({'appkey':user.appkey,'del':0}).sort('level',1)
+                userVip = connection.UserType.find({'appkey':str(user['_id']),'del':0}).sort('level',1)
                 if userVip.count()>0:
                     for vip in userVip:
-                        if(userVip): connection.APP_admin.find_and_modify({'_id':user['_id'],'del':0},{'$set':{"vip":str(userVip['_id'])}})
+                        if(userVip): connection.APP_admin.find_and_modify({'_id':str(user['_id']),'del':0},{'$set':{"vip":str(userVip['_id'])}})
                 return  MySucceedResult().toJson()
             except Exception as e:
                 print e

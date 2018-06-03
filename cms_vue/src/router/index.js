@@ -91,6 +91,22 @@ const router = new Router({
                     },
                        component: resolve => require(['../components/admin/ProductList.vue'], resolve),
                 },{
+                    path: '/admin/Product/ProductCollection',
+                    name:'ProductCollection',
+                    meta: {
+                         title: '收藏列表',
+                         requireAuth: true
+                    },
+                       component: resolve => require(['../components/admin/ProductCollection.vue'], resolve),
+                },{
+                    path: '/admin/Product/ReceiveInfo',
+                    name:'ReceiveInfo',
+                    meta: {
+                         title: '收货地址',
+                         requireAuth: true
+                    },
+                       component: resolve => require(['../components/admin/ReceiveInfo.vue'], resolve),
+                },{
                     path: '/admin/Product/ProductEdit/:id',
                     name:'ProductEdit',
                     meta: {

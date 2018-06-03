@@ -63,9 +63,13 @@ def get_comments():
                         params[k] = ObjectId(filter[k])
             fnuser = connection.Comment.find(params, {'del': 0}).limit(pageSize).skip((page - 1) * pageSize).sort(
                 [('_id', -1)])
+            fdApp = connection.AppInfo.find_one({'appkey': appkey})
             for user in fnuser:
                 user['_id'] = str(user['_id'])
                 user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                user['oimgs'] = []
+                for i in range(0, len(user.imgs)):
+                    user['oimgs'].append(fdApp.reserved_1 + '/upload/' + user.imgs[i])
                 author = connection.APP_admin.one({'appkey': appkey, '_id':ObjectId(user['userId'])},
                                                   {'del': 0, 'permission': 0, 'password': 0, 'superadmin': 0, 'vip': 0,
                                                    'appsecret': 0})

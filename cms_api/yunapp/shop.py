@@ -7,6 +7,7 @@ from yunapp import param
 from bson.objectid import ObjectId
 from datetime import datetime
 import copy
+import time
 
 
 '''
@@ -77,15 +78,25 @@ def get_products():
                         else:
                             params[k] = filter[k]
                             if k == '_id':
-                                params[k] = ObjectId(filter[k])
+                                if isinstance(filter[k],str) or isinstance(filter[k],unicode):
+                                    params[k] = ObjectId(filter[k])
+                                if isinstance(filter[k], dict):
+                                    for idkey in filter[k]:
+                                        if idkey == '$in':
+                                            for inkey in range(len(filter[k][idkey])):
+                                                filter[k][idkey][inkey] = ObjectId(filter[k][idkey][inkey])
                 if (len(typeid)>0):
                     getSubTypes(appkey,typeid,types)
                 if(len(types)>0):
                     params['type'] = {'$in':types}
                 fnuser = connection.Product.find(params,{'del':0}).limit(pageSize).skip((page - 1) * pageSize).sort(
                     [('_id', -1)])
+                fdApp = connection.AppInfo.find_one({'appkey': appkey})
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
+                    user['oimgs'] = []
+                    for i in range(0,len(user.imgs)):
+                        user['oimgs'].append(fdApp.reserved_1 + '/upload/' + user.imgs[i])
                     user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
                     type = connection.Type.one({'appkey': appkey, '_id': ObjectId(user['type'])}, {'del': 0})
                     if type:
@@ -112,9 +123,20 @@ def get_products():
                     if sale:
                         sale['_id'] = unicode(sale['_id'])
                         cpcale = copy.deepcopy(sale)
+                        try:
+                            t = time.time()
+                            if t >= tool.utc_to_local(sale.startdate):
+                                if t <= tool.utc_to_local(sale.enddate):
+                                    sale.status = 1
+                                else:
+                                    sale.status = 2
+                            else:
+                                sale.status = 0
+                        except Exception as e:
+                            pass
                         for p in cpcale['products']:
                            if p['_id'] == user['_id']:
-                               pass
+                              pass
                            else:
                                sale['products'].remove(p)
                         user['sale'] = sale

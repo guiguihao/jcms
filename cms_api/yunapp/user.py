@@ -132,6 +132,10 @@ def add_user():
                 user.reserved_1 = data['reserved_3']
             if key == 'reserved_4':
                 user.reserved_1 = data['reserved_4']
+            if key == 'reserved_5':
+                user.reserved_1 = data['reserved_5']
+            if key == 'reserved_6':
+                user.reserved_1 = data['reserved_6']
 
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson() 
@@ -141,7 +145,7 @@ def add_user():
                 return MyException(resultTooken).toJson()
             else:
                 appkey = token.split('&&')[0]
-        if (user.name or user.phone or user.email) and user.password:
+        if ((user.name or user.email) and user.password) or user.phone:
             try:
                 try:
                     fnuser = connection.APP_User.find_one({'appkey':appkey,'name':user.name,'del':0})
@@ -161,9 +165,13 @@ def add_user():
                 vips = connection.Type.find({'appkey': appkey}).sort([('level',1)])
                 if vips.count()>0:
                      user.vip = unicode(vips[0]['_id'])
-                user.password = unicode(tool.md5(user.password))
+                if user.password:
+                    user.password = unicode(tool.md5(user.password))
                 user.appkey = appkey
                 user.date = datetime.now()
+                if not user.name:
+                    if user.email: user.name = user.email
+                    if user.phone: user.name = user.phone
                 user.save()
                 return  MySucceedResult().toJson()
             except Exception as e:
@@ -242,6 +250,10 @@ def app_user_update():
                        user.reserved_3 = data['set']['reserved_3']
                     if key == 'reserved_4':
                         user.reserved_4 = data['set']['reserved_4']
+                    if key == 'reserved_5':
+                       user.reserved_5 = data['set']['reserved_5']
+                    if key == 'reserved_6':
+                        user.reserved_6 = data['set']['reserved_6']
                     if key == 'del':
                         user['del'] = data['set']['del']
                     if key == 'permission':
@@ -304,15 +316,22 @@ def user_login():
             else:
                 appkey = token.split('&&')[0]
         # print user
-        if (user.name or user.phone or user.email or user.qq or user.wachat) and user.password:
+        if ((user.name or user.email) and user.password) or  user.phone or user.wachat or user.qq:
             myuser = ''
             if user.name:
                  myuser = connection.APP_User.find_one({'appkey':appkey,'name':user.name,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
             if user.phone:
                  myuser = connection.APP_User.find_one({'appkey':appkey,'phone':user.phone,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+            if user.qq:
+                 myuser = connection.APP_User.find_one({'appkey':appkey,'qq':user.qq,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
+            if user.wachat:
+                myuser = connection.APP_User.find_one({'appkey': appkey, 'wachat': user.wachat, 'del': 0},{'userTypes': 0, 'appsecret': 0, 'del': 0, })
             if user.email:
                  myuser = connection.APP_User.find_one({'appkey':appkey,'email':user.email,'del':0},{'userTypes':0,'appsecret':0,'del':0,})
-            if myuser and myuser['password'] == user['password']:
+
+            if myuser == None:
+                return MyException(param.APP_USER_NULL).toJson()
+            if (myuser and myuser['password'] == user['password']) or  (user.phone and myuser != '' and myuser):
                 myuser['_id'] = str(myuser['_id'])
                 myuser.pop('password')
                 # user['_id'] = str(user['_id'])

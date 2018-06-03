@@ -12,6 +12,8 @@ import RequestSiteinfo from './RequestSiteinfo'
 import RequestFenXiao from './RequestFenXiao'
 import RequestImg2 from './RequestImg2'
 import RequestAds from './RequestAds'
+import RequestCollection from './RequestCollection'
+import RequestReceiveInfo from './RequestReceiveInfo'
 
 var Request = {
 	type:RequestType,
@@ -28,6 +30,8 @@ var Request = {
 	fenxiao:RequestFenXiao,
 	img2:RequestImg2,
 	ad:RequestAds,
+	collection:RequestCollection,
+	receiveInfo:RequestReceiveInfo,
 };
 
 export default Request

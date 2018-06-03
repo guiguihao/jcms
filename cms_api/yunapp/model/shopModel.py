@@ -73,7 +73,7 @@ class Sale(Document):
         'startdate':unicode,
         'enddate': unicode,
         'appkey': unicode,
-        'status': int,
+        'status': int,            #0未开始 1有效 2过期
         'products':[],           #参与活动的产品
         'reserved_1':unicode,    #预留字段1
         'reserved_2':unicode,    #预留字段1
@@ -107,12 +107,14 @@ class Order(Document):
             'costprice': OR(float, int),  # 成本单价
             'price': OR(float,int),  # 产品单价
             'saleprice': OR(float, int),  # 产品促销价
+            'saleCode':unicode,  # 优惠码
             'colour': unicode,  # 颜色 大小
             'size': unicode,  # 大小
             'count':int,     #购买数量
         }],
         'date': OR(unicode, datetime.datetime),
         'receiveinfo':{
+            'name': unicode,  # 收件人名称
             'mphone': unicode,  # 手机号码
             'phone': unicode,  # 电话
             'province': unicode,  # 省
@@ -141,7 +143,7 @@ class Order(Document):
         },
         'remake': unicode,  # 备注
         'appkey':unicode,
-        'reserved_1':unicode,    #预留字段1
+        'reserved_1':unicode,    #预留字段1  支付订单号
         'reserved_2':unicode,    #预留字段1 
         'reserved_3':unicode,    #预留字段1 
         'reserved_4':unicode,    #预留字段1 
@@ -173,6 +175,7 @@ class Receiveinfo(Document):
    structure = {
         'appkey': unicode,  # appkey
         'userid': unicode,         #用户
+        'name': unicode,           #收件人名称
         'mphone':unicode,          #手机号码
         'phone':unicode,           #电话
         'province':unicode,        #省
@@ -189,6 +192,7 @@ class Receiveinfo(Document):
         'area': max_length(200),
         'address': max_length(200),
         'province': max_length(200),
+        'name': max_length(200),
         'city': max_length(200),
     }
    default_values = {
@@ -240,7 +244,7 @@ class saleCode(Document):
             '_id':unicode,
             'title':unicode,        #产品名称
             'imgs':[],              #产品图片
-        }], #可使用优惠卷的产品id
+            }], #可使用优惠卷的产品id
            'validdate':unicode, #有效日期
            'code': unicode,  # 优惠码
            'del': int,  # 0 存在 1删除
@@ -275,3 +279,30 @@ class Fenxiao(Document):
        }
        required = ['appkey']
        use_dot_notation = True
+
+#收藏
+@connection.register
+class Collection(Document):
+   __collection__ = 'collection'
+   __database__ = 'shop'
+   structure = {
+        'appkey': unicode,
+        'userId':unicode,
+        'productId':unicode,           #收藏的产品Id
+        'date': OR(unicode, datetime.datetime),
+        'reserved_1':unicode,    #预留字段1
+        'reserved_2':unicode,    #预留字段1
+        'reserved_3':unicode,    #预留字段1
+        'reserved_4':unicode,    #预留字段1
+        'del': int,#0 存在 1删除
+    }
+   validators = {
+        'appkey': max_length(200),
+        'userId': max_length(200),
+    }
+   default_values = {
+       'del': 0,
+       'date': datetime.datetime.now(),
+    }
+   use_dot_notation = True
+

@@ -111,7 +111,7 @@
                label="标题"
                width="250">
                <template slot-scope="scope">
-                   <img :src=scope.row.imgs[0] width="50" height="50"  style="float: left;">
+                   <img :src=scope.row.oimgs[0] width="50" height="50"  style="float: left;">
                    <el-button type="text">{{scope.row.title }}</el-button>
                </template>
              </el-table-column>
@@ -171,7 +171,7 @@
                label="标题"
                width="250">
                <template slot-scope="scope">
-                   <img :src=scope.row.imgs[0] width="50" height="50" style="float: left;">
+                   <img :src=scope.row.oimgs[0] width="50" height="50" style="float: left;">
                    <el-button type="text">{{scope.row.title }}</el-button>
                </template>
              </el-table-column>

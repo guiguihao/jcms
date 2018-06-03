@@ -65,8 +65,13 @@ def get_products_sale_code():
                                 params[k] = ObjectId(filter[k])
                 fnuser = connection.saleCode.find(params,{'del':0}).limit(pageSize).skip((page - 1) * pageSize).sort(
                     [('_id', -1)])
+                fdApp = connection.AppInfo.find_one({'appkey': appkey})
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
+                    for p in user.products:
+                        p['oimgs'] = []
+                        for i in range(0, len(p['imgs'])):
+                            p['oimgs'].append(fdApp.reserved_1 + '/upload/' + p['imgs'][i])
                     try:
                         t = time.time()
                         if t >= tool.utc_to_local(user.validdate):
@@ -250,7 +255,7 @@ def app_product_saleCode_product_add():
                 user['del'] = int(user['del'])
                 for code in data['products']:
                     _id = code['_id']
-                    col = connection.saleCode.find({'products._id':_id})
+                    col = connection.saleCode.find({'products._id':_id,'del':0})
                     if col.count()>0:
                         return MyException(param.PRODUCT_RE_FAILURE).toJson()
                     user.products.append(code)

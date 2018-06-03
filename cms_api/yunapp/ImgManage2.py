@@ -68,7 +68,7 @@ def get_img2s():
             for user in fnuser:
                 user['_id'] = str(user['_id'])
                 user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
-                user['ourl'] = fdApp.domian  + '/upload/' + user.url
+                user['ourl'] = fdApp.reserved_1  + '/upload/' + user.url
                 admins['data'].append(user)
             admins['count'] = fnuser.count()
             return MyResult(admins).toJson()

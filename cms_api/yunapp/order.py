@@ -68,8 +68,13 @@ def get_orders():
                                 params[k] =  ObjectId('5ad4acd21fe63712a04a1111')
                 fnuser = connection.Order.find(params, {'del': 0}).limit(pageSize).skip((page - 1) * pageSize).sort(
                     [('_id', -1)])
+                fdApp = connection.AppInfo.find_one({'appkey': appkey})
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
+                    for p in user.product:
+                        p['oimgs'] = []
+                        for i in range(0, len(p['imgs'])):
+                            p['oimgs'].append(fdApp.reserved_1 + '/upload/' + p['imgs'][i])
                     user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
                     author1 = connection.APP_User.one({'appkey': appkey, '_id': ObjectId(user.user)}, {'del': 0,'password':0})
                     if author1:
@@ -122,6 +127,10 @@ def add_order():
                         'imgs':[],
                     }
                     for subkey in product:
+                        if subkey == '_id':
+                            newProduct['_id'] = product['_id']
+                        if subkey == 'costprice':
+                            newProduct['costprice'] = product['costprice']
                         if subkey == 'title':
                             newProduct['title'] = product['title']
                         if subkey == 'imgs':
@@ -130,6 +139,8 @@ def add_order():
                             newProduct['price'] = product['price']
                         if subkey == 'saleprice':
                             newProduct['saleprice'] = product['saleprice']
+                        if subkey == 'saleCode':
+                            newProduct['saleCode'] = product['saleCode']
                         if subkey == 'colour':
                             newProduct['colour'] = product['colour']
                         if subkey == 'size':
@@ -188,7 +199,8 @@ def add_order():
                 user.appkey = appkey
                 user.date = datetime.now()
                 user.save()
-                return MySucceedResult().toJson()
+                user['_id'] = str(user['_id'])
+                return MyResult(user).toJson()
             except Exception as e:
                 print  e
                 return MyException([param.CHECK_FAILURE[0],unicode(e)]).toJson()

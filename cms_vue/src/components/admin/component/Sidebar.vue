@@ -52,6 +52,12 @@
 							index: '/admin/Product/ProductOrderList',
 							title: '订单管理',
 						},{
+							index: '/admin/Product/ProductCollection',
+							title: '收藏列表',
+						},{
+							index: '/admin/Product/ReceiveInfo',
+							title: '收货地址',
+						},{
 							index: '/admin/Product/ProductType',
 							title: '类别管理',
 						},{

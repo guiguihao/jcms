@@ -34,7 +34,9 @@ class APP_admin(Document):
         'reserved_1':unicode,    #预留字段1 
         'reserved_2':unicode,    #预留字段1 
         'reserved_3':unicode,    #预留字段1 
-        'reserved_4':unicode,    #预留字段1 
+        'reserved_4':unicode,    #预留字段1
+        'reserved_5':list,       #预留字段1
+        'reserved_6': list,      # 预留字段1
         'del':int, #0 存在 1删除
     }
    validators = {

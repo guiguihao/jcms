@@ -65,6 +65,17 @@ def get_receiveinfos():
                 [('_id', -1)])
             for user in fnuser:
                 user['_id'] = str(user['_id'])
+                if user.userid:
+                    fnuser1 = connection.APP_admin.find_one(
+                        {'appkey': appkey, '_id': ObjectId(user.userid), 'del': 0})
+                    if fnuser1:
+                        fnuser1['_id'] = str(fnuser1['_id'])
+                        user['user'] = fnuser1
+                    fnuser2 = connection.APP_User.find_one(
+                        {'appkey': appkey, '_id': ObjectId(user.userid), 'del': 0})
+                    if fnuser2:
+                        fnuser2['_id'] = str(fnuser2['_id'])
+                        user['user'] = fnuser2
                 admins['data'].append(user)
             admins['count'] = fnuser.count()
             return MyResult(admins).toJson()
@@ -117,6 +128,8 @@ def add_receive():
                 user.address = data['address']
             if key == 'default':
                 user.default = data['default']
+            if key == 'name':
+                user.name = data['name']
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
         else:
@@ -193,11 +206,13 @@ def app_receive_update():
                         user.address = data['set']['address']
                     if key == 'default':
                         user.default = data['set']['default']
+                    if key == 'name':
+                        user.name = data['set']['name']
                     if key == 'del':
                         user['del'] = data['set']['del']
-                user.save()
                 if(user.default == 1):
-                    connection.Receiveinfo.find_and_modify({'userid':user.userid,'del':0,'_id':{'$ne':user['_id']}},{'$set':{'default':0}})
+                    connection.Receiveinfo.find_and_modify({'userid':user.userid,'del':0},{'$set':{'default':0}})
+                user.save()
                 user['_id'] = str(user['_id'])
                 return MyResult(user).toJson()
             else:

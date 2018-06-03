@@ -54,10 +54,12 @@
                	              prop="_id"
                	             label="订单编号"
                	             width="380">
-               	               <template slot-scope="scope">
-                                      <img :src=scope.row.imgs[0] width="50" height="50"  style="float: left; margin-right: 15px">
-                                     <el-button type="text" style="color: #606266">{{scope.row.title }}</el-button>
-                                 </template>
+               	               <template slot-scope="scope" >
+                                 <div style=" display: flex;flex-direction: row ">
+                                     <img :src=scope.row.oimgs[0] width="50" height="50">
+                                     {{scope.row.title }}
+                                 </div>
+                                </template>
                	           </el-table-column>
                	           <el-table-column
                	             label="价格"
@@ -71,8 +73,19 @@
                	             width="100">
                	              <template slot-scope="scope">
                                       <el-button type="text"  style="color: #606266" v-if = "scope.row.saleprice>0">活动价 :    {{scope.row.saleprice }}</el-button>
+
                                  </template>
                	           </el-table-column>
+
+                             <el-table-column
+                             label="优惠码"
+                             width="100">
+                              <template slot-scope="scope">
+                                      <el-button type="text"  style="color: #606266" v-if = "scope.row.saleprice>0">优惠码 :    {{scope.row.saleCode }}</el-button>
+                                   
+                                 </template>
+                           </el-table-column>
+
 
                	           <el-table-column
                	             label="颜色"
@@ -93,7 +106,7 @@
                	             label="购买数量"
                	             width="100">
                	              <template slot-scope="scope">
-                                      <el-button type="text"  style="color: #606266" v-if = "scope.row.count>0">购买数量 :    {{scope.row.购买数量 }}</el-button>
+                                      <el-button type="text"  style="color: #606266" v-if = "scope.row.count>0">购买数量 :    {{scope.row.count }}</el-button>
                                  </template>
                	           </el-table-column>
                	         </el-table>

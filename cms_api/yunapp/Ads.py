@@ -63,9 +63,12 @@ def get_ads():
                         params[k] = ObjectId(filter[k])
             fnuser = connection.Ad_imgs.find(params, {'del': 0}).limit(pageSize).skip((page - 1) * pageSize).sort(
                 [('_id', -1)])
+            fdApp = connection.AppInfo.find_one({'appkey': appkey})
             for user in fnuser:
                 user['_id'] = str(user['_id'])
                 user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                for imgs in user.imgs:
+                     imgs['ourl'] = fdApp.reserved_1 + '/upload/' + imgs['url']
                 admins['data'].append(user)
             admins['count'] = fnuser.count()
             return MyResult(admins).toJson()
