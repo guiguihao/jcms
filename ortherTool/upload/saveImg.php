@@ -8,10 +8,10 @@ header('Access-Control-Allow-Methods:POST');
 // 响应头设置    
 header('Access-Control-Allow-Headers:x-requested-with,content-type,Authorization');    
 
-$httpFix   = 'http://127.0.0.1';     
-$tokenUrl  = 'http://127.0.0.1:5000/app/checktoken/' . $_POST["token"];  
-$addImgUrl  = 'http://127.0.0.1:5000/app/img2/add';  
-$updateImgUrl  = 'http://127.0.0.1:5000/app/img2/del';
+$httpFix   = 'http://img.weiyunbuy.com';     //图片空间地址
+$tokenUrl  = 'http://api.weiyunbuy.com/app/checktoken/' . $_POST["token"];  //获取token
+$addImgUrl  = 'http://api.weiyunbuy.com/app/img2/add';  
+$updateImgUrl  = 'http://api.weiyunbuy.com/app/img2/del';
 $userId = $_POST["userId"];
 $operation = $_POST["operation"];
 $originalPath = $_POST["path"];

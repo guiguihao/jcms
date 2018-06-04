@@ -51,6 +51,25 @@ var RequestSiteinfo = {
           return p;
    },
 
+   getAppkeyAndSecret: function(){
+            let url = '';
+          if(process.env.NODE_ENV === 'development') { //TEST
+            url = '/api/app/get/appkeyAndSecret';
+          } else {
+            url = '/app/get/appkeyAndSecret';
+          }
+          let p = new Promise(function(resolve, reject){        //做一些异步操作
+            axios.post(url).then((res) => {
+             // console.log(JSON.stringify(res.data)); 
+              resolve(res);
+              }).catch(function(error) {
+
+                reject(error)
+              });
+          });
+          return p;
+   }
+
 }
 
 export default RequestSiteinfo

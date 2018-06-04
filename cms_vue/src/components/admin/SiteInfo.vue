@@ -8,6 +8,15 @@
 
    <div class ="mytable">
     <el-form ref="form" :model="form" label-width="120px">
+       <el-form-item label="appkey" style="width: 380px">
+        <el-input v-model="form.appkey" :disabled = "true"></el-input>
+      </el-form-item>
+       <el-form-item label="appsecret" style="width: 380px">
+        <el-input v-model="appsecret" :disabled="true"></el-input>
+      </el-form-item>
+       <el-form-item label="应用名称" style="width: 280px">
+        <el-input v-model="form.name"></el-input>
+      </el-form-item>
       <el-form-item label="应用名称" style="width: 280px">
         <el-input v-model="form.name"></el-input>
       </el-form-item>
@@ -65,6 +74,7 @@
   export default {
     created(){
       this.requestData();
+      this._getappkeyAndSecret();
     },
     methods: {
       handleAvatarSuccess(res, file) {
@@ -156,9 +166,34 @@
 
         // console.log(params);
       },
+
+      _getappkeyAndSecret() {
+        let self = this;
+
+        self.$request.siteInfo.getAppkeyAndSecret().then((res)=>{
+          if(res && res.data && res.data.code && res.data.code == 1) {
+               if (res.data.data.count>0) {
+                console.log('===============')
+                  let user = res.data.data.data[0];
+                   console.log(user)
+                  this.appsecret = user.appsecret;
+               }
+
+           } else {
+            self.$message(res.data.msg);
+          }
+
+        }).catch(function(error){
+          self.$message('请求异常');
+          console.log('---产品列表-error--' + JSON.stringify(error));
+        });
+
+          // console.log(params);
+        },
     },
     data() {
       return {
+        appsecret:'',
         imgdata:{token:this.$token.getToken()}, 
         radio3:'关闭',
         radio4:'关闭',
