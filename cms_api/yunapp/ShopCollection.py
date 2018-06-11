@@ -9,7 +9,7 @@ from datetime import datetime
 import time
 
 '''
-获取收藏列表
+获取收藏/购物车列表
 {
     'pageSize': 10,
     'page':1
@@ -63,6 +63,7 @@ def get_products_collection():
                             if k == '_id':
                                 params[k] = ObjectId(filter[k])
                 fnuser = connection.Collection.find(params,{'del':0})
+                fdApp = connection.AppInfo.find_one({'appkey': appkey})
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
                     if user.userId:
@@ -81,6 +82,12 @@ def get_products_collection():
                             {'appkey': appkey, '_id': ObjectId(user.productId), 'del': 0})
                         if product:
                             product['_id'] = str(product['_id'])
+                            product['oimgs'] = []
+                            product['lstimgs'] = []  # 略缩图
+                            for i in range(0, len(product['imgs'])):
+                                product['oimgs'].append(fdApp.reserved_1 + '/upload/' +product['imgs'][i])
+                                product['lstimgs'].append(
+                                    fdApp.reserved_1 + '/upload/' + 'lsu/' + product['imgs'][i].split('/')[1])
                             user['product'] = product
                     user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
                     admins['data'].append(user)
@@ -97,7 +104,7 @@ def get_products_collection():
 
 
 '''
-添加收藏
+添加收藏/购物车
 {
     'userId':
     'productsId':''
@@ -121,6 +128,8 @@ def add_product_collection():
                 continue
             if key == 'userId':
                 user.userId = data['userId']
+            if key == 'type':
+                user.type = data['type']
             if key == 'productId':
                 user.productId = data['productId']
             if key == 'reserved_1':
@@ -172,7 +181,7 @@ def add_product_collection():
 
 
 '''
-post  更新用户信息
+post  更新收藏/购物车信息
 {
     '_id':'xxx'
     set:{

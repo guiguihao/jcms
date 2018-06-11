@@ -38,7 +38,7 @@ var RequestImg2 = {
           if(process.env.NODE_ENV === 'development') { //TEST
             url = siteInfo.reserved_1 + '/upload/saveImg.php';
           } else {
-            url = '/upload/saveImg.php';
+            url = siteInfo.reserved_1 + '/upload/saveImg.php';
           }
           let param = new FormData()  // 创建form对象
           // param.append('file', file, file.name)  // 通过append向form对象添加数据

@@ -2,7 +2,7 @@
 	<div>
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 	          <el-breadcrumb-item :to="{ path: '/admin' }">首页</el-breadcrumb-item>
-	          <el-breadcrumb-item>收藏管理</el-breadcrumb-item>
+	          <el-breadcrumb-item>购物车管理</el-breadcrumb-item>
 	    </el-breadcrumb>
 
 	    <div class ="mytable">
@@ -27,7 +27,7 @@
 	           </el-table-column>
 	           <el-table-column
 	             prop="user.name"
-	             label="收藏用户"
+	             label="用户"
 	             width="120">
 	           </el-table-column>
 	           <el-table-column
@@ -101,10 +101,10 @@
       requestData(data) {
         let self = this;
         if (data) {
-          data.type = 'collection'
+          data.type = 'shopcar'
         }else{
           data = {
-            type:'collection'
+            type:'shopcar'
           }
         }
         self.$request.collection.getCollections(self.currentPage,self.pagesize,data).then((res)=>{

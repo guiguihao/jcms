@@ -78,9 +78,9 @@
             requestGetToken() {
 				let self = this;
 				if(process.env.NODE_ENV === 'development') { //TEST
-					self.url = '/api/developer/appkey/get';
+					self.url = '/api/app/developer/appkey/get';
 				} else {
-					self.url = '/developer/appkey/get';
+					self.url = '/app/developer/appkey/get';
 				}
 				var params = {
 					name: self.ruleForm.username,
@@ -115,9 +115,9 @@
 			requestData() {
 				let self = this;
 				if(process.env.NODE_ENV === 'development') { //TEST
-					self.url = '/api/admin/login';
+					self.url = '/api/app/admin/login';
 				} else {
-					self.url = '/admin/login';
+					self.url = '/app/admin/login';
 				}
 				//myTest();
 				let myToken = self.$token.getToken();

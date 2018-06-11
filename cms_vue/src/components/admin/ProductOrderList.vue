@@ -56,7 +56,7 @@
                	             width="380">
                	               <template slot-scope="scope" >
                                  <div style=" display: flex;flex-direction: row ">
-                                     <img :src=scope.row.oimgs[0] width="50" height="50">
+                                     <img :src=scope.row.lstimgs[0] width="50" height="50">
                                      {{scope.row.title }}
                                  </div>
                                 </template>

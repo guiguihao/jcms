@@ -69,6 +69,7 @@ def get_ads():
                 user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
                 for imgs in user.imgs:
                      imgs['ourl'] = fdApp.reserved_1 + '/upload/' + imgs['url']
+                     imgs['lsturl'] = fdApp.reserved_1 + '/upload/' + 'lsu/' + imgs['url'].split('/')[1]
                 admins['data'].append(user)
             admins['count'] = fnuser.count()
             return MyResult(admins).toJson()

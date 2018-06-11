@@ -280,15 +280,16 @@ class Fenxiao(Document):
        required = ['appkey']
        use_dot_notation = True
 
-#收藏
+#收藏 #购物车
 @connection.register
 class Collection(Document):
    __collection__ = 'collection'
    __database__ = 'shop'
    structure = {
         'appkey': unicode,
+        'type': IS(u'collection', u'shopcar'),
         'userId':unicode,
-        'productId':unicode,           #收藏的产品Id
+        'productId':unicode,           #产品Id
         'date': OR(unicode, datetime.datetime),
         'reserved_1':unicode,    #预留字段1
         'reserved_2':unicode,    #预留字段1

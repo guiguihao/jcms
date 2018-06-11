@@ -22,7 +22,7 @@
 	             label="图片"
 	             width="160">
                  <template slot-scope="scope">
-                       <img :src='siteInfo.reserved_1 + "/upload/" + scope.row.url' width="100" height="100"  style="float: left; margin-right: 15px">
+                       <img :src='scope.row.lsturl' width="100" height="100"  style="float: left; margin-right: 15px">
                  </template>
 	           </el-table-column>
 	           <el-table-column

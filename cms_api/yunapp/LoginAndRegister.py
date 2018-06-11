@@ -135,7 +135,7 @@ def app_active(userid):
     { "_id" : ObjectId("5aa0e1ba4683e6051152f780"), "name" : "admin", "password" : "7fef6171469e80d32c0559f88b377245", "appkey" : "5aa0e1ba4683e6051152f780", "appsecret" : "jjjjddjjdjd", "del" : 0 }
 }
 '''
-@app.route('/admin/login',methods=['GET', 'POST'])
+@app.route('/app/admin/login',methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
         token = ''
@@ -205,7 +205,7 @@ def admin_login():
     { "_id" : ObjectId("5aa0e1ba4683e6051152f780"), "name" : "admin", "password" : "7fef6171469e80d32c0559f88b377245", "appkey" : "5aa0e1ba4683e6051152f780", "appsecret" : "jjjjddjjdjd", "del" : 0 }
 }
 '''
-@app.route('/admin/logout',methods=['GET', 'POST'])
+@app.route('/app/admin/logout',methods=['GET', 'POST'])
 def admin_logout():
     if request.method == 'POST':
         token = ''

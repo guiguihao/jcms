@@ -73,8 +73,11 @@ def get_orders():
                     user['_id'] = str(user['_id'])
                     for p in user.product:
                         p['oimgs'] = []
+                        p['lstimgs'] = []  # 略缩图
                         for i in range(0, len(p['imgs'])):
                             p['oimgs'].append(fdApp.reserved_1 + '/upload/' + p['imgs'][i])
+                            p['lstimgs'].append(
+                                fdApp.reserved_1 + '/upload/' + 'lsu/' + p['imgs'][i].split('/')[1])
                     user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
                     author1 = connection.APP_User.one({'appkey': appkey, '_id': ObjectId(user.user)}, {'del': 0,'password':0})
                     if author1:
@@ -153,8 +156,16 @@ def add_order():
                 for subkey in data['receiveinfo']:
                     if subkey == 'name':
                         user.receiveinfo.name = data['receiveinfo']['name']
+                    if subkey == 'mphone':
+                        user.receiveinfo.mphone = data['receiveinfo']['mphone']
                     if subkey == 'phone':
                         user.receiveinfo.phone = data['receiveinfo']['phone']
+                    if subkey == 'province':
+                        user.receiveinfo.province = data['receiveinfo']['province']
+                    if subkey == 'city':
+                        user.receiveinfo.city = data['receiveinfo']['city']
+                    if subkey == 'area':
+                        user.receiveinfo.area = data['receiveinfo']['area']
                     if subkey == 'address':
                         user.receiveinfo.address = data['receiveinfo']['address']
                     if subkey == 'code':
@@ -264,8 +275,16 @@ def app_order_update():
                                 continue
                             if subkey == 'name':
                                 user.receiveinfo['name'] = data['set']['receiveinfo']['name']
+                            if subkey == 'mphone':
+                                user.receiveinfo['mphone'] = data['set']['receiveinfo']['mphone']
                             if subkey == 'phone':
                                 user.receiveinfo['phone'] = data['set']['receiveinfo']['phone']
+                            if subkey == 'province':
+                                user.receiveinfo['province'] = data['set']['receiveinfo']['province']
+                            if subkey == 'city':
+                                user.receiveinfo['city'] = data['set']['receiveinfo']['city']
+                            if subkey == 'area':
+                                user.receiveinfo['area'] = data['set']['receiveinfo']['area']
                             if subkey == 'address':
                                 user.receiveinfo['address'] = data['set']['receiveinfo']['address']
                             if subkey == 'code':
@@ -320,7 +339,7 @@ def app_order_update():
                         user.reserved_4 = data['set']['reserved_4']
                     if key == 'del':
                         user['del'] = data['set']['del']
-                        user.save()
+                user.save()
                 user['_id'] = str(user['_id'])
                 user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
                 #交易完成 计算分销所得

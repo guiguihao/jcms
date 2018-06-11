@@ -36,6 +36,8 @@ def randomString(n):
 def ruleToken(token,issession):
         tokenParams = token.split('&&')
         user = connection.APP_admin.find_one({"appkey":tokenParams[0],"superadmin":1})
+        if not user:
+            return param.APP_TOKEN_ERROR
         if issession:
             useSession(tokenParams[0])
         if not user:

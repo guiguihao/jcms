@@ -1,5 +1,5 @@
 # configuration
-DOMAIN = 'http://127.0.0.1:5050'
+DOMAIN = 'admin.weiyunbuy.com'
 MONGODB_HOST = 'localhost'
 MONGODB_PORT = 27017
 

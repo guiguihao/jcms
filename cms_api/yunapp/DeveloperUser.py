@@ -16,7 +16,7 @@ from bson.objectid import ObjectId
   token:'md5(password+MD5_KEy)'  
 }
 '''
-@app.route('/developer/appkey/get',methods=['GET', 'POST'])
+@app.route('/app/developer/appkey/get',methods=['GET', 'POST'])
 def appkey_get():
     if request.method == 'POST':
         data = request.get_json()
@@ -69,7 +69,7 @@ userid+MD5_KEy 校验
   token:'md5(password+MD5_KEy)'  
 }
 '''
-@app.route('/developer/user/add',methods=['GET', 'POST'])
+@app.route('/app/developer/user/add',methods=['GET', 'POST'])
 def developer_add():
     if request.method == 'POST':
         data = request.get_json()
@@ -127,7 +127,7 @@ def developer_add():
     'token:'md5(password+MD5_KEy)'
 }
 '''
-@app.route('/developer/user/login',methods=['GET', 'POST'])
+@app.route('/app/developer/user/login',methods=['GET', 'POST'])
 def developer_login():
     if request.method == 'POST':
         data = request.get_json()
@@ -179,7 +179,7 @@ post
     'token:'md5(_id+MD5_KEy)'
 }
 '''
-@app.route('/developer/user/update',methods=['GET', 'POST'])
+@app.route('/app/developer/user/update',methods=['GET', 'POST'])
 def developer_user_update():
     if request.method == 'POST':
         data = request.get_json()

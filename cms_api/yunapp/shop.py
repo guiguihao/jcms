@@ -95,8 +95,10 @@ def get_products():
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
                     user['oimgs'] = []
+                    user['lstimgs'] = [] #略缩图
                     for i in range(0,len(user.imgs)):
                         user['oimgs'].append(fdApp.reserved_1 + '/upload/' + user.imgs[i])
+                        user['lstimgs'].append(fdApp.reserved_1 +  '/upload/' + 'lsu/' +  user.imgs[i].split('/')[1])
                     user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
                     type = connection.Type.one({'appkey': appkey, '_id': ObjectId(user['type'])}, {'del': 0})
                     if type:

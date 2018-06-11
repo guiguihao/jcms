@@ -32,7 +32,7 @@
                    >
                    <template slot-scope="scope">
                         <span v-for = "itm in scope.row.imgs">
-                           <img :src='siteInfo.reserved_1 + "/upload/" + itm.url' width="50" height="50"  style="float: left; margin-right: 15px">
+                           <img :src='itm.lsturl' width="50" height="50"  style="float: left; margin-right: 15px">
                         </span>
                    </template>
               </el-table-column>

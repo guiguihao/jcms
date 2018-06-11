@@ -39,3 +39,4 @@ from yunapp import ImgManage2
 from yunapp import Ads
 from yunapp import sendCode
 from yunapp import ShopCollection
+from yunapp import kuaidi

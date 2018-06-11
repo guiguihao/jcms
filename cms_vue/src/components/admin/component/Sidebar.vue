@@ -55,6 +55,9 @@
 							index: '/admin/Product/ProductCollection',
 							title: '收藏列表',
 						},{
+							index: '/admin/Product/ProductCar',
+							title: '购物车',
+						},{
 							index: '/admin/Product/ReceiveInfo',
 							title: '收货地址',
 						},{

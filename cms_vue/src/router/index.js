@@ -99,6 +99,14 @@ const router = new Router({
                     },
                        component: resolve => require(['../components/admin/ProductCollection.vue'], resolve),
                 },{
+                    path: '/admin/Product/ProductCar',
+                    name:'ProductCar',
+                    meta: {
+                         title: '购物车',
+                         requireAuth: true
+                    },
+                       component: resolve => require(['../components/admin/ProductCar.vue'], resolve),
+                },{
                     path: '/admin/Product/ReceiveInfo',
                     name:'ReceiveInfo',
                     meta: {

@@ -462,14 +462,14 @@
                 self.ruleForm.type = self.ruleForm.type._id;
                 
               }
-              if(self.ruleForm.imgs){
+              if(self.ruleForm.lstimgs){
 
                 setTimeout(function(){
-                    self.imageUrl1 =self.siteInfo.reserved_1 +'/upload/'+ self.ruleForm.imgs[0];
-                    self.imageUrl2 = self.siteInfo.reserved_1 +'/upload/'+ self.ruleForm.imgs[1];
-                    self.imageUrl3 = self.siteInfo.reserved_1 +'/upload/'+ self.ruleForm.imgs[2];
-                    self.imageUrl4 = self.siteInfo.reserved_1 +'/upload/'+ self.ruleForm.imgs[3];
-                    self.imageUrl5 = self.siteInfo.reserved_1 +'/upload/'+ self.ruleForm.imgs[4];
+                    self.imageUrl1 =self.ruleForm.lstimgs[0];
+                    self.imageUrl2 =self.ruleForm.lstimgs[1];
+                    self.imageUrl3 =self.ruleForm.lstimgs[2];
+                    self.imageUrl4 =self.ruleForm.lstimgs[3];
+                    self.imageUrl5 =self.ruleForm.lstimgs[4];
                 },1000);
                   
               }

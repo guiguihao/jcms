@@ -1,12 +1,8 @@
 <template>
 	<div class="header">
-		<div class="user-info" style="border-radius: 0;float: left;padding-right: 0px;padding-left: 40px;">
-				<img class="el-dropdown-link" :src="app.domian + '/upload/' + app.logo" style="width: 178px;height: 68px; text-align: left;padding-left: 0px;">
-				</div>
-
+	
 		<div class="logo" style=" width: 60%;text-align: left;">
-			<!--<img class="user-logo" src="../../../static/img/logo2.jpg" style="width: 18px;height: 18px; ">-->
-			<font style="margin-left: 10px;">{{app.name}}后台管理系统</font>
+			<font style="margin-left: 20px;">{{app.name}}后台管理系统</font>
 				
 		</div>
 		
@@ -61,9 +57,9 @@
 			requestData() {
 				let self = this;
 				if(process.env.NODE_ENV === 'development') { //TEST
-					self.url = '/api/admin/logout';
+					self.url = '/api/app/admin/logout';
 				} else {
-					self.url = '/admin/logout';
+					self.url = '/app/admin/logout';
 				}
 
 				var params = {
