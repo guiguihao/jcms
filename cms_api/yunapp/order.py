@@ -79,6 +79,12 @@ def get_orders():
                             p['lstimgs'].append(
                                 fdApp.reserved_1 + '/upload/' + 'lsu/' + p['imgs'][i].split('/')[1])
                     user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                    if user['refund'] and user['refund']['status']>0 and user['refund']['date']:
+                        user['refund']['date'] = user['refund']['date'].strftime('%Y-%m-%d %H:%M:%S')
+                        for remake in user['refund']['remake']:
+                            for k in remake:
+                                if k == 'date':
+                                    remake['date'] = remake['date'].strftime('%Y-%m-%d %H:%M:%S')
                     author1 = connection.APP_User.one({'appkey': appkey, '_id': ObjectId(user.user)}, {'del': 0,'password':0})
                     if author1:
                         author1['_id'] = str(author1['_id'])
@@ -308,14 +314,17 @@ def app_order_update():
                             if data['set']['refund'][subkey] == '' and data['set']['refund'][subkey] == None:
                                 continue
                             if subkey == 'status':
-                                if (user.status == 0 and user.status == 4 and data['set']['refund']['status']==1):
+                                if ((user.status == 0 or user.status == 4) and data['set']['refund']['status']==1):
                                      return MyException(param.ORDER_REFUND_PRICE_ERROR).toJson()
                                 if user.refund['status'] == 4:
                                     return MyException(param.ORDER_REFUND_STATUS_DONE_ERROR).toJson()
                                 if user.refund['status'] == 4 and data['set']['refund']['status'] == 5:
                                     return MyException(param.ORDER_REFUND_STATUS_ERROR1).toJson()
                                 user.refund['status'] = data['set']['refund']['status']
+                                if data['set']['refund']['status']==1:
+                                    user.refund['date'] = datetime.now()
                             if subkey == 'remake':
+                                data['set']['refund']['remake']['date'] = datetime.now()
                                 user.refund['remake'].append(data['set']['refund']['remake'])
                             if subkey == 'price':
                                 if data['set']['refund']['price'] > user.price :

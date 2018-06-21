@@ -129,6 +129,7 @@ class Order(Document):
             'remake':[{   #卖退款备注
                 'user':unicode,
                 'msg':unicode,
+                'date': OR(unicode, datetime.datetime),
             }],
             'price': OR(float, int), #退款金额
             'products': list,  # 退款产品
@@ -136,6 +137,7 @@ class Order(Document):
                 'name':unicode,    #快递名称
                 'code': unicode,  # 快递单号
             },
+            'date': OR(unicode, datetime.datetime),
         },
         'express':{        #物流信息
             'name': unicode,  # 快递名称
@@ -287,7 +289,7 @@ class Collection(Document):
    __database__ = 'shop'
    structure = {
         'appkey': unicode,
-        'type': IS(u'collection', u'shopcar'),
+        'type': IS(u'collection', u'shopcard'),
         'userId':unicode,
         'productId':unicode,           #产品Id
         'date': OR(unicode, datetime.datetime),

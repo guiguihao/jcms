@@ -101,10 +101,10 @@
       requestData(data) {
         let self = this;
         if (data) {
-          data.type = 'shopcar'
+          data.type = 'shopcard'
         }else{
           data = {
-            type:'shopcar'
+            type:'shopcard'
           }
         }
         self.$request.collection.getCollections(self.currentPage,self.pagesize,data).then((res)=>{

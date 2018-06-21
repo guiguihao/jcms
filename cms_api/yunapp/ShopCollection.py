@@ -62,7 +62,7 @@ def get_products_collection():
                             params[k] = filter[k]
                             if k == '_id':
                                 params[k] = ObjectId(filter[k])
-                fnuser = connection.Collection.find(params,{'del':0})
+                fnuser = connection.Collection.find(params,{'del':0}).sort([('_id', -1)])
                 fdApp = connection.AppInfo.find_one({'appkey': appkey})
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
@@ -161,7 +161,7 @@ def add_product_collection():
                             return MyException(param.APP_USER_NULL).toJson()
                     if user.productId:
                         c = connection.Collection.find_one(
-                            {'appkey': appkey, 'productId': user.productId, 'del': 0})
+                            {'appkey': appkey, 'productId': user.productId,'type': user.type, 'del': 0})
                         if c:
                             return MySucceedResult().toJson()
                 except Exception, e:

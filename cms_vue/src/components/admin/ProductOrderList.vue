@@ -238,6 +238,9 @@
        <!-- 退款信息 -->
       <el-dialog title="退款信息" :visible.sync="dialogFormVisible4">
         <el-form :model="refundInfoform"  label-width="80px">
+             <el-form-item label="退款时间:">
+                  <el-button type="text"  >{{refundInfoform.date}}</el-button>
+             </el-form-item>
              <el-form-item label="退款状态:">
                   <el-button type="text"  v-if="refundInfoform.status === 1" >退款申请中</el-button>
                   <el-button type="text"  v-if="refundInfoform.status === 2" >已同意退款</el-button>
@@ -245,9 +248,9 @@
                   <el-button type="text"  v-if="refundInfoform.status === 4" >完成退款</el-button>
              </el-form-item>
              <el-form-item label="退款操作:">
-                  <el-button plain  type="danger" v-if="refundInfoform.status === 1 || refundInfoform.status === 2 || refundInfoform.status === 3"   @click="updateOrder('OrderApprove')">同意退款</el-button>
-                  <el-button plain  type="danger" v-if="refundInfoform.status === 1 || refundInfoform.status === 2 || refundInfoform.status === 3"   @click="updateOrder('OrderDisapprove')">拒绝退款</el-button>
-                   <el-button plain  type="danger" v-if="refundInfoform.status === 2"  @click="updateOrder('OrderDidapprove')">完成退款</el-button>
+                  <el-button plain  type="danger" v-if="refundInfoform.status === 1 || refundInfoform.status === 2 || refundInfoform.status === 3"   @click="updateOrder('OrderApprove')" :style="selClass1">同意退款</el-button>
+                  <el-button plain  type="danger" v-if="refundInfoform.status === 1 || refundInfoform.status === 2 || refundInfoform.status === 3"   @click="updateOrder('OrderDisapprove')" :style="selClass2">拒绝退款</el-button>
+                   <el-button plain  type="danger" v-if="refundInfoform.status === 2"  @click="updateOrder('OrderDidapprove')" :style="selClass3">完成退款</el-button>
              </el-form-item>
             <el-form-item label="退款产品" >
               <el-table
@@ -392,21 +395,26 @@
               params.status = 3;
        	  }
        	   if (data === 'OrderApprove') {
-       	   	  this.refundInfoform.status = 2;
-       	   	  params._id=this.refundInfoform._id,
-              params.refund = this.refundInfoform;
+       	   	  this.cprefundstatus = 2;
+              this.selClass1 = "background: red;color: #FFF;";
+              this.selClass2 = "";
+              this.selClass3 = "";
+              return;
        	  }
        	  if (data === 'OrderDisapprove') {
-       	  	 this.refundInfoform.status = 3;
-       	  	 params._id=this.refundInfoform._id,
-              params.refund = this.refundInfoform;
+       	  	 this.cprefundstatus = 3;
+              this.selClass1 = "";
+              this.selClass2 = "background: red;color: #FFF;";
+              this.selClass3 = "";
+             return;
               
        	  }
          if (data === 'OrderDidapprove') {
-       	  	 this.refundInfoform.status = 4;
-       	  	 params._id=this.refundInfoform._id,
-              params.refund = this.refundInfoform;
-              
+       	  	 this.cprefundstatus = 4;
+             this.selClass1 = "";
+              this.selClass2 = "";
+              this.selClass3 = "background: red;color: #FFF;";
+             return; 
        	  }
 
        	  this.updataUser(params);
@@ -452,11 +460,9 @@
        		            params.refund[k] = this.refundInfoform[k];
        			 	}
        		   }
-       		    let userData = localStorage.getItem('userData');
-				let user = JSON.parse(userData);
-				let name = user.name;
+              params.refund.status = this.cprefundstatus;
        		    params.refund.remake.msg = this.refundInfoform.nextremake,
-       		    params.refund.remake.user = name,
+       		    params.refund.remake.user = 'kefu',
        		    this.updataUser(params);
        },
       getSummaries(param) {
@@ -581,6 +587,9 @@
     },
     data() {
       return {
+        selClass1:'',
+        selClass2:'',
+        selClass3:'',
       	refundInfoform:{
            express:{
            	name:'',
@@ -595,6 +604,7 @@
       	dialogFormVisible4:false,
         status:-1,
         refundstatus:-1,
+        cprefundstatus:-1, //备份退款状态
         orderCode:'',
         username:'',
         userphone:'',
@@ -645,5 +655,9 @@
 
   .el-table .success-row {
     background: #f0f9eb;
+  }
+  .selbtn{
+    background: red;
+    color: #000;
   }
 </style>

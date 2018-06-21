@@ -38,10 +38,6 @@ def ruleToken(token,issession):
         user = connection.APP_admin.find_one({"appkey":tokenParams[0],"superadmin":1})
         if not user:
             return param.APP_TOKEN_ERROR
-        if issession:
-            useSession(tokenParams[0])
-        if not user:
-            return param.APP_TOKEN_ERROR
         timeStamp = time.time()
         tktime = float(tokenParams[1])
         tkmd5 = tokenParams[2]

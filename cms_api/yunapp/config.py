@@ -1,6 +1,7 @@
 # configuration
 DOMAIN = 'admin.weiyunbuy.com'
-MONGODB_HOST = 'localhost'
+# MONGODB_HOST = 'localhost'
+MONGODB_HOST = '47.95.115.32'
 MONGODB_PORT = 27017
 
 MD5_KEY = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RsdT'
