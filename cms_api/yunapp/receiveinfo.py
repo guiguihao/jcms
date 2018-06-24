@@ -138,7 +138,7 @@ def add_receive():
                 return MyException(resultTooken).toJson()
             else:
                 appkey = token.split('&&')[0]
-        if user.userid and user.phone:
+        if user.userid and user.mphone:
             try:
                 user.appkey = appkey
                 user.save()

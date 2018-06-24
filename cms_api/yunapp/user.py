@@ -316,19 +316,29 @@ def user_login():
             else:
                 appkey = token.split('&&')[0]
         # print user
-        if 'uasename' in session:
-            myuser = connection.APP_User.find_one({'appkey': appkey, 'name': session['username'], 'del': 0},
-                                                  {'userTypes': 0, 'appsecret': 0, 'del': 0, })
-            if myuser:
-                myuser['_id'] = str(myuser['_id'])
-                myuser.pop('password')
-                myuser.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
-                vip = connection.Type.one({'appkey': appkey, '_id': ObjectId(myuser['vip'])}, {'del': 0})
-                if vip:
-                    vip['_id'] = str(vip['_id'])
-                    user.vip = vip
-                    vip.date = vip.date.strftime('%Y-%m-%d %H:%M:%S')
-                return MyResult(myuser).toJson()
+        if session:
+            for se in  session:
+                myuser = ''
+                if se == 'name':
+                    myuser = connection.APP_User.find_one({'appkey': appkey, 'name': session['name'], 'del': 0},
+                                                          {'del': 0})
+                if  se == 'phone':
+                    myuser = connection.APP_User.find_one({'appkey': appkey, 'phone': session['phone'], 'del': 0},
+                                                          {'del': 0})
+                if  se == 'email':
+                    myuser = connection.APP_User.find_one({'appkey': appkey, 'email': session['email'], 'del': 0},
+                                                          {'del': 0})
+                if myuser:
+                    myuser['_id'] = str(myuser['_id'])
+                    myuser.pop('password')
+                    myuser.date = myuser.date.strftime('%Y-%m-%d %H:%M:%S')
+                    vip = connection.Type.one({'appkey': appkey, '_id': ObjectId(myuser['vip'])}, {'del': 0})
+                    if vip:
+                        vip['_id'] = str(vip['_id'])
+                        user.vip = vip
+                        vip.date = vip.date.strftime('%Y-%m-%d %H:%M:%S')
+                    return MyResult(myuser).toJson()
+
         if ((user.name or user.email) and user.password) or  user.phone or user.wachat or user.qq:
             myuser = ''
             if user.name:
@@ -347,13 +357,18 @@ def user_login():
             if (myuser and myuser['password'] == user['password']) or  (user.phone and myuser != '' and myuser):
                 myuser['_id'] = str(myuser['_id'])
                 myuser.pop('password')
-                myuser.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                myuser.date = myuser.date.strftime('%Y-%m-%d %H:%M:%S')
                 vip = connection.Type.one({'appkey': appkey, '_id': ObjectId(myuser['vip'])}, {'del': 0})
                 if vip:
                     vip['_id'] = str(vip['_id'])
                     user.vip = vip
                     vip.date = vip.date.strftime('%Y-%m-%d %H:%M:%S')
-                session['uasename'] = myuser.name
+                if user.name:
+                    session['name'] = myuser.name
+                if user.phone:
+                    session['phone'] = myuser.phone
+                if user.email:
+                    session['email'] = myuser.email
                 return  MyResult(myuser).toJson()
             else:
                 return  MyException(param.LONGIN_FAILURE).toJson()
@@ -389,7 +404,9 @@ def user_logout():
             else:
                 appkey = token.split('&&')[0]
         # print user
-        session.pop('uasename', None)
+        session.pop('name', None)
+        session.pop('phone', None)
+        session.pop('email', None)
         return MySucceedResult().toJson()
     if request.method == 'GET':
         return param.PLEASE_USE_POST

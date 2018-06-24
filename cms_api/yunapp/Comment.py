@@ -79,7 +79,7 @@ def get_comments():
                 author1 = connection.APP_User.one({'appkey': appkey, '_id':ObjectId(user['userId'])}, {'del': 0})
                 if author1:
                     author1['_id'] = str(author1['_id'])
-                    user['user'] = author
+                    user['user'] = author1
                 admins['data'].append(user)
             admins['count'] = fnuser.count()
             return MyResult(admins).toJson()

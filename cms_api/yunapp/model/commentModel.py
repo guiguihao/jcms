@@ -39,7 +39,7 @@ class Comment(Document):
         'reserved_4': unicode,  # 预留字段1
         'del': int, #0 存在 1删除
     }
-   required = ['oid','level','content','appkey','userId']
+   required = ['oid','type','content','appkey','userId']
    validators = {
         'oid': max_length(100),
         'content': max_length(1000),
