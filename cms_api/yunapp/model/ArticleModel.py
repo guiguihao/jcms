@@ -32,6 +32,9 @@ class Article(Document):
         'reserved_2':unicode,    #预留字段1
         'reserved_3':unicode,    #预留字段1
         'reserved_4':unicode,    #预留字段1
+        'reserved_5': unicode,  # 预留字段1
+        'reserved_6': unicode,  # 预留字段1
+        'reserved_7': unicode,  # 预留字段1
         'del':int, #0 存在 1删除
     }
    validators = {

@@ -145,11 +145,17 @@ def add_article():
             if key == 'reserved_1':
                 user.reserved_1 = data['reserved_1']
             if key == 'reserved_2':
-                user.reserved_1 = data['reserved_2']
+                user.reserved_2 = data['reserved_2']
             if key == 'reserved_3':
-                user.reserved_1 = data['reserved_3']
+                user.reserved_3 = data['reserved_3']
             if key == 'reserved_4':
-                user.reserved_1 = data['reserved_4']
+                user.reserved_4 = data['reserved_4']
+            if key == 'reserved_5':
+                user.reserved_5 = data['reserved_5']
+            if key == 'reserved_6':
+                user.reserved_6 = data['reserved_6']
+            if key == 'reserved_7':
+                user.reserved_7 = data['reserved_7']
 
         if token == '' or not token:
             return MyException(param.APP_TOKEN_NULL).toJson()
@@ -162,9 +168,6 @@ def add_article():
         if user.title and user.type:
             try:
                 try:
-                    fnuser = connection.Article.find_one({'appkey': appkey, 'title': user.title, 'del': 0})
-                    if fnuser:
-                        if fnuser.title: return MyException(param.ARTICLE_RE_TITLE_FAILURE).toJson()
                     if user.author:
                        fnuser1 = connection.APP_admin.find_one({'appkey': appkey, '_id': ObjectId(user.author), 'del': 0})
                        fnuser2 = connection.APP_User.find_one({'appkey': appkey, '_id': ObjectId(user.author), 'del': 0})
@@ -254,6 +257,12 @@ def app_article_update():
                         user.reserved_3 = data['set']['reserved_3']
                     if key == 'reserved_4':
                         user.reserved_4 = data['set']['reserved_4']
+                    if key == 'reserved_5':
+                        user.reserved_5 = data['set']['reserved_5']
+                    if key == 'reserved_6':
+                        user.reserved_6 = data['set']['reserved_6']
+                    if key == 'reserved_7':
+                        user.reserved_7 = data['set']['reserved_7']
                     if key == 'del':
                         user['del'] = data['set']['del']
                 user.save()
