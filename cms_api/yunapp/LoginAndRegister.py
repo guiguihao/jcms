@@ -6,6 +6,7 @@ from yunapp.model.userModel import *
 from yunapp.result import *
 from yunapp import param
 from bson.objectid import ObjectId
+import random
 
 
 
@@ -329,3 +330,54 @@ def sendmial_activate():
        
     if request.method == 'GET':
         return param.PLEASE_USE_POST
+
+    '''
+    发送邮件激活验证码
+    {
+        toemail:''
+        'token':'md5(timestamp&&appsecret)'
+    }
+    '''
+
+@app.route('/app/sendmial/code', methods=['GET', 'POST'])
+def sendmial_code():
+        if request.method == 'POST':
+            # appkey = ''
+            # token = ''
+            # try:
+            #     token = request.headers[config.AUTHORIZATION]
+            # except:
+            #     return MyException(param.APP_TOKEN_NULL).toJson()
+            data = request.get_json()
+            email = ''
+            for key in data:
+                if data[key] == '':
+                    continue
+                if key == 'email':
+                    email = data['email']
+            # if token == '' or not token:
+            #     return MyException(param.APP_TOKEN_NULL).toJson()
+            # else:
+            #     resultTooken = tool.ruleToken(token, True)
+            #     if resultTooken[0] != 1:
+            #         return MyException(resultTooken).toJson()
+            #     else:
+            #         appkey = token.split('&&')[0]
+            if email and email != '':
+                try:
+                    code = str(random.randint(1000, 9999))
+                    # fnuser = connection.APP_admin.find_one({'email': toemail, 'del': 0})
+                    content = "验证码 " + code
+                    result = sms.sendfuc('来自ROOTOPEN.COM的激活邮件', content, 'obghpj@163.com', 'jlmv38599', email)
+                    if result == 1:
+                        return MyResult({'code': int(code) << 10}).toJson()
+                    else:
+                        return MyException(param.CODE_ERROR).toJson()
+                except Exception as e:
+                    # print  e
+                    return MyException([param.CHECK_FAILURE[0], unicode(e)]).toJson()
+            else:
+                return MyException(param.CODE_EMAIL_NULL).toJson()
+
+        if request.method == 'GET':
+            return param.PLEASE_USE_POST

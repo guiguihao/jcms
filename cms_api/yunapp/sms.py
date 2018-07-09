@@ -17,7 +17,7 @@ def sendfuc(subject,content,msg_from,passwd,msg_to):
 	msg['Subject'] = subject
 	# msg['From'] = msg_from
 	msg['To'] = msg_to
-	msg['From'] = Header("云API", 'utf-8')
+	msg['From'] = Header("ROOTOPEN.COM", 'utf-8')
 	try:
 	    s = smtplib.SMTP_SSL("smtp.163.com",994)               #邮件服务器及端口号
 	    s.login(msg_from, passwd)
@@ -34,8 +34,6 @@ def sendfuc(subject,content,msg_from,passwd,msg_to):
 
 
 # sendfuc("多福多寿biaoti",'ceshi来说地方',"dtadhm@163.com",'he088063','jiangguishun@126.com')
-
-
 
 
 
