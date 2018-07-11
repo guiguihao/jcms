@@ -41,7 +41,7 @@ def ruleToken(token,issession):
         timeStamp = time.time()
         tktime = float(tokenParams[1])
         tkmd5 = tokenParams[2]
-        if timeStamp-tktime <= 9000000 and timeStamp-tktime >= -9000000:
+        if timeStamp-tktime <= 30 and timeStamp-tktime >= -30:
             if tkmd5 == md5(user.appsecret+'&&'+tokenParams[1]):
                 return param.SUCCEED
             else:
@@ -56,7 +56,7 @@ def ruleToken2(token,pw,md5key):
         tkmd5 = tokenParams[1]
         print token,pw,md5key
         print tkmd5
-        if timeStamp-tktime <= 900000 and timeStamp-tktime >= -900000:
+        if timeStamp-tktime <= 30 and timeStamp-tktime >= -30:
             if tkmd5 == md5(pw + '&&' + md5key + tokenParams[0]):
                 return param.SUCCEED
             else:

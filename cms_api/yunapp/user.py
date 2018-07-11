@@ -153,7 +153,7 @@ def add_user():
                         if fnuser.name: return MyException(param.USER_NAME_FAILURE).toJson()
                     
                     feuser = connection.APP_User.find_one({'appkey':appkey,'email':user.email,'del':0})
-                    if feuser: 
+                    if feuser:
                         if feuser.email: return MyException(param.USER_EMAIL_FAILURE).toJson()
 
                     fpuser = connection.APP_User.find_one({'appkey':appkey,'phone':user.phone,'del':0})
@@ -165,8 +165,6 @@ def add_user():
                 vips = connection.Type.find({'appkey': appkey,'type':'user'}).sort([('level',1)])
                 if vips.count()>0:
                      user.vip = unicode(vips[0]['_id'])
-                if user.password:
-                    user.password = unicode(tool.md5(user.password))
                 user.appkey = appkey
                 user.date = datetime.now()
                 if not user.name:
