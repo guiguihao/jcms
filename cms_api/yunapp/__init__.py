@@ -40,3 +40,5 @@ from yunapp import Ads
 from yunapp import sendCode
 from yunapp import ShopCollection
 from yunapp import kuaidi
+from yunapp import ipApi
+from yunapp import wanneng

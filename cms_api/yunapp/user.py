@@ -352,7 +352,7 @@ def user_login():
 
             if myuser == None:
                 return MyException(param.APP_USER_NULL).toJson()
-            if (myuser and myuser['password'] == user['password']) or  (user.phone and myuser != '' and myuser):
+            if (myuser and myuser['password'].lower() == user['password'].lower()) or  (user.phone and myuser != '' and myuser):
                 myuser['_id'] = str(myuser['_id'])
                 myuser.pop('password')
                 myuser.date = myuser.date.strftime('%Y-%m-%d %H:%M:%S')

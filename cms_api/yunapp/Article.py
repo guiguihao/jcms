@@ -66,7 +66,10 @@ def get_articles():
                     [('_id', -1)])
                 for user in fnuser:
                     user['_id'] = str(user['_id'])
-                    user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                    try:
+                       user.date = user.date.strftime('%Y-%m-%d %H:%M:%S')
+                    except Exception as e:
+                        pass
                     type = connection.Type.one({'appkey': appkey, '_id': ObjectId(user['type'])}, {'del': 0})
                     if type:
                         type['_id'] = str(type['_id'])
@@ -89,6 +92,8 @@ def get_articles():
                         user.author = author1
                     admins['data'].append(user)
                 admins['count'] = fnuser.count()
+                xxx = jsonify(admins['data'][0])
+
                 return MyResult(admins).toJson()
             except Exception as e:
                 print e
@@ -246,7 +251,7 @@ def app_article_update():
                     if key == 'content':
                         user.content = data['set']['content']
                     if key == 'htmlcontent':
-                        user.content = data['set']['htmlcontent']
+                        user.htmlcontent = data['set']['htmlcontent']
                     if key == 'status':
                         user.status = data['set']['status']
                     if key == 'reserved_1':

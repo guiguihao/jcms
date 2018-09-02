@@ -39,7 +39,7 @@ module.exports = {
             '/api':{
 //              target:'http://jsonplaceholder.typicode.com',
 //                target: 'http://192.168.2.56:9000',
-//               target: 'http://test.crodigy-user.com:9000',
+                // target: 'http://api.rootopen.com',
                 target: 'http://127.0.0.1:5000',
                 changeOrigin:true,
                 pathRewrite:{

@@ -54,3 +54,55 @@ class Article(Document):
     }
    use_dot_notation = True
 
+#万能快
+@connection.register
+class WanNeng(Document):
+    __collection__ = 'wanneng'
+    __database__ = 'wanneng'
+    structure = {
+        'appkey': unicode,
+        'w1': unicode,
+        'w2': unicode,
+        'w3': unicode,
+        'w4': unicode,
+        'w5': unicode,
+        'w6': unicode,
+        'w7': unicode,
+        'w8': unicode,
+        'w9': unicode,
+        'w10': unicode,
+        'w11': unicode,
+        'w12': unicode,
+        'w13': unicode,
+        'w14': unicode,
+        'w15': unicode,
+        'w16': unicode,
+        'w17': unicode,
+        'date': OR(unicode, datetime.datetime),
+        'del': int,  # 0 存在 1删除
+    }
+    validators = {
+        'w1': max_length(500),
+        'w2': max_length(500),
+        'w3': max_length(500),
+        'w4': max_length(500),
+        'w5': max_length(500),
+        'w6': max_length(500),
+        'w7': max_length(500),
+        'w8': max_length(500),
+        'w9': max_length(500),
+        'w10': max_length(500),
+        'w11': max_length(500),
+        'w12': max_length(500),
+        'w13': max_length(500),
+        'w14': max_length(500),
+        'w15': max_length(500),
+        'w16': max_length(500),
+        'w17': max_length(500),
+    }
+    default_values = {
+        'del': 0,
+        'date': datetime.datetime.now(),
+    }
+    use_dot_notation = True
+
